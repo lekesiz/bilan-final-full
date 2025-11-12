@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Package } from '../types';
 
 interface PackageSelectorProps {
@@ -15,12 +16,13 @@ const CheckIcon = () => (
 
 
 const PackageSelector: React.FC<PackageSelectorProps> = ({ packages, onSelect, isLoading = false }) => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-slate-50 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-primary-800 mb-3">Choisissez Votre Parcours</h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">Sélectionnez le forfait d'évaluation qui correspond le mieux à vos objectifs de carrière.</p>
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-primary-800 mb-3">{t('package.title')}</h1>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">{t('package.subtitle')}</p>
         </header>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {packages.map((pkg) => (
@@ -29,7 +31,7 @@ const PackageSelector: React.FC<PackageSelectorProps> = ({ packages, onSelect, i
               <p className="text-slate-500 mt-2 mb-6 flex-grow">{pkg.description}</p>
               
               <div className="mb-8">
-                <p className="text-4xl font-bold text-slate-800">{pkg.totalHours} <span className="text-xl font-medium text-slate-500">heures</span></p>
+                <p className="text-4xl font-bold text-slate-800">{pkg.totalHours} <span className="text-xl font-medium text-slate-500">{t('package.hours')}</span></p>
               </div>
 
               <ul className="space-y-3 mb-8">
@@ -57,10 +59,10 @@ const PackageSelector: React.FC<PackageSelectorProps> = ({ packages, onSelect, i
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Création en cours...
+                    {t('package.creating')}
                   </span>
                 ) : (
-                  'Sélectionner ce Forfait'
+                  t('package.select')
                 )}
               </button>
             </div>

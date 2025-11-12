@@ -30,6 +30,7 @@
     "drizzle-orm": "^0.29.3",
     "hono": "^4.0.2",
     "postgres": "^3.4.3",
+    "resend": "^6.4.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {

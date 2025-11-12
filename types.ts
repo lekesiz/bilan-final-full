@@ -20,6 +20,7 @@ export interface Question {
 export interface Answer {
   questionId: string;
   value: string;
+  id?: string; // Backend'den gelen answer'ların id'si (optional, yeni cevaplarda yok)
 }
 
 export interface Phase {

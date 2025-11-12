@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Package, Answer, Question, QuestionType, Message, CurrentPhaseInfo, Summary, UserProfile, DashboardData, CoachingStyle } from '../types';
 import { generateQuestion, generateSummary, generateSynthesis, analyzeThemesAndSkills, suggestOptionalModule } from '../services/aiService';
 import { QUESTION_CATEGORIES } from '../constants';
@@ -71,6 +72,66 @@ const ModuleModal: React.FC<{ reason: string; onAccept: () => void; onDecline: (
     </div>
 );
 
+const EditAnswerModal: React.FC<{ 
+    isOpen: boolean; 
+    currentValue: string; 
+    onSave: (newValue: string) => void; 
+    onCancel: () => void;
+    questionTitle?: string;
+}> = ({ isOpen, currentValue, onSave, onCancel, questionTitle }) => {
+    const [editedValue, setEditedValue] = useState(currentValue);
+    
+    useEffect(() => {
+        if (isOpen) {
+            setEditedValue(currentValue);
+        }
+    }, [isOpen, currentValue]);
+    
+    if (!isOpen) return null;
+    
+    const handleSave = () => {
+        if (editedValue.trim()) {
+            onSave(editedValue.trim());
+        }
+    };
+    
+    return (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 max-w-2xl w-full">
+                <h2 className="text-2xl font-bold font-display text-primary-800 dark:text-primary-200 mb-2">
+                    {t('questionnaire.editAnswer')}
+                </h2>
+                {questionTitle && (
+                    <p className="text-slate-600 dark:text-slate-400 mb-4 text-sm italic">"{questionTitle}"</p>
+                )}
+                <textarea 
+                    value={editedValue} 
+                    onChange={e => setEditedValue(e.target.value)} 
+                    placeholder={t('questionnaire.editAnswer') + '...'} 
+                    rows={6}
+                    className="w-full p-4 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 mb-4"
+                    autoFocus
+                />
+                <div className="flex gap-4">
+                    <button 
+                        onClick={handleSave} 
+                        disabled={!editedValue.trim()}
+                        className="flex-1 bg-primary-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-primary-700 disabled:bg-slate-400 disabled:cursor-not-allowed"
+                    >
+                        {t('common.save')}
+                    </button>
+                    <button 
+                        onClick={onCancel} 
+                        className="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold py-3 px-6 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
+                    >
+                        {t('common.cancel')}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 interface QuestionnaireProps {
   pkg: Package;
   userName: string;
@@ -81,6 +142,7 @@ interface QuestionnaireProps {
 }
 
 const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfile, coachingStyle, assessmentId, onComplete }) => {
+    const { t } = useTranslation();
     const [messages, setMessages] = useState<Message[]>([]);
     const [answers, setAnswers] = useState<Answer[]>([]);
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
@@ -110,6 +172,8 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
     const [showBreakSuggestion, setShowBreakSuggestion] = useState(false);
     const [lastBreakSuggestionAt, setLastBreakSuggestionAt] = useState(0);
     const [lastBreakSuggestionTime, setLastBreakSuggestionTime] = useState(0);
+    const [editingAnswerIndex, setEditingAnswerIndex] = useState<number | null>(null);
+    const [answerIdMap, setAnswerIdMap] = useState<{ [key: number]: string }>({}); // answerIndex -> answerId mapping
 
     const chatEndRef = useRef<HTMLDivElement>(null);
     const SESSION_STORAGE_KEY = `autosave-${userName}-${pkg.id}`;
@@ -493,11 +557,21 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                         const savedAnswers: Answer[] = (answersResponse.answers || []).map((a: any) => ({
                             questionId: a.questionId,
                             value: a.value,
+                            id: a.id, // Backend'den gelen id'yi ekle
                         }));
+                        
+                        // answerIdMap'i oluştur
+                        const newAnswerIdMap: { [key: number]: string } = {};
+                        savedAnswers.forEach((answer, index) => {
+                            if (answer.id) {
+                                newAnswerIdMap[index] = answer.id;
+                            }
+                        });
                         
                         if (savedAnswers.length > 0) {
                             if (window.confirm(`Une session inachevée a été trouvée (${savedAnswers.length} réponses). Voulez-vous la reprendre ?`)) {
                                 setAnswers(savedAnswers);
+                                setAnswerIdMap(newAnswerIdMap);
                                 setMessages([{ sender: 'ai', text: `Bonjour ${userName}, reprenons où nous nous étions arrêtés.` }]);
                                 await runNextStep(savedAnswers);
                                 return;
@@ -568,7 +642,7 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                     showToast('Sauvegardé avec succès', 'success', 2000);
                 }
             },
-            description: 'Sauvegarder la session'
+                    description: t('questionnaire.saveSession')
         },
         {
             key: 'Escape',
@@ -616,7 +690,7 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
         if (assessmentId && previousQuestion && isOnline) {
             try {
                 console.log('💾 Backend\'e answer kaydediliyor...', newAnswers.length);
-                await api.addAnswer(assessmentId, {
+                const answerResponse = await api.addAnswer(assessmentId, {
                     questionId: previousQuestion.id,
                     questionTitle: previousQuestion.title,
                     questionDescription: previousQuestion.description,
@@ -626,11 +700,30 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                     value: value,
                 });
                 
+                // Backend'den gelen answer id'sini ekle
+                if (answerResponse && answerResponse.id) {
+                    const lastAnswerIndex = newAnswers.length - 1;
+                    if (lastAnswerIndex >= 0) {
+                        newAnswers[lastAnswerIndex] = { ...newAnswers[lastAnswerIndex], id: answerResponse.id };
+                        setAnswers(newAnswers);
+                    }
+                }
+                
                 // Assessment'ı güncelle (currentQuestionIndex)
                 await api.updateAssessment(assessmentId, {
                     currentQuestionIndex: newAnswers.length,
                     lastActivityAt: new Date().toISOString(),
                 });
+                
+                // Otomatik taslak kaydetme (her 5 soruda bir)
+                if (newAnswers.length > 0 && newAnswers.length % 5 === 0) {
+                    await api.updateAssessment(assessmentId, {
+                        status: 'in_progress',
+                        currentQuestionIndex: newAnswers.length,
+                        lastActivityAt: new Date().toISOString(),
+                    });
+                    console.log('💾 Otomatik taslak kaydedildi (soru', newAnswers.length, ')');
+                }
                 
                 console.log('✅ Answer backend\'e kaydedildi:', newAnswers.length);
             } catch (error) {
@@ -716,10 +809,81 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
     };
     const handleJoker = () => { if (!isLoading) { fetchNextQuestion({ useJoker: true }); } };
 
+    // Edit answer handler
+    const handleEditAnswer = (answerIndex: number) => {
+        setEditingAnswerIndex(answerIndex);
+    };
+
+    const handleSaveEditedAnswer = async (newValue: string) => {
+        if (editingAnswerIndex === null) return;
+        
+        const answer = answers[editingAnswerIndex];
+        if (!answer) return;
+
+        // UI'ı güncelle (optimistic update)
+        const updatedAnswers = [...answers];
+        updatedAnswers[editingAnswerIndex] = { ...answer, value: newValue };
+        setAnswers(updatedAnswers);
+
+        // Messages'ı güncelle
+        const userMessageIndex = messages.findIndex((msg, idx) => 
+            msg.sender === 'user' && 
+            // Her user mesajı bir cevap, index'e göre eşleştir
+            messages.slice(0, idx + 1).filter(m => m.sender === 'user').length - 1 === editingAnswerIndex
+        );
+        if (userMessageIndex >= 0) {
+            const updatedMessages = [...messages];
+            updatedMessages[userMessageIndex] = { ...updatedMessages[userMessageIndex], text: newValue };
+            setMessages(updatedMessages);
+        }
+
+        // Backend'e kaydet
+        const answerId = answer.id || answerIdMap[editingAnswerIndex];
+        if (assessmentId && answerId && isOnline) {
+            try {
+                await api.updateAnswer(assessmentId, answerId, { value: newValue });
+                showToast(t('questionnaire.answerUpdated'), 'success', 3000);
+            } catch (error) {
+                console.error('❌ Failed to update answer:', error);
+                showToast(t('questionnaire.answerUpdateError'), 'error', 5000);
+                // Rollback
+                setAnswers(answers);
+                if (userMessageIndex >= 0) {
+                    setMessages(messages);
+                }
+            }
+        } else if (!isOnline) {
+            showToast(t('questionnaire.offlineSave'), 'warning', 3000);
+        }
+
+        setEditingAnswerIndex(null);
+    };
+
+    const handleCancelEdit = () => {
+        setEditingAnswerIndex(null);
+    };
+
+    // Save draft handler
+    const handleSaveDraft = async () => {
+        if (!assessmentId) return;
+        
+        try {
+                await api.updateAssessment(assessmentId, {
+                status: 'in_progress',
+                currentQuestionIndex: answers.length,
+                lastActivityAt: new Date().toISOString(),
+            });
+            showToast(t('questionnaire.draftSaved'), 'success', 4000);
+        } catch (error) {
+            console.error('❌ Failed to save draft:', error);
+            showToast(t('questionnaire.draftError'), 'error', 5000);
+        }
+    };
+
     // isSummarizing sadece gerçekten summary oluşturulurken true olmalı
     // Eğer currentQuestion varsa, summary oluşturulmuyor demektir
     if (isSummarizing && !currentQuestion) {
-        return <div className="min-h-screen flex items-center justify-center"><div className="text-center"><div className="text-2xl font-bold">Génération de votre synthèse...</div><p>Veuillez patienter.</p></div></div>;
+        return <div className="min-h-screen flex items-center justify-center"><div className="text-center"><div className="text-2xl font-bold">{t('questionnaire.synthesizing')}</div><p>{t('questionnaire.synthesizingWait')}</p></div></div>;
     }
 
     return (
@@ -727,11 +891,23 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
             {unlockedBadge && <BadgeNotification phaseName={unlockedBadge} onClose={() => setUnlockedBadge(null)} />}
             {showSatisfactionModal && satisfactionPhaseInfo && <SatisfactionModal phaseName={satisfactionPhaseInfo.name} onSubmit={handleSatisfactionSubmit} />}
             {suggestedModule && <ModuleModal reason={suggestedModule.reason} onAccept={handleModuleAccept} onDecline={handleModuleDecline} />}
-            {showSaveNotification && <div className="fixed top-5 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-full text-sm shadow-lg z-50">Progrès sauvegardé !</div>}
+            {editingAnswerIndex !== null && (
+                <EditAnswerModal
+                    isOpen={true}
+                    currentValue={answers[editingAnswerIndex]?.value || ''}
+                    onSave={handleSaveEditedAnswer}
+                    onCancel={handleCancelEdit}
+                    questionTitle={messages.find((msg, idx) => 
+                        msg.sender === 'ai' && 
+                        messages.slice(0, idx + 1).filter(m => m.sender === 'user').length === editingAnswerIndex
+                    )?.text?.toString()}
+                />
+            )}
+            {showSaveNotification && <div className="fixed top-5 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-full text-sm shadow-lg z-50">{t('questionnaire.progressSaved')}</div>}
             {!isOnline && (
                 <div className="fixed top-5 left-1/2 -translate-x-1/2 bg-yellow-500 text-white px-4 py-2 rounded-full text-sm shadow-lg z-50 flex items-center gap-2">
                     <span>⚠️</span>
-                    <span>Mode hors ligne - Les données sont sauvegardées localement</span>
+                    <span>{t('questionnaire.offlineMode')}</span>
                 </div>
             )}
             
@@ -740,12 +916,12 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                 isOpen={showBreakSuggestion}
                 onContinue={() => {
                     setShowBreakSuggestion(false);
-                    showToast('Continuez à votre rythme ! 💪', 'info', 3000);
+                    showToast(t('questionnaire.continuePace'), 'info', 3000);
                 }}
                 onTakeBreak={() => {
                     setShowBreakSuggestion(false);
                     // Session zaten otomatik kaydediliyor, sadece bilgi ver
-                    showToast('Votre progression est sauvegardée. Revenez quand vous serez prêt ! 💾', 'success', 5000);
+                    showToast(t('questionnaire.progressSavedMessage'), 'success', 5000);
                     // Kullanıcı isterse welcome screen'e dönebilir veya sayfayı kapatabilir
                 }}
                 questionsCompleted={answers.length}
@@ -777,32 +953,50 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                 <main className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
                     <div className="lg:col-span-2 flex flex-col h-full bg-white dark:bg-slate-800 rounded-xl shadow transition-colors">
                         <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                            {messages.map((msg, index) => (
-                                <div key={index} className={`flex items-end gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                    {msg.sender === 'ai' && <div className="w-8 h-8 rounded-full bg-primary-600 dark:bg-primary-500 text-white flex items-center justify-center flex-shrink-0">IA</div>}
-                                    <div className={`max-w-xl p-4 rounded-2xl ${msg.sender === 'user' ? 'bg-primary-600 dark:bg-primary-700 text-white rounded-br-none' : 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none'}`}>
-                                        <p>{msg.text}</p>
-                                        {msg.isSynthesis && (
-                                            <div className="mt-4 flex gap-2">
-                                                <button onClick={() => handleSynthesisConfirmation(true)} className="bg-white/20 px-3 py-1 rounded-full text-xs">Oui, c'est exact</button>
-                                                <button onClick={() => handleSynthesisConfirmation(false)} className="bg-white/20 px-3 py-1 rounded-full text-xs">Non, pas tout à fait</button>
-                                            </div>
-                                        )}
-                                        {msg.question?.type === QuestionType.MULTIPLE_CHOICE && msg.question.choices && (
-                                            <div className="mt-4 space-y-2">
-                                                {msg.question.choices.map(choice => (
-                                                    <button key={choice} onClick={() => handleAnswerSubmit(choice)} className="w-full text-left bg-primary-50 text-primary-800 p-3 rounded-lg hover:bg-primary-100 transition">
-                                                        {choice}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
+                            {messages.map((msg, index) => {
+                                // User mesajı için answer index'ini bul
+                                const userMessageCount = messages.slice(0, index + 1).filter(m => m.sender === 'user').length;
+                                const answerIndex = msg.sender === 'user' ? userMessageCount - 1 : -1;
+                                const canEdit = msg.sender === 'user' && answerIndex >= 0 && answerIndex < answers.length && (answers[answerIndex]?.id || answerIdMap[answerIndex]);
+                                
+                                return (
+                                    <div key={index} className={`flex items-end gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                        {msg.sender === 'ai' && <div className="w-8 h-8 rounded-full bg-primary-600 dark:bg-primary-500 text-white flex items-center justify-center flex-shrink-0">IA</div>}
+                                        <div className={`max-w-xl p-4 rounded-2xl relative group ${msg.sender === 'user' ? 'bg-primary-600 dark:bg-primary-700 text-white rounded-br-none' : 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none'}`}>
+                                            <p>{msg.text}</p>
+                                            {canEdit && (
+                                                <button
+                                                    onClick={() => handleEditAnswer(answerIndex)}
+                                                    className="absolute -top-2 -right-2 bg-slate-600 hover:bg-slate-700 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                                    title={t('questionnaire.editAnswerTitle')}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                </button>
+                                            )}
+                                            {msg.isSynthesis && (
+                                                <div className="mt-4 flex gap-2">
+                                                    <button onClick={() => handleSynthesisConfirmation(true)} className="bg-white/20 px-3 py-1 rounded-full text-xs">Oui, c'est exact</button>
+                                                    <button onClick={() => handleSynthesisConfirmation(false)} className="bg-white/20 px-3 py-1 rounded-full text-xs">Non, pas tout à fait</button>
+                                                </div>
+                                            )}
+                                            {msg.question?.type === QuestionType.MULTIPLE_CHOICE && msg.question.choices && (
+                                                <div className="mt-4 space-y-2">
+                                                    {msg.question.choices.map(choice => (
+                                                        <button key={choice} onClick={() => handleAnswerSubmit(choice)} className="w-full text-left bg-primary-50 text-primary-800 p-3 rounded-lg hover:bg-primary-100 transition">
+                                                            {choice}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                            {isLoading && <TypingIndicator message="Génération de la prochaine question..." />}
+                                );
+                            })}
+                            {isLoading && <TypingIndicator message={t('questionnaire.typing')} />}
                             {isSummarizing && (
-                                <TypingIndicator message="Génération de votre synthèse finale..." />
+                                <TypingIndicator message={t('questionnaire.synthesizing')} />
                             )}
                             <div ref={chatEndRef} />
                         </div>
@@ -810,14 +1004,29 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                     <div className="p-4 border-t bg-white dark:bg-slate-800 rounded-b-xl transition-colors">
                         {currentQuestion?.type === QuestionType.PARAGRAPH && (
                             <form onSubmit={e => { e.preventDefault(); handleAnswerSubmit(textInput); }} className="flex items-center gap-2">
-                                <input type="text" value={textInput} onChange={e => setTextInput(e.target.value)} placeholder="Écrivez votre réponse..." className="flex-1 w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100" disabled={isLoading || isAwaitingSynthesisConfirmation || isRequestPending} />
+                                <input type="text" value={textInput} onChange={e => setTextInput(e.target.value)} placeholder={t('questionnaire.placeholder')} className="flex-1 w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100" disabled={isLoading || isAwaitingSynthesisConfirmation || isRequestPending} />
                                 {speechRecSupported && <button type="button" onClick={() => isListening ? stopListening() : startListening()} className="p-3 text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400" disabled={isRequestPending}><MicIcon active={isListening} /></button>}
                                 <button type="submit" className="bg-primary-600 dark:bg-primary-700 text-white p-3 rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 disabled:bg-slate-400 disabled:cursor-not-allowed" disabled={isLoading || !textInput.trim() || isAwaitingSynthesisConfirmation || isRequestPending}><SendIcon /></button>
                             </form>
                         )}
-                             <button onClick={handleJoker} className="mt-2 text-xs text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 flex items-center justify-center w-full disabled:opacity-50 disabled:cursor-not-allowed" disabled={isLoading || isAwaitingSynthesisConfirmation || isRequestPending}>
-                                <JokerIcon/> J'ai besoin d'aide pour répondre
+                        <div className="flex items-center gap-2 mt-2">
+                            <button onClick={handleJoker} className="flex-1 text-xs text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed" disabled={isLoading || isAwaitingSynthesisConfirmation || isRequestPending}>
+                                <JokerIcon/> {t('questionnaire.joker')}
                             </button>
+                            {assessmentId && answers.length > 0 && (
+                                <button 
+                                    onClick={handleSaveDraft} 
+                                    className="px-4 py-2 text-sm bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled={isLoading || isRequestPending}
+                                    title={t('questionnaire.saveDraftTitle')}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                                    </svg>
+                                    {t('questionnaire.saveDraft')}
+                                </button>
+                            )}
+                        </div>
                         </div>
                     </div>
                     <aside className="hidden lg:block sticky top-6 self-start max-h-[calc(100vh-8rem)] overflow-y-auto bg-white dark:bg-slate-800 rounded-xl shadow p-6 transition-colors">

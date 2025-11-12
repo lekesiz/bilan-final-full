@@ -7,7 +7,9 @@ import PersonalizationStep from './components/PersonalizationStep';
 import Questionnaire from './components/Questionnaire';
 import SummaryDashboard from './components/SummaryDashboard';
 import HistoryScreen from './components/HistoryScreen';
+import AnalyticsDashboard from './components/AnalyticsDashboard';
 import ThemeToggle from './components/ThemeToggle';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { PACKAGES } from './constants';
 import { Package, Answer, Summary, HistoryItem, UserProfile, CoachingStyle } from './types';
 import { saveAssessmentToHistory } from './services/historyService';
@@ -15,7 +17,7 @@ import { useApi } from './services/apiClient';
 import { useToast } from './components/Toast';
 import type { Assessment } from './services/apiClient';
 
-type AppState = 'welcome' | 'package-selection' | 'preliminary-phase' | 'personalization-step' | 'questionnaire' | 'summary' | 'history' | 'view-history-record';
+type AppState = 'welcome' | 'package-selection' | 'preliminary-phase' | 'personalization-step' | 'questionnaire' | 'summary' | 'history' | 'view-history-record' | 'analytics';
 
 const App: React.FC = () => {
     const [appState, setAppState] = useState<AppState>('welcome');
@@ -208,6 +210,10 @@ const App: React.FC = () => {
         setAppState('history');
     };
 
+    const handleShowAnalytics = () => {
+        setAppState('analytics');
+    };
+
     const handleViewRecord = (record: HistoryItem) => {
         setViewingRecord(record);
         setAppState('view-history-record');
@@ -217,11 +223,39 @@ const App: React.FC = () => {
         setViewingRecord(null);
         setAppState('history');
     };
+
+    const handleResumeAssessment = async (assessmentId: string) => {
+        try {
+            // Assessment'ı backend'den çek
+            const assessment = await api.getAssessment(assessmentId);
+            
+            // Package'i bul
+            const pkg = PACKAGES.find(p => p.id === assessment.packageId);
+            if (!pkg) {
+                showToast('Package bulunamadı', 'error', 3000);
+                return;
+            }
+            
+            // State'leri güncelle
+            setCurrentAssessmentId(assessmentId);
+            setSelectedPackage(pkg);
+            setUserName(assessment.userName);
+            setCoachingStyle(assessment.coachingStyle as CoachingStyle);
+            setUserProfile(assessment.userProfile || null);
+            
+            // Questionnaire'e geç
+            setAppState('questionnaire');
+            showToast('Bilan reprise avec succès', 'success', 3000);
+        } catch (error) {
+            console.error('❌ Failed to resume assessment:', error);
+            showToast('Erreur lors de la reprise du bilan. Réessayez.', 'error', 5000);
+        }
+    };
     
     const renderContent = () => {
         switch (appState) {
             case 'welcome':
-                return <WelcomeScreen onStart={handleStart} onShowHistory={handleShowHistory} />;
+                return <WelcomeScreen onStart={handleStart} onShowHistory={handleShowHistory} onShowAnalytics={handleShowAnalytics} />;
             case 'package-selection':
                 return <PackageSelector packages={PACKAGES} onSelect={handlePackageSelect} isLoading={isCreatingAssessment} />;
             case 'preliminary-phase':
@@ -237,10 +271,12 @@ const App: React.FC = () => {
                 if (!currentSummary || !selectedPackage) { handleRestart(); return null; }
                 return <SummaryDashboard summary={currentSummary} answers={currentAnswers} userName={userName} packageName={selectedPackage.name} onRestart={handleRestart} onViewHistory={handleShowHistory} />;
             case 'history':
-                return <HistoryScreen onViewRecord={handleViewRecord} onBack={handleRestart} />;
+                return <HistoryScreen onViewRecord={handleViewRecord} onBack={handleRestart} onResumeAssessment={handleResumeAssessment} />;
             case 'view-history-record':
                  if (!viewingRecord) { handleBackToHistory(); return null; }
                  return <SummaryDashboard summary={viewingRecord.summary} answers={viewingRecord.answers} userName={viewingRecord.userName} packageName={viewingRecord.packageName} onRestart={handleRestart} onViewHistory={handleBackToHistory} isHistoryView={true} />;
+            case 'analytics':
+                return <AnalyticsDashboard onBack={handleRestart} />;
             default:
                 return <WelcomeScreen onStart={handleStart} onShowHistory={handleShowHistory} />;
         }
@@ -250,7 +286,10 @@ const App: React.FC = () => {
     // Production'da AuthGuard'ı geri açın
     return (
         <div className="App bg-slate-50 dark:bg-slate-900 min-h-screen transition-colors duration-200">
-            <ThemeToggle />
+            <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
+                <LanguageSwitcher />
+                <ThemeToggle />
+            </div>
             {renderContent()}
         </div>
     );

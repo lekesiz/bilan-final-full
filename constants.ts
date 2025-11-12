@@ -4,7 +4,7 @@ export const PACKAGES: Package[] = [
   {
     id: 'decouverte',
     name: "Parcours Découverte",
-    totalHours: 5,
+    totalHours: 8,
     totalQuestionnaires: 30, // 30 soru (her phase'de 4 kategori × 2-3 soru = 8-12 soru/phase)
     description: "Idéal pour faire un premier point sur vos compétences et aspirations professionnelles.",
     features: [
@@ -22,7 +22,7 @@ export const PACKAGES: Package[] = [
   {
     id: 'approfondi',
     name: "Bilan Approfondi",
-    totalHours: 12,
+    totalHours: 16,
     totalQuestionnaires: 72, // 72 soru (her phase'de 2 döngü × 4 kategori × 3-4 soru = 24-32 soru/phase)
     description: "Une exploration complète de votre profil pour définir un projet professionnel solide et réaliste.",
     features: [

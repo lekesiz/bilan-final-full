@@ -44,6 +44,11 @@ export const createAnswerSchema = z.object({
   value: z.string().min(1),
 });
 
+// Schema pour mettre à jour une answer
+export const updateAnswerSchema = z.object({
+  value: z.string().min(1, 'Answer value is required'),
+});
+
 // Schema pour créer une summary
 export const createSummarySchema = z.object({
   profileType: z.string().min(1).max(255),

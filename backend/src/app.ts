@@ -5,6 +5,7 @@ import { errorHandler } from './middleware/error.js';
 import assessmentsRoutes from './routes/assessments.js';
 import answersRoutes from './routes/answers.js';
 import summariesRoutes from './routes/summaries.js';
+import analyticsRoutes from './routes/analytics.js';
 import type { Env } from './types/env.js';
 
 const app = new Hono<Env>();
@@ -33,6 +34,7 @@ app.get('/health', (c) => {
 app.route('/api/assessments', assessmentsRoutes);
 app.route('/api/assessments', answersRoutes);
 app.route('/api/assessments', summariesRoutes);
+app.route('/api/admin/analytics', analyticsRoutes);
 
 // 404 handler
 app.notFound((c) => {

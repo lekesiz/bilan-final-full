@@ -34,15 +34,23 @@ export class GeminiProvider implements AIProviderInterface {
     }
   }
 
-  private getSystemInstruction(style: CoachingStyle): string {
+  private getSystemInstruction(style: CoachingStyle, language: string = 'fr'): string {
+    const languageMap: { [key: string]: string } = {
+      'fr': 'French',
+      'en': 'English',
+      'de': 'German',
+      'tr': 'Turkish'
+    };
+    const langName = languageMap[language] || 'French';
+    
     switch (style) {
       case 'analytic':
-        return "You are an analytical and structured career coach. Your approach is methodical and data-driven. You ask precise questions to deconstruct problems logically. Language: French.";
+        return `You are an analytical and structured career coach. Your approach is methodical and data-driven. You ask precise questions to deconstruct problems logically. Language: ${langName}.`;
       case 'creative':
-        return "You are a creative and inspiring career coach. Your approach is to open new perspectives and encourage out-of-the-box thinking. You use metaphors and ask stimulating questions. Language: French.";
+        return `You are a creative and inspiring career coach. Your approach is to open new perspectives and encourage out-of-the-box thinking. You use metaphors and ask stimulating questions. Language: ${langName}.`;
       case 'collaborative':
       default:
-        return "You are a collaborative and encouraging career coach. Your tone is warm, supportive, and empathetic. You focus on the user's strengths and build their confidence. Language: French.";
+        return `You are a collaborative and encouraging career coach. Your tone is warm, supportive, and empathetic. You focus on the user's strengths and build their confidence. Language: ${langName}.`;
     }
   }
 
@@ -186,9 +194,10 @@ export class GeminiProvider implements AIProviderInterface {
     userName: string,
     coachingStyle: CoachingStyle,
     userProfile: UserProfile | null = null,
-    options: GenerateQuestionOptions = {}
+    options: GenerateQuestionOptions = {},
+    language: string = 'fr'
   ): Promise<Question> {
-    const systemInstruction = this.getSystemInstruction(coachingStyle);
+    const systemInstruction = this.getSystemInstruction(coachingStyle, language);
     
     // Enhanced history: Include question titles to prevent duplicates
     const history = previousAnswers.map(a => {
@@ -353,11 +362,14 @@ The response MUST be a valid JSON object. Ensure the question is unique, context
   async generateSynthesis(
     lastAnswers: Answer[],
     userName: string,
-    coachingStyle: CoachingStyle
+    coachingStyle: CoachingStyle,
+    language: string = 'fr'
   ): Promise<{ synthesis: string; confirmationRequest: string }> {
-    const systemInstruction = this.getSystemInstruction(coachingStyle);
+    const systemInstruction = this.getSystemInstruction(coachingStyle, language);
+    const languageMap: { [key: string]: string } = { 'fr': 'French', 'en': 'English', 'de': 'German', 'tr': 'Turkish' };
+    const langName = languageMap[language] || 'French';
     const history = lastAnswers.map(a => `Question ID: ${a.questionId}\nAnswer: ${a.value}`).join('\n\n');
-    const prompt = `Context: User Name: ${userName}. Task: Act as an attentive coach. Based on the user's last few answers, create a concise, one-sentence summary and formulate a polite question to confirm if your summary is correct. The response MUST be a valid JSON object. Language: French. Last answers: ${history}`;
+    const prompt = `Context: User Name: ${userName}. Task: Act as an attentive coach. Based on the user's last few answers, create a concise, one-sentence summary and formulate a polite question to confirm if your summary is correct. The response MUST be a valid JSON object. Language: ${langName}. Last answers: ${history}`;
     return this.requestQueue.enqueue(async () => {
       return this.rateLimitClient.executeWithBackoff(async () => {
         const response = await this.ai.models.generateContent({
@@ -374,9 +386,12 @@ The response MUST be a valid JSON object. Ensure the question is unique, context
     answers: Answer[],
     pkg: Package,
     userName: string,
-    coachingStyle: CoachingStyle
+    coachingStyle: CoachingStyle,
+    language: string = 'fr'
   ): Promise<Summary> {
-    const systemInstruction = this.getSystemInstruction(coachingStyle);
+    const systemInstruction = this.getSystemInstruction(coachingStyle, language);
+    const languageMap: { [key: string]: string } = { 'fr': 'French', 'en': 'English', 'de': 'German', 'tr': 'Turkish' };
+    const langName = languageMap[language] || 'French';
     
     // Enhanced transcript: Include question titles for better context
     const fullTranscript = answers.map(a => {
@@ -394,7 +409,7 @@ The response MUST be a valid JSON object. Ensure the question is unique, context
 Transcript of the complete assessment:
 ${truncatedTranscript}
 
-Task: Analyze the transcript and generate a comprehensive, personalized summary in French. The response MUST be a valid JSON object conforming to the schema.
+Task: Analyze the transcript and generate a comprehensive, personalized summary in ${langName}. The response MUST be a valid JSON object conforming to the schema.
 
 CRITICAL REQUIREMENTS:
 1. **Personalization**: Use the user's actual name (${userName}) and reference specific details from their answers
@@ -437,9 +452,11 @@ The summary should feel like it was written specifically for ${userName}, not a 
     return { ...summaryData, actionPlan: { shortTerm: [], mediumTerm: [] } };
   }
 
-  async analyzeThemesAndSkills(answers: Answer[]): Promise<DashboardData> {
+  async analyzeThemesAndSkills(answers: Answer[], language: string = 'fr'): Promise<DashboardData> {
+    const languageMap: { [key: string]: string } = { 'fr': 'French', 'en': 'English', 'de': 'German', 'tr': 'Turkish' };
+    const langName = languageMap[language] || 'French';
     const history = answers.map(a => `Q: ${a.questionId}\nA: ${a.value}`).join('\n\n');
-    const prompt = `Analyze the following answers from a skills assessment. Identify the main themes and assess 5 core skills. The response MUST be a valid JSON object conforming to the schema, including all 5 specified skills. Answers: --- ${history} ---`;
+    const prompt = `Analyze the following answers from a skills assessment. Identify the main themes and assess 5 core skills. The response MUST be a valid JSON object conforming to the schema, including all 5 specified skills. Language: ${langName}. Answers: --- ${history} ---`;
     return this.requestQueue.enqueue(async () => {
       return this.rateLimitClient.executeWithBackoff(async () => {
         const response = await this.ai.models.generateContent({
@@ -452,8 +469,10 @@ The summary should feel like it was written specifically for ${userName}, not a 
     }, `themes_${answers.length}`);
   }
 
-  async analyzeUserProfile(cvText: string): Promise<UserProfile> {
-    const prompt = `Analyze the following professional profile text (likely from a CV) and extract key information. The response MUST be a valid JSON object conforming to the specified schema. Text to analyze: --- ${cvText} ---`;
+  async analyzeUserProfile(cvText: string, language: string = 'fr'): Promise<UserProfile> {
+    const languageMap: { [key: string]: string } = { 'fr': 'French', 'en': 'English', 'de': 'German', 'tr': 'Turkish' };
+    const langName = languageMap[language] || 'French';
+    const prompt = `Analyze the following professional profile text (likely from a CV) and extract key information. The response MUST be a valid JSON object conforming to the specified schema. Language: ${langName}. Text to analyze: --- ${cvText} ---`;
     return this.requestQueue.enqueue(async () => {
       return this.rateLimitClient.executeWithBackoff(async () => {
         const response = await this.ai.models.generateContent({
@@ -466,9 +485,11 @@ The summary should feel like it was written specifically for ${userName}, not a 
     }, `profile_${cvText.substring(0, 50)}`);
   }
 
-  async suggestOptionalModule(answers: Answer[]): Promise<{ isNeeded: boolean; moduleId?: string; reason?: string }> {
+  async suggestOptionalModule(answers: Answer[], language: string = 'fr'): Promise<{ isNeeded: boolean; moduleId?: string; reason?: string }> {
+    const languageMap: { [key: string]: string } = { 'fr': 'French', 'en': 'English', 'de': 'German', 'tr': 'Turkish' };
+    const langName = languageMap[language] || 'French';
     const history = answers.map(a => `Q: ${a.questionId}\nA: ${a.value}`).join('\n\n');
-    const prompt = `Analyze the user's answers. Determine if they exhibit a strong need for a specific, short optional module on one of these topics: 'transition-management' (fear of change, uncertainty), 'self-confidence' (self-doubt, impostor syndrome), or 'work-life-balance' (stress, burnout, desire for better balance). Only set isNeeded to true if the signal is clear and strong. The response must be a valid JSON object. Answers: --- ${history} ---`;
+    const prompt = `Analyze the user's answers. Determine if they exhibit a strong need for a specific, short optional module on one of these topics: 'transition-management' (fear of change, uncertainty), 'self-confidence' (self-doubt, impostor syndrome), or 'work-life-balance' (stress, burnout, desire for better balance). Only set isNeeded to true if the signal is clear and strong. The response must be a valid JSON object. Language: ${langName}. Answers: --- ${history} ---`;
     return this.requestQueue.enqueue(async () => {
       return this.rateLimitClient.executeWithBackoff(async () => {
         const response = await this.ai.models.generateContent({
@@ -481,8 +502,10 @@ The summary should feel like it was written specifically for ${userName}, not a 
     }, `module_${answers.length}`);
   }
 
-  async findResourceLeads(actionItemText: string): Promise<{ searchKeywords: string[]; resourceTypes: string[]; platformExamples: string[] }> {
-    const prompt = `Context: A user has the following action item in their career plan: "${actionItemText}". Task: Your role is to be a helpful guide, not to do the work for them. To empower their research, provide a list of research leads. The response must be in French and be a valid JSON object conforming to the schema.
+  async findResourceLeads(actionItemText: string, language: string = 'fr'): Promise<{ searchKeywords: string[]; resourceTypes: string[]; platformExamples: string[] }> {
+    const languageMap: { [key: string]: string } = { 'fr': 'French', 'en': 'English', 'de': 'German', 'tr': 'Turkish' };
+    const langName = languageMap[language] || 'French';
+    const prompt = `Context: A user has the following action item in their career plan: "${actionItemText}". Task: Your role is to be a helpful guide, not to do the work for them. To empower their research, provide a list of research leads. The response must be in ${langName} and be a valid JSON object conforming to the schema.
     1.  searchKeywords: Suggest 3-5 precise keywords they should use for searching.
     2.  resourceTypes: Suggest 2-4 types of resources to look for (e.g., 'MOOCs', 'Livres blancs', 'Podcasts spécialisés').
     3.  platformExamples: Suggest 2-3 example platforms where these resources can be found.

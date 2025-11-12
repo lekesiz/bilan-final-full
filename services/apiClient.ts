@@ -213,6 +213,13 @@ class ApiClient {
     return this.request<{ answers: any[]; total: number }>(`/assessments/${assessmentId}/answers`, {}, token);
   }
 
+  async updateAnswer(assessmentId: string, answerId: string, data: { value: string }, token: string | null = null) {
+    return this.request(`/assessments/${assessmentId}/answers/${answerId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }, token);
+  }
+
   // Summaries
   async createSummary(assessmentId: string, data: CreateSummaryData, token: string | null = null) {
     return this.request(`/assessments/${assessmentId}/summary`, {
@@ -223,6 +230,12 @@ class ApiClient {
 
   async getSummary(assessmentId: string, token: string | null = null) {
     return this.request(`/assessments/${assessmentId}/summary`, {}, token);
+  }
+
+  // Analytics
+  async getAnalytics(token: string | null = null, params?: { startDate?: string; endDate?: string }) {
+    const query = params ? `?${new URLSearchParams(params as any).toString()}` : '';
+    return this.request<any>(`/admin/analytics${query}`, {}, token);
   }
 }
 
@@ -263,6 +276,10 @@ export const useApi = () => {
       return apiClient.getAnswers(assessmentId, null);
     },
 
+    updateAnswer: async (assessmentId: string, answerId: string, data: { value: string }) => {
+      return apiClient.updateAnswer(assessmentId, answerId, data, null);
+    },
+
     // Summaries
     createSummary: async (assessmentId: string, data: CreateSummaryData) => {
       return apiClient.createSummary(assessmentId, data, null);
@@ -270,6 +287,9 @@ export const useApi = () => {
 
     getSummary: async (assessmentId: string) => {
       return apiClient.getSummary(assessmentId, null);
+    },
+    getAnalytics: async (params?: { startDate?: string; endDate?: string }) => {
+      return apiClient.getAnalytics(null, params);
     },
   }), []); // Empty deps - apiClient singleton, methods stable
 };

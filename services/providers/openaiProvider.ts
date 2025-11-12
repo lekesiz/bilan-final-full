@@ -26,15 +26,23 @@ export class OpenAIProvider implements AIProviderInterface {
     this.model = model;
   }
 
-  private getSystemInstruction(style: CoachingStyle): string {
+  private getSystemInstruction(style: CoachingStyle, language: string = 'fr'): string {
+    const languageMap: { [key: string]: string } = {
+      'fr': 'French',
+      'en': 'English',
+      'de': 'German',
+      'tr': 'Turkish'
+    };
+    const langName = languageMap[language] || 'French';
+    
     switch (style) {
       case 'analytic':
-        return "You are an analytical and structured career coach. Your approach is methodical and data-driven. You ask precise questions to deconstruct problems logically. Language: French. Always respond with valid JSON only.";
+        return `You are an analytical and structured career coach. Your approach is methodical and data-driven. You ask precise questions to deconstruct problems logically. Language: ${langName}. Always respond with valid JSON only.`;
       case 'creative':
-        return "You are a creative and inspiring career coach. Your approach is to open new perspectives and encourage out-of-the-box thinking. You use metaphors and ask stimulating questions. Language: French. Always respond with valid JSON only.";
+        return `You are a creative and inspiring career coach. Your approach is to open new perspectives and encourage out-of-the-box thinking. You use metaphors and ask stimulating questions. Language: ${langName}. Always respond with valid JSON only.`;
       case 'collaborative':
       default:
-        return "You are a collaborative and encouraging career coach. Your tone is warm, supportive, and empathetic. You focus on the user's strengths and build their confidence. Language: French. Always respond with valid JSON only.";
+        return `You are a collaborative and encouraging career coach. Your tone is warm, supportive, and empathetic. You focus on the user's strengths and build their confidence. Language: ${langName}. Always respond with valid JSON only.`;
     }
   }
 
@@ -75,9 +83,10 @@ export class OpenAIProvider implements AIProviderInterface {
     userName: string,
     coachingStyle: CoachingStyle,
     userProfile: UserProfile | null = null,
-    options: GenerateQuestionOptions = {}
+    options: GenerateQuestionOptions = {},
+    language: string = 'fr'
   ): Promise<Question> {
-    const systemInstruction = this.getSystemInstruction(coachingStyle);
+    const systemInstruction = this.getSystemInstruction(coachingStyle, language);
     
     // Enhanced history: Include question titles to prevent duplicates
     const history = previousAnswers.map(a => {
@@ -148,10 +157,10 @@ ${specialInstruction}
 
 Task: ${taskDescription}
 
-Generate a question in French as a JSON object with this exact structure:
+Generate a question in ${languageMap[language] || 'French'} as a JSON object with this exact structure:
 {
   "id": "unique-id-here",
-  "title": "Question text in French",
+  "title": "Question text in ${langName}",
   "description": "Optional additional context",
   "type": "PARAGRAPH" or "MULTIPLE_CHOICE",
   "theme": "Theme name",
@@ -200,8 +209,8 @@ Key points to highlight: ${answerExamples}
 
 Respond as JSON:
 {
-  "synthesis": "One sentence summary in French with specific examples",
-  "confirmationRequest": "Polite confirmation question in French"
+  "synthesis": "One sentence summary in ${langName} with specific examples",
+  "confirmationRequest": "Polite confirmation question in ${langName}"
 }`;
 
     const response = await this.callOpenAI(prompt, systemInstruction, {});
@@ -212,9 +221,10 @@ Respond as JSON:
     answers: Answer[],
     pkg: Package,
     userName: string,
-    coachingStyle: CoachingStyle
+    coachingStyle: CoachingStyle,
+    language: string = 'fr'
   ): Promise<Summary> {
-    const systemInstruction = this.getSystemInstruction(coachingStyle);
+    const systemInstruction = this.getSystemInstruction(coachingStyle, language);
     
     // Enhanced transcript: Include question titles for better context
     const fullTranscript = answers.map(a => {
@@ -232,7 +242,7 @@ Respond as JSON:
 Transcript of the complete assessment:
 ${truncatedTranscript}
 
-Task: Analyze the transcript and generate a comprehensive, personalized summary in French as JSON.
+Task: Analyze the transcript and generate a comprehensive, personalized summary in ${langName} as JSON.
 
 CRITICAL REQUIREMENTS:
 1. **Personalization**: Use the user's actual name (${userName}) and reference specific details from their answers
@@ -246,9 +256,9 @@ The summary should feel like it was written specifically for ${userName}, not a 
 
 JSON structure:
 {
-  "profileType": "Professional profile title in French",
+  "profileType": "Professional profile title in ${langName}",
   "priorityThemes": ["theme1", "theme2", ...],
-  "maturityLevel": "Description of clarity level in French",
+  "maturityLevel": "Description of clarity level in ${langName}",
   "keyStrengths": [{"text": "strength", "sources": ["quote1", "quote2"]}, ...],
   "areasForDevelopment": [{"text": "area", "sources": ["quote1", "quote2"]}, ...],
   "recommendations": ["rec1", "rec2", ...],
@@ -277,7 +287,7 @@ Each keyStrengths and areasForDevelopment point MUST include a 'sources' array w
     return { ...summaryData, actionPlan: { shortTerm: [], mediumTerm: [] } };
   }
 
-  async analyzeThemesAndSkills(answers: Answer[]): Promise<DashboardData> {
+  async analyzeThemesAndSkills(answers: Answer[], language: string = 'fr'): Promise<DashboardData> {
     const history = answers.map(a => `Q: ${a.questionId}\nA: ${a.value}`).join('\n\n');
     const prompt = `Analyze the following answers from a skills assessment. Identify the main themes and assess 5 core skills.
 
@@ -295,11 +305,11 @@ Respond as JSON:
 
 Answers: ${history}`;
 
-    const response = await this.callOpenAI(prompt, this.getSystemInstruction('collaborative'), {});
+    const response = await this.callOpenAI(prompt, this.getSystemInstruction('collaborative', language), {});
     return this.parseJsonResponse<DashboardData>(response, 'analyzeThemesAndSkills');
   }
 
-  async analyzeUserProfile(cvText: string): Promise<UserProfile> {
+  async analyzeUserProfile(cvText: string, language: string = 'fr'): Promise<UserProfile> {
     const prompt = `Analyze the following professional profile text (likely from a CV) and extract key information.
 
 Respond as JSON:
@@ -312,11 +322,13 @@ Respond as JSON:
 
 Text to analyze: ${cvText}`;
 
-    const response = await this.callOpenAI(prompt, this.getSystemInstruction('collaborative'), {});
+    const response = await this.callOpenAI(prompt, this.getSystemInstruction('collaborative', language), {});
     return this.parseJsonResponse<UserProfile>(response, 'analyzeUserProfile');
   }
 
-  async suggestOptionalModule(answers: Answer[]): Promise<{ isNeeded: boolean; moduleId?: string; reason?: string }> {
+  async suggestOptionalModule(answers: Answer[], language: string = 'fr'): Promise<{ isNeeded: boolean; moduleId?: string; reason?: string }> {
+    const languageMap: { [key: string]: string } = { 'fr': 'French', 'en': 'English', 'de': 'German', 'tr': 'Turkish' };
+    const langName = languageMap[language] || 'French';
     const history = answers.map(a => `Q: ${a.questionId}\nA: ${a.value}`).join('\n\n');
     const prompt = `Analyze the user's answers. Determine if they exhibit a strong need for a specific, short optional module on one of these topics: 'transition-management' (fear of change, uncertainty), 'self-confidence' (self-doubt, impostor syndrome), or 'work-life-balance' (stress, burnout, desire for better balance). Only set isNeeded to true if the signal is clear and strong.
 
@@ -324,26 +336,28 @@ Respond as JSON:
 {
   "isNeeded": true/false,
   "moduleId": "transition-management" | "self-confidence" | "work-life-balance" (only if isNeeded is true),
-  "reason": "Short explanation in French" (only if isNeeded is true)
+  "reason": "Short explanation in ${langName}" (only if isNeeded is true)
 }
 
 Answers: ${history}`;
 
-    const response = await this.callOpenAI(prompt, this.getSystemInstruction('collaborative'), {});
+    const response = await this.callOpenAI(prompt, this.getSystemInstruction('collaborative', language), {});
     return this.parseJsonResponse<any>(response, 'suggestOptionalModule');
   }
 
-  async findResourceLeads(actionItemText: string): Promise<{ searchKeywords: string[]; resourceTypes: string[]; platformExamples: string[] }> {
+  async findResourceLeads(actionItemText: string, language: string = 'fr'): Promise<{ searchKeywords: string[]; resourceTypes: string[]; platformExamples: string[] }> {
+    const languageMap: { [key: string]: string } = { 'fr': 'French', 'en': 'English', 'de': 'German', 'tr': 'Turkish' };
+    const langName = languageMap[language] || 'French';
     const prompt = `Context: A user has the following action item in their career plan: "${actionItemText}". Task: Your role is to be a helpful guide, not to do the work for them. To empower their research, provide a list of research leads.
 
-Respond as JSON in French:
+Respond as JSON in ${langName}:
 {
   "searchKeywords": ["keyword1", "keyword2", ...],
   "resourceTypes": ["type1", "type2", ...],
   "platformExamples": ["platform1", "platform2", ...]
 }`;
 
-    const response = await this.callOpenAI(prompt, this.getSystemInstruction('collaborative'), {});
+    const response = await this.callOpenAI(prompt, this.getSystemInstruction('collaborative', language), {});
     return this.parseJsonResponse<any>(response, 'findResourceLeads');
   }
 }

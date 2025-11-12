@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { db, answers, assessments } from '../db/client.js';
 import { requireAuth } from '../middleware/auth.js';
 import { eq, and } from 'drizzle-orm';
-import { createAnswerSchema } from '../utils/validate.js';
+import { createAnswerSchema, updateAnswerSchema } from '../utils/validate.js';
 import { success, error } from '../utils/response.js';
 import type { Env } from '../types/env.js';
 
@@ -92,6 +92,67 @@ app.get('/:assessmentId/answers', requireAuth, async (c) => {
       return error(c, err.message, 500);
     }
     return error(c, 'Failed to fetch answers', 500);
+  }
+});
+
+// PATCH /api/assessments/:assessmentId/answers/:answerId - Mettre à jour une réponse
+app.patch('/:assessmentId/answers/:answerId', requireAuth, async (c) => {
+  try {
+    const userId = c.get('userId');
+    const assessmentId = c.req.param('assessmentId');
+    const answerId = c.req.param('answerId');
+    const body = await c.req.json();
+
+    // Vérifier que l'assessment appartient à l'utilisateur
+    const assessment = await db.query.assessments.findFirst({
+      where: and(
+        eq(assessments.id, assessmentId),
+        eq(assessments.clerkUserId, userId)
+      ),
+    });
+
+    if (!assessment) {
+      return error(c, 'Assessment not found', 404);
+    }
+
+    // Vérifier que la réponse existe et appartient à l'assessment
+    const existingAnswer = await db.query.answers.findFirst({
+      where: and(
+        eq(answers.id, answerId),
+        eq(answers.assessmentId, assessmentId)
+      ),
+    });
+
+    if (!existingAnswer) {
+      return error(c, 'Answer not found', 404);
+    }
+
+    // Validation
+    const validated = updateAnswerSchema.parse(body);
+
+    // Mettre à jour la réponse
+    const [updatedAnswer] = await db.update(answers)
+      .set({
+        value: validated.value,
+        answeredAt: new Date(), // Güncelleme zamanı
+      })
+      .where(eq(answers.id, answerId))
+      .returning();
+
+    // Mettre à jour lastActivityAt de l'assessment
+    await db.update(assessments)
+      .set({
+        lastActivityAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(assessments.id, assessmentId));
+
+    return success(c, updatedAnswer);
+  } catch (err) {
+    if (err instanceof Error) {
+      return error(c, err.message, 400);
+    }
+    return error(c, 'Failed to update answer', 500);
   }
 });
 

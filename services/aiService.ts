@@ -43,29 +43,32 @@ export interface AIProviderInterface {
     userName: string,
     coachingStyle: CoachingStyle,
     userProfile: UserProfile | null,
-    options: GenerateQuestionOptions
+    options: GenerateQuestionOptions,
+    language?: string
   ): Promise<Question>;
   
   generateSynthesis(
     lastAnswers: Answer[],
     userName: string,
-    coachingStyle: CoachingStyle
+    coachingStyle: CoachingStyle,
+    language?: string
   ): Promise<{ synthesis: string; confirmationRequest: string }>;
   
   generateSummary(
     answers: Answer[],
     pkg: Package,
     userName: string,
-    coachingStyle: CoachingStyle
+    coachingStyle: CoachingStyle,
+    language?: string
   ): Promise<Summary>;
   
-  analyzeThemesAndSkills(answers: Answer[]): Promise<DashboardData>;
+  analyzeThemesAndSkills(answers: Answer[], language?: string): Promise<DashboardData>;
   
-  analyzeUserProfile(cvText: string): Promise<UserProfile>;
+  analyzeUserProfile(cvText: string, language?: string): Promise<UserProfile>;
   
-  suggestOptionalModule(answers: Answer[]): Promise<{ isNeeded: boolean; moduleId?: string; reason?: string }>;
+  suggestOptionalModule(answers: Answer[], language?: string): Promise<{ isNeeded: boolean; moduleId?: string; reason?: string }>;
   
-  findResourceLeads(actionItemText: string): Promise<{ searchKeywords: string[]; resourceTypes: string[]; platformExamples: string[] }>;
+  findResourceLeads(actionItemText: string, language?: string): Promise<{ searchKeywords: string[]; resourceTypes: string[]; platformExamples: string[] }>;
 }
 
 // Provider implementations
@@ -200,10 +203,11 @@ class MultiProviderAIService {
     userName: string,
     coachingStyle: CoachingStyle,
     userProfile: UserProfile | null,
-    options: GenerateQuestionOptions
+    options: GenerateQuestionOptions,
+    language?: string
   ): Promise<Question> {
     return this.executeWithFallback(
-      (provider) => provider.generateQuestion(phaseKey, categoryIndex, previousAnswers, userName, coachingStyle, userProfile, options),
+      (provider) => provider.generateQuestion(phaseKey, categoryIndex, previousAnswers, userName, coachingStyle, userProfile, options, language),
       'generateQuestion'
     );
   }
@@ -211,10 +215,11 @@ class MultiProviderAIService {
   async generateSynthesis(
     lastAnswers: Answer[],
     userName: string,
-    coachingStyle: CoachingStyle
+    coachingStyle: CoachingStyle,
+    language?: string
   ): Promise<{ synthesis: string; confirmationRequest: string }> {
     return this.executeWithFallback(
-      (provider) => provider.generateSynthesis(lastAnswers, userName, coachingStyle),
+      (provider) => provider.generateSynthesis(lastAnswers, userName, coachingStyle, language),
       'generateSynthesis'
     );
   }
@@ -223,38 +228,39 @@ class MultiProviderAIService {
     answers: Answer[],
     pkg: Package,
     userName: string,
-    coachingStyle: CoachingStyle
+    coachingStyle: CoachingStyle,
+    language?: string
   ): Promise<Summary> {
     return this.executeWithFallback(
-      (provider) => provider.generateSummary(answers, pkg, userName, coachingStyle),
+      (provider) => provider.generateSummary(answers, pkg, userName, coachingStyle, language),
       'generateSummary'
     );
   }
 
-  async analyzeThemesAndSkills(answers: Answer[]): Promise<DashboardData> {
+  async analyzeThemesAndSkills(answers: Answer[], language?: string): Promise<DashboardData> {
     return this.executeWithFallback(
-      (provider) => provider.analyzeThemesAndSkills(answers),
+      (provider) => provider.analyzeThemesAndSkills(answers, language),
       'analyzeThemesAndSkills'
     );
   }
 
-  async analyzeUserProfile(cvText: string): Promise<UserProfile> {
+  async analyzeUserProfile(cvText: string, language?: string): Promise<UserProfile> {
     return this.executeWithFallback(
-      (provider) => provider.analyzeUserProfile(cvText),
+      (provider) => provider.analyzeUserProfile(cvText, language),
       'analyzeUserProfile'
     );
   }
 
-  async suggestOptionalModule(answers: Answer[]): Promise<{ isNeeded: boolean; moduleId?: string; reason?: string }> {
+  async suggestOptionalModule(answers: Answer[], language?: string): Promise<{ isNeeded: boolean; moduleId?: string; reason?: string }> {
     return this.executeWithFallback(
-      (provider) => provider.suggestOptionalModule(answers),
+      (provider) => provider.suggestOptionalModule(answers, language),
       'suggestOptionalModule'
     );
   }
 
-  async findResourceLeads(actionItemText: string): Promise<{ searchKeywords: string[]; resourceTypes: string[]; platformExamples: string[] }> {
+  async findResourceLeads(actionItemText: string, language?: string): Promise<{ searchKeywords: string[]; resourceTypes: string[]; platformExamples: string[] }> {
     return this.executeWithFallback(
-      (provider) => provider.findResourceLeads(actionItemText),
+      (provider) => provider.findResourceLeads(actionItemText, language),
       'findResourceLeads'
     );
   }
@@ -355,6 +361,20 @@ export const getAIService = (): MultiProviderAIService => {
   return aiServiceInstance;
 };
 
+// Helper to get current language from i18next
+const getCurrentLanguage = (): string => {
+  try {
+    // Try to get language from i18next if available
+    if (typeof window !== 'undefined' && (window as any).i18next) {
+      return (window as any).i18next.language || 'fr';
+    }
+    // Fallback to localStorage
+    return localStorage.getItem('i18nextLng') || 'fr';
+  } catch {
+    return 'fr';
+  }
+};
+
 // Export convenience functions that match the old geminiService interface
 export const generateQuestion = async (
   phaseKey: 'phase1' | 'phase2' | 'phase3',
@@ -363,52 +383,57 @@ export const generateQuestion = async (
   userName: string,
   coachingStyle: CoachingStyle,
   userProfile: UserProfile | null = null,
-  options: GenerateQuestionOptions = {}
+  options: GenerateQuestionOptions = {},
+  language?: string
 ): Promise<Question> => {
   const service = getAIService();
-  return service.generateQuestion(phaseKey, categoryIndex, previousAnswers, userName, coachingStyle, userProfile, options);
+  return service.generateQuestion(phaseKey, categoryIndex, previousAnswers, userName, coachingStyle, userProfile, options, language || getCurrentLanguage());
 };
 
 export const generateSynthesis = async (
   lastAnswers: Answer[],
   userName: string,
-  coachingStyle: CoachingStyle
+  coachingStyle: CoachingStyle,
+  language?: string
 ): Promise<{ synthesis: string; confirmationRequest: string }> => {
   const service = getAIService();
-  return service.generateSynthesis(lastAnswers, userName, coachingStyle);
+  return service.generateSynthesis(lastAnswers, userName, coachingStyle, language || getCurrentLanguage());
 };
 
 export const generateSummary = async (
   answers: Answer[],
   pkg: Package,
   userName: string,
-  coachingStyle: CoachingStyle
+  coachingStyle: CoachingStyle,
+  language?: string
 ): Promise<Summary> => {
   const service = getAIService();
-  return service.generateSummary(answers, pkg, userName, coachingStyle);
+  return service.generateSummary(answers, pkg, userName, coachingStyle, language || getCurrentLanguage());
 };
 
-export const analyzeThemesAndSkills = async (answers: Answer[]): Promise<DashboardData> => {
+export const analyzeThemesAndSkills = async (answers: Answer[], language?: string): Promise<DashboardData> => {
   const service = getAIService();
-  return service.analyzeThemesAndSkills(answers);
+  return service.analyzeThemesAndSkills(answers, language || getCurrentLanguage());
 };
 
-export const analyzeUserProfile = async (cvText: string): Promise<UserProfile> => {
+export const analyzeUserProfile = async (cvText: string, language?: string): Promise<UserProfile> => {
   const service = getAIService();
-  return service.analyzeUserProfile(cvText);
+  return service.analyzeUserProfile(cvText, language || getCurrentLanguage());
 };
 
 export const suggestOptionalModule = async (
-  answers: Answer[]
+  answers: Answer[],
+  language?: string
 ): Promise<{ isNeeded: boolean; moduleId?: string; reason?: string }> => {
   const service = getAIService();
-  return service.suggestOptionalModule(answers);
+  return service.suggestOptionalModule(answers, language || getCurrentLanguage());
 };
 
 export const findResourceLeads = async (
-  actionItemText: string
+  actionItemText: string,
+  language?: string
 ): Promise<{ searchKeywords: string[]; resourceTypes: string[]; platformExamples: string[] }> => {
   const service = getAIService();
-  return service.findResourceLeads(actionItemText);
+  return service.findResourceLeads(actionItemText, language || getCurrentLanguage());
 };
 
