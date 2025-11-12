@@ -85,6 +85,7 @@ Une application interactive pour réaliser votre bilan de compétences avec l'ai
 - **Enhanced Progress**: Barre de progression double (globale + phase)
 - **Temps estimé**: Affichage du temps restant
 - **Milestones**: Notifications à 10 questions, mi-parcours, et dernières 5 questions
+- **Dashboard sticky**: Panel de droite reste visible pendant le scroll
 
 ### 💾 **Sauvegarde et historique**
 - Sauvegarde automatique toutes les 5 questions
