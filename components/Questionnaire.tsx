@@ -107,6 +107,9 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
     const [isRequestPending, setIsRequestPending] = useState(false);
     const [rateLimitToastShown, setRateLimitToastShown] = useState(false);
     const [shownMilestones, setShownMilestones] = useState<Set<number>>(new Set());
+    const [showBreakSuggestion, setShowBreakSuggestion] = useState(false);
+    const [lastBreakSuggestionAt, setLastBreakSuggestionAt] = useState(0);
+    const [lastBreakSuggestionTime, setLastBreakSuggestionTime] = useState(0);
 
     const chatEndRef = useRef<HTMLDivElement>(null);
     const SESSION_STORAGE_KEY = `autosave-${userName}-${pkg.id}`;
@@ -417,11 +420,18 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
         if (
             currentAnswers.length > 0 &&
             currentAnswers.length % BREAK_SUGGESTION_INTERVAL === 0 &&
-            currentAnswers.length !== lastBreakSuggestionAt &&
-            Date.now() - lastBreakSuggestionAt > MIN_BREAK_INTERVAL_MS
+            currentAnswers.length !== lastBreakSuggestionAt
         ) {
-            setLastBreakSuggestionAt(currentAnswers.length);
-            setShowBreakSuggestion(true);
+            // Zaman kontrolü için ayrı bir state kullan
+            const now = Date.now();
+            const lastBreakTime = localStorage.getItem(`lastBreakSuggestionTime-${userName}-${pkg.id}`);
+            const timeSinceLastBreak = lastBreakTime ? now - parseInt(lastBreakTime, 10) : MIN_BREAK_INTERVAL_MS + 1;
+            
+            if (timeSinceLastBreak > MIN_BREAK_INTERVAL_MS) {
+                setLastBreakSuggestionAt(currentAnswers.length);
+                localStorage.setItem(`lastBreakSuggestionTime-${userName}-${pkg.id}`, now.toString());
+                setShowBreakSuggestion(true);
+            }
         }
 
         // Phase geçişi kontrolü
@@ -469,7 +479,7 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
         // ÖNEMLİ: fetchNextQuestion'a currentAnswers parametresini geçir
         // Bu, state güncellemesi gecikmelerini önler
         await fetchNextQuestion({ currentAnswers });
-    }, [pkg, userName, coachingStyle, onComplete, SESSION_STORAGE_KEY, getPhaseInfo, updateDashboard, fetchNextQuestion, handleGenerateSynthesis, assessmentId, api, isAwaitingSynthesisConfirmation, satisfactionSubmittedForPhase, shownMilestones, showToast]);
+    }, [pkg, userName, coachingStyle, onComplete, SESSION_STORAGE_KEY, getPhaseInfo, updateDashboard, fetchNextQuestion, handleGenerateSynthesis, assessmentId, api, isAwaitingSynthesisConfirmation, satisfactionSubmittedForPhase, shownMilestones, showToast, lastBreakSuggestionAt, lastBreakSuggestionTime]);
 
     useEffect(() => {
         const loadSession = async () => {
@@ -810,7 +820,7 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                             </button>
                         </div>
                     </div>
-                    <aside className="hidden lg:block h-full overflow-y-auto bg-white dark:bg-slate-800 rounded-xl shadow p-6 transition-colors">
+                    <aside className="hidden lg:block sticky top-6 self-start max-h-[calc(100vh-8rem)] overflow-y-auto bg-white dark:bg-slate-800 rounded-xl shadow p-6 transition-colors">
                         <Dashboard data={dashboardData} isLoading={isDashboardLoading} />
                     </aside>
                 </main>

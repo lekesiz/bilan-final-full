@@ -225,46 +225,114 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ summary, answers, u
     };
 
     const handleExportJson = () => {
-        const data = { summary, answers };
+        // JSON export - tüm bilgileri dahil et
+        const data = {
+            metadata: {
+                userName: userName,
+                packageName: packageName,
+                exportDate: new Date().toISOString(),
+                totalQuestions: answers.length,
+            },
+            summary: summary,
+            answers: answers.map((answer, index) => ({
+                questionNumber: index + 1,
+                questionId: answer.questionId,
+                questionTitle: (answer as any).questionTitle || answer.questionId,
+                questionDescription: (answer as any).questionDescription || null,
+                questionType: (answer as any).questionType || null,
+                questionTheme: (answer as any).questionTheme || null,
+                questionChoices: (answer as any).questionChoices || null,
+                value: answer.value,
+                answeredAt: (answer as any).answeredAt || null,
+            })),
+        };
         const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(data, null, 2))}`;
         const link = document.createElement("a");
         link.href = jsonString;
-        link.download = `Bilan_${userName.replace(' ', '_')}.json`;
+        link.download = `Bilan_Complet_${userName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
         link.click();
         setIsExportModalOpen(false);
     };
 
     const handleExportCsv = () => {
+        // Debug: İlk answer'ı kontrol et
+        if (answers.length > 0) {
+            const firstAnswer = answers[0] as any;
+            const hasAllFields = !!(firstAnswer.questionTitle && firstAnswer.questionType && firstAnswer.questionTheme);
+            
+            console.log('📊 CSV Export - First answer data:', {
+                questionId: firstAnswer.questionId,
+                questionTitle: firstAnswer.questionTitle,
+                questionDescription: firstAnswer.questionDescription,
+                questionType: firstAnswer.questionType,
+                questionTheme: firstAnswer.questionTheme,
+                questionChoices: firstAnswer.questionChoices,
+                hasAllFields: hasAllFields,
+                allAnswerKeys: Object.keys(firstAnswer)
+            });
+            
+            // Eğer eksik bilgiler varsa uyarı göster
+            if (!hasAllFields) {
+                console.warn('⚠️ CSV Export: Bazı soru bilgileri eksik!', {
+                    missingTitle: !firstAnswer.questionTitle,
+                    missingType: !firstAnswer.questionType,
+                    missingTheme: !firstAnswer.questionTheme,
+                    missingDescription: !firstAnswer.questionDescription
+                });
+            }
+        }
+        
         // Gelişmiş CSV export - tüm soru ve cevap bilgileri
         let csvContent = "data:text/csv;charset=utf-8,";
         
+        // CSV escaping: double quotes içindeki tırnak işaretlerini escape et
+        const escapeCsv = (str: string | null | undefined) => {
+            if (!str && str !== '0') return '';
+            return `"${String(str).replace(/"/g, '""').replace(/\n/g, ' ').replace(/\r/g, '')}"`;
+        };
+        
         // Header row - Excel uyumlu (UTF-8 BOM)
         csvContent += "\ufeff"; // UTF-8 BOM for Excel
-        csvContent += "Soru ID,Soru Başlığı,Soru Açıklaması,Soru Tipi,Soru Teması,Soru Seçenekleri,Cevap,Tarih\r\n";
+        csvContent += "Soru No,Soru ID,Soru Başlığı,Soru Açıklaması,Soru Tipi,Soru Teması,Soru Seçenekleri,Cevap,Tarih\r\n";
         
         // Her cevap için detaylı bilgi
         answers.forEach((answer, index) => {
             // Backend'den gelen answer objesi question bilgilerini içermeyebilir
             // Bu yüzden sadece mevcut bilgileri kullanıyoruz
+            const questionNumber = index + 1;
             const questionId = answer.questionId || '';
-            const questionTitle = (answer as any).questionTitle || questionId;
-            const questionDescription = (answer as any).questionDescription || '';
-            const questionType = (answer as any).questionType || '';
-            const questionTheme = (answer as any).questionTheme || '';
-            const questionChoices = (answer as any).questionChoices ? 
-                JSON.stringify((answer as any).questionChoices) : '';
+            
+            // Tüm alanları kontrol et ve fallback değerler kullan
+            const questionTitle = (answer as any).questionTitle || (answer as any).questionId || questionId || '';
+            const questionDescription = (answer as any).questionDescription || (answer as any).questionDesc || '';
+            const questionType = (answer as any).questionType || (answer as any).type || '';
+            const questionTheme = (answer as any).questionTheme || (answer as any).theme || '';
+            
+            // Question choices'ı düzgün formatla
+            let questionChoices = '';
+            const choices = (answer as any).questionChoices || (answer as any).choices;
+            if (choices) {
+                if (Array.isArray(choices)) {
+                    questionChoices = choices.join('; ');
+                } else if (typeof choices === 'string') {
+                    try {
+                        const parsed = JSON.parse(choices);
+                        questionChoices = Array.isArray(parsed) ? parsed.join('; ') : String(parsed);
+                    } catch {
+                        questionChoices = String(choices);
+                    }
+                } else {
+                    questionChoices = String(choices);
+                }
+            }
+            
             const value = answer.value || '';
             const date = (answer as any).answeredAt ? 
                 new Date((answer as any).answeredAt).toLocaleString('fr-FR') : 
                 new Date().toLocaleString('fr-FR');
             
-            // CSV escaping: double quotes içindeki tırnak işaretlerini escape et
-            const escapeCsv = (str: string) => {
-                if (!str) return '';
-                return `"${String(str).replace(/"/g, '""').replace(/\n/g, ' ').replace(/\r/g, '')}"`;
-            };
-            
             csvContent += [
+                escapeCsv(String(questionNumber)),
                 escapeCsv(questionId),
                 escapeCsv(questionTitle),
                 escapeCsv(questionDescription),

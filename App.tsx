@@ -131,8 +131,52 @@ const App: React.FC = () => {
         setAppState('package-selection');
     };
 
-    const handleQuestionnaireComplete = (answers: Answer[], summary: Summary) => {
-        setCurrentAnswers(answers);
+    const handleQuestionnaireComplete = async (answers: Answer[], summary: Summary) => {
+        // Eğer assessmentId varsa, backend'den tam answer bilgilerini çek
+        let fullAnswers = answers;
+        if (currentAssessmentId) {
+            try {
+                console.log('📥 Backend\'den answers çekiliyor, assessmentId:', currentAssessmentId);
+                const answersResponse = await api.getAnswers(currentAssessmentId);
+                console.log('✅ Backend\'den gelen answers:', answersResponse);
+                
+                // Backend'den gelen tam bilgileri kullan
+                fullAnswers = (answersResponse.answers || []).map((a: any) => {
+                    const mapped = {
+                        questionId: a.questionId,
+                        value: a.value,
+                        // Backend'den gelen ek bilgileri ekle
+                        questionTitle: a.questionTitle,
+                        questionDescription: a.questionDescription,
+                        questionType: a.questionType,
+                        questionTheme: a.questionTheme,
+                        questionChoices: a.questionChoices,
+                        answeredAt: a.answeredAt,
+                    };
+                    
+                    // Debug: İlk answer'ı kontrol et
+                    if (answersResponse.answers && answersResponse.answers.length > 0 && a === answersResponse.answers[0]) {
+                        console.log('📊 İlk answer mapping:', {
+                            original: a,
+                            mapped: mapped,
+                            hasAllFields: !!(mapped.questionTitle && mapped.questionType && mapped.questionTheme)
+                        });
+                    }
+                    
+                    return mapped;
+                }) as Answer[];
+                
+                console.log('✅ Mapped fullAnswers:', fullAnswers.length, 'answers');
+            } catch (error) {
+                console.error('❌ Failed to fetch full answers from backend:', error);
+                // Hata durumunda mevcut answers'ı kullan
+                showToast('Impossible de récupérer les détails complets, mais nous continuons', 'warning', 3000);
+            }
+        } else {
+            console.warn('⚠️ AssessmentId yok, backend\'den veri çekilemiyor. Mevcut answers kullanılıyor:', answers.length);
+        }
+        
+        setCurrentAnswers(fullAnswers);
         setCurrentSummary(summary);
         
         const historyItem: HistoryItem = {
@@ -141,7 +185,7 @@ const App: React.FC = () => {
             userName: userName,
             packageName: selectedPackage!.name,
             summary: summary,
-            answers: answers,
+            answers: fullAnswers,
         };
         saveAssessmentToHistory(historyItem);
 
