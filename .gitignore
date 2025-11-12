@@ -23,3 +23,14 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Test outputs
+*.csv
+*.pdf
+*.zip
+*test*.js
+*test*.html
+*test*.sh
+
+# Archive and old documentation
+docs/archive/
