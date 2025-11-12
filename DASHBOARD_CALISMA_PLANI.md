@@ -2,17 +2,21 @@
 
 **Proje:** BILAN-EASY Dashboard Entegrasyonu  
 **Yaklaşım:** Refine.dev Framework + Custom BILAN Module  
-**Süre:** 4 Hafta (20 iş günü) + i18n Ön Hazırlık (3-4 gün)  
+**Süre:** 4 Hafta (20 iş günü) + Ön Hazırlık (5-6 gün)  
 **Başlangıç Tarihi:** 12 Kasım 2024  
-**i18n Implementation:** 12-15 Kasım 2024 (ÖNCE)  
+**Ön Hazırlık:** 12-17 Kasım 2024 (UX İyileştirmeleri + i18n)  
 **Dashboard Başlangıç:** 18 Kasım 2024  
 **Hedef Bitiş:** 10 Aralık 2024
 
-## ⚠️ ÖNEMLİ: i18n Önce Yapılacak
+## ⚠️ ÖNEMLİ: Ön Hazırlık Aşaması
 
-**Karar:** Multi-language özelliği dashboard entegrasyonundan **ÖNCE** yapılacak.
+**Karar:** UX İyileştirmeleri ve Multi-language özelliği dashboard entegrasyonundan **ÖNCE** yapılacak.
 
-**Neden?**
+### 1. UX İyileştirmeleri (2 gün)
+- ✅ **Geri dönme:** Önceki cevabı değiştirme özelliği
+- ✅ **Taslak kaydetme:** Testi yarıda bırakıp daha sonra devam edebilme
+
+### 2. i18n Implementation (3-4 gün)
 - ✅ Mevcut uygulama daha küçük, i18n eklemek daha kolay
 - ✅ Dashboard entegrasyonu sırasında i18n zaten hazır olur
 - ✅ Daha az refactoring

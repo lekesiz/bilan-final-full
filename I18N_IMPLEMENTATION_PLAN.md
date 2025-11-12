@@ -22,8 +22,8 @@
 - ⚠️ Dashboard entegrasyonu 1 hafta gecikebilir
 - ⚠️ İki büyük değişiklik peş peşe (ama daha temiz)
 
-**Süre:** 3-4 gün  
-**Zorluk:** Orta
+**Süre:** 5-6 gün (UX İyileştirmeleri: 2 gün + i18n: 3-4 gün)  
+**Zorluk:** Orta-Yüksek
 
 ---
 
@@ -56,11 +56,14 @@
 ### Güncellenmiş Çalışma Planı
 
 ```
-HAFTA 0 (Ön Hazırlık): i18n Implementation (3-4 gün)
-├── Gün 1: i18n Setup & Configuration
-├── Gün 2: Mevcut Text'leri Translate Dosyalarına Taşı
-├── Gün 3: Components'leri i18n'e Adapte Et
-└── Gün 4: Testing & Polish
+HAFTA 0 (Ön Hazırlık): UX İyileştirmeleri + i18n Implementation (5-6 gün)
+├── Gün 1-2: UX İyileştirmeleri (Bilan Süreci)
+│   ├── Geri dönme: Önceki cevabı değiştirme özelliği
+│   └── Taslak kaydetme: Testi yarıda bırakıp devam etme
+├── Gün 3: i18n Setup & Configuration
+├── Gün 4: Mevcut Text'leri Translate Dosyalarına Taşı
+├── Gün 5: Components'leri i18n'e Adapte Et
+└── Gün 6: Testing & Polish
 
 HAFTA 1-4: Dashboard Entegrasyonu (mevcut plan)
 └── i18n zaten hazır, sadece yeni modüller için ekle
@@ -68,9 +71,110 @@ HAFTA 1-4: Dashboard Entegrasyonu (mevcut plan)
 
 ---
 
+## 📋 Ön Hazırlık: UX İyileştirmeleri (2 Gün)
+
+### Gün 1-2: Bilan Süreci UX İyileştirmeleri
+
+**Hedef:** Kullanıcı deneyimini iyileştirmek için kritik özellikler eklemek
+
+#### 1. Geri Dönme: Önceki Cevabı Değiştirme Özelliği
+
+**Problem:** Kullanıcı bir cevap verdiğinde, geri dönüp değiştiremiyor.
+
+**Çözüm:**
+- [ ] `Questionnaire.tsx`'e "Önceki Sorular" bölümü ekle
+- [ ] Her cevabın yanına "Düzenle" butonu ekle
+- [ ] Cevap düzenleme modalı oluştur
+- [ ] Backend API: `PATCH /api/assessments/:assessmentId/answers/:answerId`
+- [ ] Backend route: `backend/src/routes/answers.ts` güncelle
+- [ ] Düzenlenen cevabı backend'e kaydet
+- [ ] UI'da düzenlenen cevabı güncelle
+- [ ] Test: Cevap düzenleme çalışıyor mu?
+
+**Deliverable:** Kullanıcılar önceki cevaplarını düzenleyebiliyor
+
+**Kod Örneği:**
+```typescript
+// components/Questionnaire.tsx
+const handleEditAnswer = async (answerIndex: number, newValue: string) => {
+  const answer = answers[answerIndex];
+  if (assessmentId && answer) {
+    await api.updateAnswer(assessmentId, answer.id, { value: newValue });
+    // UI'ı güncelle
+    setAnswers(prev => prev.map((a, i) => 
+      i === answerIndex ? { ...a, value: newValue } : a
+    ));
+  }
+};
+```
+
+#### 2. Taslak Kaydetme: Testi Yarıda Bırakıp Devam Etme
+
+**Problem:** Kullanıcı testi yarıda bırakıp daha sonra devam edebileceğini bilmiyor.
+
+**Çözüm:**
+- [ ] `Questionnaire.tsx`'e "Taslak Kaydet" butonu ekle
+- [ ] Otomatik taslak kaydetme (her 5 soruda bir)
+- [ ] Backend'de `status: 'in_progress'` assessment'ları göster
+- [ ] `HistoryScreen.tsx`'e "Devam Et" bölümü ekle
+- [ ] `App.tsx`'e "Devam Et" fonksiyonu ekle
+- [ ] Assessment resume: `GET /api/assessments/:id` ile devam et
+- [ ] Kaldığı yerden devam etme (currentQuestionIndex)
+- [ ] UI'da "Taslak kaydedildi" bildirimi
+- [ ] Test: Taslak kaydetme ve devam etme çalışıyor mu?
+
+**Deliverable:** Kullanıcılar testi yarıda bırakıp daha sonra devam edebiliyor
+
+**Kod Örneği:**
+```typescript
+// components/Questionnaire.tsx
+const handleSaveDraft = async () => {
+  if (assessmentId) {
+    await api.updateAssessment(assessmentId, {
+      status: 'in_progress',
+      currentQuestionIndex: answers.length,
+      lastActivityAt: new Date().toISOString(),
+    });
+    showToast('Taslak kaydedildi', 'success');
+  }
+};
+
+// components/HistoryScreen.tsx
+const handleResumeAssessment = async (assessmentId: string) => {
+  const assessment = await api.getAssessment(assessmentId);
+  // Assessment'ı yükle ve devam et
+  onResumeAssessment(assessment);
+};
+```
+
+**Backend API Güncellemeleri:**
+```typescript
+// backend/src/routes/answers.ts
+app.patch('/:assessmentId/answers/:answerId', requireAuth, async (c) => {
+  // Cevap güncelleme logic
+});
+
+// backend/src/routes/assessments.ts
+app.get('/', requireAuth, async (c) => {
+  // status: 'in_progress' olanları da döndür
+});
+```
+
+**Test Kriterleri:**
+- ✅ Kullanıcı önceki cevabı düzenleyebiliyor
+- ✅ Düzenlenen cevap backend'e kaydediliyor
+- ✅ UI'da düzenlenen cevap görünüyor
+- ✅ "Taslak Kaydet" butonu çalışıyor
+- ✅ Otomatik taslak kaydetme çalışıyor (her 5 soruda)
+- ✅ HistoryScreen'de "Devam Et" butonu görünüyor
+- ✅ Kaldığı yerden devam edebiliyor
+- ✅ Tüm dillerde çalışıyor (i18n sonrası)
+
+---
+
 ## 📋 i18n Implementation Plan (3-4 Gün)
 
-### Gün 1: Setup & Configuration
+### Gün 3: Setup & Configuration
 
 **Görevler:**
 - [ ] `react-i18next` install
@@ -367,11 +471,14 @@ export const generateQuestion = async (
 ### Timeline
 
 ```
-Hafta 0 (3-4 gün): i18n Implementation
-├── Gün 1: Setup
-├── Gün 2: Translation files
-├── Gün 3: Components adaptation
-└── Gün 4: AI prompts & testing
+Hafta 0 (5-6 gün): UX İyileştirmeleri + i18n Implementation
+├── Gün 1-2: UX İyileştirmeleri
+│   ├── Geri dönme özelliği
+│   └── Taslak kaydetme & devam etme
+├── Gün 3: i18n Setup
+├── Gün 4: Translation files
+├── Gün 5: Components adaptation
+└── Gün 6: AI prompts & testing
 
 Hafta 1-4: Dashboard Entegrasyonu
 └── i18n zaten var, sadece yeni modüller için ekle
@@ -382,10 +489,11 @@ Hafta 1-4: Dashboard Entegrasyonu
 ## ✅ Karar: ŞİMDİ YAP
 
 **Önerilen Sıra:**
-1. ✅ **i18n Implementation** (3-4 gün) - ŞİMDİ
-2. ✅ **Dashboard Entegrasyonu** (4 hafta) - SONRA
+1. ✅ **UX İyileştirmeleri** (2 gün) - ŞİMDİ
+2. ✅ **i18n Implementation** (3-4 gün) - ŞİMDİ
+3. ✅ **Dashboard Entegrasyonu** (4 hafta) - SONRA
 
-**Toplam Süre:** 4 hafta + 3-4 gün = ~5 hafta
+**Toplam Süre:** 4 hafta + 5-6 gün = ~5.5 hafta
 
 ---
 

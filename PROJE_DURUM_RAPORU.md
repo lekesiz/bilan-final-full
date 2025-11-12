@@ -152,6 +152,61 @@
 
 ## 🚀 NE YAPACAĞIZ (Planifié)
 
+### Priorité Critique (Hemen - Ön Hazırlık)
+
+#### 1. UX İyileştirmeleri: Bilan Süreci ⭐⭐⭐
+**Durée:** 2 jours  
+**Valeur:** Critique  
+**Timing:** i18n'den ÖNCE (12-13 Kasım 2024)
+
+**Fonctionnalités:**
+
+**1.1. Geri Dönme: Önceki Cevabı Değiştirme**
+- [ ] `Questionnaire.tsx`'e "Önceki Sorular" bölümü ekle
+- [ ] Her cevabın yanına "Düzenle" butonu ekle
+- [ ] Cevap düzenleme modalı oluştur
+- [ ] Backend API: `PATCH /api/assessments/:assessmentId/answers/:answerId`
+- [ ] Backend route: `backend/src/routes/answers.ts` güncelle
+- [ ] Düzenlenen cevabı backend'e kaydet
+- [ ] UI'da düzenlenen cevabı güncelle
+- [ ] Test: Cevap düzenleme çalışıyor mu?
+
+**1.2. Taslak Kaydetme: Testi Yarıda Bırakıp Devam Etme**
+- [ ] `Questionnaire.tsx`'e "Taslak Kaydet" butonu ekle
+- [ ] Otomatik taslak kaydetme (her 5 soruda bir)
+- [ ] Backend'de `status: 'in_progress'` assessment'ları göster
+- [ ] `HistoryScreen.tsx`'e "Devam Et" bölümü ekle
+- [ ] `App.tsx`'e "Devam Et" fonksiyonu ekle
+- [ ] Assessment resume: `GET /api/assessments/:id` ile devam et
+- [ ] Kaldığı yerden devam etme (currentQuestionIndex)
+- [ ] UI'da "Taslak kaydedildi" bildirimi
+- [ ] Test: Taslak kaydetme ve devam etme çalışıyor mu?
+
+**Backend Güncellemeleri:**
+- [ ] `PATCH /api/assessments/:assessmentId/answers/:answerId` endpoint
+- [ ] `GET /api/assessments` - `status: 'in_progress'` filtreleme
+- [ ] Assessment resume logic
+
+**UI/UX:**
+- [ ] "Düzenle" butonu tasarımı
+- [ ] Cevap düzenleme modalı
+- [ ] "Taslak Kaydet" butonu (görünür ve erişilebilir)
+- [ ] "Devam Et" butonu (HistoryScreen'de)
+- [ ] Otomatik taslak bildirimi
+
+**Test Kriterleri:**
+- ✅ Kullanıcı önceki cevabı düzenleyebiliyor
+- ✅ Düzenlenen cevap backend'e kaydediliyor
+- ✅ UI'da düzenlenen cevap görünüyor
+- ✅ "Taslak Kaydet" butonu çalışıyor
+- ✅ Otomatik taslak kaydetme çalışıyor (her 5 soruda)
+- ✅ HistoryScreen'de "Devam Et" butonu görünüyor
+- ✅ Kaldığı yerden devam edebiliyor
+
+**Detaylar için:** `I18N_IMPLEMENTATION_PLAN.md` dosyasına bakın.
+
+---
+
 ### Priorité Haute (1-2 Semaines)
 
 #### 1. Error Tracking (Sentry) ⭐⭐⭐
@@ -221,9 +276,10 @@
 
 ### Priorité Moyenne (2-4 Semaines)
 
-#### 4. Multi-language Support ⭐⭐
-**Durée:** 2-3 jours  
-**Valeur:** Moyenne-Élevée
+#### 2. Multi-language Support (i18n) ⭐⭐⭐
+**Durée:** 3-4 jours  
+**Valeur:** Haute  
+**Timing:** UX İyileştirmelerinden SONRA (14-17 Kasım 2024)
 
 **Diller:**
 - [ ] 🇫🇷 Français (mevcut)
