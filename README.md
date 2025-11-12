@@ -47,9 +47,14 @@ Une application interactive pour réaliser votre bilan de compétences avec l'ai
   - Break suggestions (toutes les 25 questions)
   - Enhanced progress bar (phase bazlı + zaman tahmini)
   - Milestone notifications (10, yarı yol, son 5 soru)
+  - **Dashboard sticky**: Panel de droite reste visible pendant le scroll
 ✅ **AI Quality**: Soru tekrarı önleme, context-aware soru üretimi, zorluk seviyesi progresyonu
 ✅ **State Management**: Synchronisation d'état améliorée, prévention des boucles infinies
 ✅ **Questionnaire Flow**: Correction du flux multi-étapes, satisfaction modal unique par phase
+✅ **Export Improvements**:
+  - **CSV Export**: Toutes les informations de question (numéro, ID, titre, description, type, thème, choix, réponse, date)
+  - **JSON Export**: Métadonnées complètes, toutes les informations de question structurées
+  - Backend data fetching pour export complet
 
 ## ✨ Fonctionnalités
 
@@ -85,7 +90,8 @@ Une application interactive pour réaliser votre bilan de compétences avec l'ai
 - Sauvegarde automatique toutes les 5 questions
 - Reprise de session inachevée
 - Historique complet des bilans
-- Export JSON/CSV des données
+- **Export CSV complet**: Toutes les informations de question (numéro, ID, titre, description, type, thème, choix, réponse, date)
+- **Export JSON structuré**: Métadonnées complètes avec toutes les informations de question
 
 ### 🎓 **Modules optionnels adaptatifs**
 L'IA suggère des modules selon les besoins détectés:
@@ -111,9 +117,9 @@ BILAN-EASY/
 │   ├── PhasePreliminaire.tsx   # Intro et choix de style
 │   ├── PersonalizationStep.tsx # Analyse CV (optionnel)
 │   ├── Questionnaire.tsx       # Interface chat principale ⭐
-│   ├── SummaryDashboard.tsx    # Synthèse finale ⭐
+│   ├── SummaryDashboard.tsx    # Synthèse finale ⭐ (CSV/JSON export amélioré)
 │   ├── HistoryScreen.tsx       # Historique des bilans
-│   ├── Dashboard.tsx           # Dashboard temps réel
+│   ├── Dashboard.tsx           # Dashboard temps réel (sticky positioning)
 │   ├── JourneyProgress.tsx     # Barre de progression (legacy)
 │   ├── EnhancedProgress.tsx    # Barre de progression améliorée ⭐
 │   ├── TypingIndicator.tsx     # Indicateur de frappe AI ⭐
