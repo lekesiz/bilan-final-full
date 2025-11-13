@@ -40,6 +40,7 @@ app.route('/api/auth', authRoutes);
 app.route('/api/users', usersRoutes);
 app.route('/api/roles', rolesRoutes);
 app.route('/api/permissions', permissionsRoutes);
+app.route('/api/audit', auditRoutes);
 app.route('/api/assessments', assessmentsRoutes);
 app.route('/api/assessments', answersRoutes);
 app.route('/api/assessments', summariesRoutes);

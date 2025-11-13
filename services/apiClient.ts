@@ -403,6 +403,30 @@ class ApiClient {
       body: JSON.stringify(data),
     }, token);
   }
+
+  // Audit Logs
+  async getAuditLogs(token: string | null = null, params?: {
+    userId?: string;
+    action?: string;
+    resource?: string;
+    resourceId?: string;
+    status?: 'success' | 'failure' | 'error';
+    startDate?: string;
+    endDate?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    const query = params ? `?${new URLSearchParams(params as any).toString()}` : '';
+    return this.request<{ logs: any[]; pagination: { total: number; limit: number; offset: number; hasMore: boolean } }>(`/audit${query}`, {}, token);
+  }
+
+  async getResourceAuditLogs(resource: string, resourceId: string, token: string | null = null, limit: number = 50) {
+    return this.request<{ logs: any[] }>(`/audit/resource/${resource}/${resourceId}?limit=${limit}`, {}, token);
+  }
+
+  async getUserAuditLogs(userId: string, token: string | null = null, limit: number = 100) {
+    return this.request<{ logs: any[] }>(`/audit/user/${userId}?limit=${limit}`, {}, token);
+  }
 }
 
 export const apiClient = new ApiClient();
@@ -585,6 +609,32 @@ export const useApi = () => {
     getPermissionsByResource: async (resource: string) => {
       const token = localStorage.getItem('bilan_auth_token');
       return apiClient.getPermissionsByResource(resource, token);
+    },
+
+    // Audit Logs
+    getAuditLogs: async (params?: {
+      userId?: string;
+      action?: string;
+      resource?: string;
+      resourceId?: string;
+      status?: 'success' | 'failure' | 'error';
+      startDate?: string;
+      endDate?: string;
+      limit?: number;
+      offset?: number;
+    }) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.getAuditLogs(token, params);
+    },
+
+    getResourceAuditLogs: async (resource: string, resourceId: string, limit: number = 50) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.getResourceAuditLogs(resource, resourceId, token, limit);
+    },
+
+    getUserAuditLogs: async (userId: string, limit: number = 100) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.getUserAuditLogs(userId, token, limit);
     },
   }), []); // Empty deps - apiClient singleton, methods stable
 };
