@@ -122,6 +122,12 @@ export const createAuthProvider = (api: ReturnType<typeof useApi>): AuthProvider
           id: user.id,
           name: user.name,
           email: user.email,
+          // Include additional fields if available
+          roles: (user as any).roles,
+          role: (user as any).role,
+          lastLoginAt: (user as any).lastLoginAt,
+          createdAt: (user as any).createdAt,
+          isActive: (user as any).isActive,
         };
       }
     } catch (error) {

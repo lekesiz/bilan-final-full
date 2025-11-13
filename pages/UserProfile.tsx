@@ -27,13 +27,17 @@ const UserProfile: React.FC = () => {
     );
   }
 
-  const formatDate = (dateString?: string) => {
+  const formatDate = (dateString?: string | null) => {
     if (!dateString) return t('profile.never', 'Never');
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    } catch (error) {
+      return t('profile.never', 'Never');
+    }
   };
 
   return (
@@ -86,14 +90,6 @@ const UserProfile: React.FC = () => {
                 {identity.name || t('profile.notSet', 'Not set')}
               </Descriptions.Item>
 
-              {identity.role && (
-                <Descriptions.Item
-                  label={t('profile.role', 'Role')}
-                >
-                  <Tag color="blue">{identity.role}</Tag>
-                </Descriptions.Item>
-              )}
-
               {identity.roles && Array.isArray(identity.roles) && identity.roles.length > 0 && (
                 <Descriptions.Item
                   label={t('profile.roles', 'Roles')}
@@ -101,14 +97,22 @@ const UserProfile: React.FC = () => {
                   <Space wrap>
                     {identity.roles.map((role: any, index: number) => (
                       <Tag key={index} color="blue">
-                        {typeof role === 'string' ? role : role.name}
+                        {typeof role === 'string' ? role : (role?.name || role?.id || role)}
                       </Tag>
                     ))}
                   </Space>
                 </Descriptions.Item>
               )}
 
-              {identity.lastLoginAt && (
+              {!identity.roles && identity.role && (
+                <Descriptions.Item
+                  label={t('profile.role', 'Role')}
+                >
+                  <Tag color="blue">{identity.role}</Tag>
+                </Descriptions.Item>
+              )}
+
+              {(identity.lastLoginAt || (identity as any).lastLoginAt) && (
                 <Descriptions.Item
                   label={
                     <Space>
@@ -117,11 +121,11 @@ const UserProfile: React.FC = () => {
                     </Space>
                   }
                 >
-                  {formatDate(identity.lastLoginAt)}
+                  {formatDate(identity.lastLoginAt || (identity as any).lastLoginAt)}
                 </Descriptions.Item>
               )}
 
-              {identity.createdAt && (
+              {(identity.createdAt || (identity as any).createdAt) && (
                 <Descriptions.Item
                   label={
                     <Space>
@@ -130,16 +134,16 @@ const UserProfile: React.FC = () => {
                     </Space>
                   }
                 >
-                  {formatDate(identity.createdAt)}
+                  {formatDate(identity.createdAt || (identity as any).createdAt)}
                 </Descriptions.Item>
               )}
 
-              {identity.isActive !== undefined && (
+              {((identity as any).isActive !== undefined) && (
                 <Descriptions.Item
                   label={t('profile.status', 'Status')}
                 >
-                  <Tag color={identity.isActive ? 'green' : 'red'}>
-                    {identity.isActive ? t('profile.active', 'Active') : t('profile.inactive', 'Inactive')}
+                  <Tag color={(identity as any).isActive ? 'green' : 'red'}>
+                    {(identity as any).isActive ? t('profile.active', 'Active') : t('profile.inactive', 'Inactive')}
                   </Tag>
                 </Descriptions.Item>
               )}
@@ -161,8 +165,9 @@ const UserProfile: React.FC = () => {
                   icon={<EditOutlined />}
                   onClick={() => {
                     // Navigate to edit page if user has permission to edit themselves
-                    if (identity.id) {
-                      navigate(`/users/edit/${identity.id}`);
+                    const userId = (identity as any).id || (identity as any).userId;
+                    if (userId) {
+                      navigate(`/users/edit/${userId}`);
                     }
                   }}
                 >
