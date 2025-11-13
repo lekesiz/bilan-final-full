@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApi } from '../services/apiClient';
+import { usePermissions } from '../src/core/permissions/usePermissions';
+import { useNavigate } from 'react-router-dom';
+import { Result, Button } from 'antd';
+import { StopOutlined } from '@ant-design/icons';
 
 interface AnalyticsData {
   overview: {
@@ -29,14 +33,23 @@ interface AnalyticsDashboardProps {
 const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onBack }) => {
   const { t } = useTranslation();
   const api = useApi();
+  const { canAccess } = usePermissions();
+  const navigate = useNavigate();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<{ startDate?: string; endDate?: string }>({});
 
+  // Permission check
+  const canViewAnalytics = canAccess('analytics', 'read') || 
+                          canAccess('admin', 'read') || 
+                          canAccess('dashboard', 'read');
+
   useEffect(() => {
-    loadAnalytics();
-  }, [dateRange]);
+    if (canViewAnalytics) {
+      loadAnalytics();
+    }
+  }, [dateRange, canViewAnalytics]);
 
   const loadAnalytics = async () => {
     try {
@@ -58,6 +71,27 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onBack }) => {
       [type === 'start' ? 'startDate' : 'endDate']: value || undefined,
     }));
   };
+
+  // Permission check - show access denied if no permission
+  if (!canViewAnalytics) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-8">
+        <div className="max-w-7xl mx-auto">
+          <Result
+            icon={<StopOutlined />}
+            status="403"
+            title="Access Denied"
+            subTitle="You don't have permission to view analytics."
+            extra={
+              <Button type="primary" onClick={() => navigate('/dashboard')}>
+                Go to Dashboard
+              </Button>
+            }
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

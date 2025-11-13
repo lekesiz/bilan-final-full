@@ -6,6 +6,10 @@ import assessmentsRoutes from './routes/assessments.js';
 import answersRoutes from './routes/answers.js';
 import summariesRoutes from './routes/summaries.js';
 import analyticsRoutes from './routes/analytics.js';
+import authRoutes from './routes/auth.js';
+import rolesRoutes from './routes/roles.js';
+import permissionsRoutes from './routes/permissions.js';
+import usersRoutes from './routes/users.js';
 import type { Env } from './types/env.js';
 
 const app = new Hono<Env>();
@@ -31,6 +35,10 @@ app.get('/health', (c) => {
 });
 
 // API routes
+app.route('/api/auth', authRoutes);
+app.route('/api/users', usersRoutes);
+app.route('/api/roles', rolesRoutes);
+app.route('/api/permissions', permissionsRoutes);
 app.route('/api/assessments', assessmentsRoutes);
 app.route('/api/assessments', answersRoutes);
 app.route('/api/assessments', summariesRoutes);

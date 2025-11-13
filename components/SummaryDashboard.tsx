@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Summary, SummaryPoint, ActionPlanItem, Answer, DashboardData } from '../types';
 import { findResourceLeads, analyzeThemesAndSkills } from '../services/aiService';
+import { usePermissions } from '../src/core/permissions/usePermissions';
 import SkillsRadar from './SkillsRadar';
 
 interface SummaryDashboardProps {
@@ -78,7 +79,15 @@ const ResourceModal: React.FC<{ item: ActionPlanItem, onClose: () => void }> = (
     );
 };
 
-const ExportModal: React.FC<{ onExportJson: () => void, onExportCsv: () => void, onClose: () => void }> = ({ onExportJson, onExportCsv, onClose }) => {
+interface ExportModalProps {
+    onExportJson: () => void;
+    onExportCsv: () => void;
+    onClose: () => void;
+    canExportJson: boolean;
+    canExportCsv: boolean;
+}
+
+const ExportModal: React.FC<ExportModalProps> = ({ onExportJson, onExportCsv, onClose, canExportJson, canExportCsv }) => {
     const { t } = useTranslation();
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -86,8 +95,21 @@ const ExportModal: React.FC<{ onExportJson: () => void, onExportCsv: () => void,
                 <h3 className="text-lg font-bold font-display text-primary-800 mb-4">{t('summary.exportModalTitle')}</h3>
                 <p className="text-slate-600 mb-6">{t('summary.exportModalText')}</p>
                 <div className="space-y-3">
-                    <button onClick={onExportJson} className="w-full text-left p-4 border rounded-lg hover:bg-slate-50"><strong>JSON</strong><p className="text-sm text-slate-500">{t('summary.exportJsonDesc')}</p></button>
-                    <button onClick={onExportCsv} className="w-full text-left p-4 border rounded-lg hover:bg-slate-50"><strong>CSV</strong><p className="text-sm text-slate-500">{t('summary.exportCsvDesc')}</p></button>
+                    {canExportJson && (
+                        <button onClick={onExportJson} className="w-full text-left p-4 border rounded-lg hover:bg-slate-50">
+                            <strong>JSON</strong>
+                            <p className="text-sm text-slate-500">{t('summary.exportJsonDesc')}</p>
+                        </button>
+                    )}
+                    {canExportCsv && (
+                        <button onClick={onExportCsv} className="w-full text-left p-4 border rounded-lg hover:bg-slate-50">
+                            <strong>CSV</strong>
+                            <p className="text-sm text-slate-500">{t('summary.exportCsvDesc')}</p>
+                        </button>
+                    )}
+                    {!canExportJson && !canExportCsv && (
+                        <p className="text-sm text-slate-500 text-center py-4">{t('summary.noExportPermission')}</p>
+                    )}
                 </div>
                 <button onClick={onClose} className="mt-6 w-full bg-slate-200 py-2 rounded-lg hover:bg-slate-300">{t('common.cancel')}</button>
             </div>
@@ -124,6 +146,7 @@ const ActionItem: React.FC<{ item: ActionPlanItem, onToggle: (id: string) => voi
 
 const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ summary, answers, userName, packageName, onRestart, onViewHistory, isHistoryView = false }) => {
     const { t } = useTranslation();
+    const { canAccess } = usePermissions();
     const [selectedSources, setSelectedSources] = useState<string[] | null>(null);
     const [isCoachModalOpen, setIsCoachModalOpen] = useState(false);
     const [isResourceModalOpen, setIsResourceModalOpen] = useState(false);
@@ -132,6 +155,11 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ summary, answers, u
     const [actionPlan, setActionPlan] = useState(summary.actionPlan);
     const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
     const [isDashboardLoading, setIsDashboardLoading] = useState(true);
+
+    // Permission checks for export features
+    const canExportJson = canAccess('bilan', 'export') || canAccess('bilan:export', 'json') || canAccess('bilan:export', 'read');
+    const canExportCsv = canAccess('bilan', 'export') || canAccess('bilan:export', 'csv') || canAccess('bilan:export', 'read');
+    const canExportPdf = canAccess('bilan', 'export') || canAccess('bilan:export', 'pdf') || canAccess('bilan:export', 'read');
 
     const ACTION_PLAN_STORAGE_KEY = `actionPlan-${userName}-${packageName}-${summary.profileType}`;
 
@@ -387,7 +415,15 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ summary, answers, u
             {selectedSources && <SourceModal sources={selectedSources} onClose={() => setSelectedSources(null)} />}
             {isCoachModalOpen && <CoachModal onClose={() => setIsCoachModalOpen(false)} />}
             {isResourceModalOpen && selectedActionItem && <ResourceModal item={selectedActionItem} onClose={() => setIsResourceModalOpen(false)} />}
-            {isExportModalOpen && <ExportModal onExportJson={handleExportJson} onExportCsv={handleExportCsv} onClose={() => setIsExportModalOpen(false)} />}
+            {isExportModalOpen && (
+                <ExportModal 
+                    onExportJson={handleExportJson} 
+                    onExportCsv={handleExportCsv} 
+                    onClose={() => setIsExportModalOpen(false)}
+                    canExportJson={canExportJson}
+                    canExportCsv={canExportCsv}
+                />
+            )}
 
             <div className="min-h-screen bg-slate-50 p-4 sm:p-8">
                 <div ref={summaryRef} className="max-w-4xl mx-auto p-8 bg-slate-100 rounded-lg">
@@ -443,14 +479,20 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ summary, answers, u
                 <div className="max-w-4xl mx-auto mt-8 flex flex-wrap justify-center items-center gap-4">
                      {!isHistoryView && <button onClick={onRestart} className="bg-primary-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-primary-700">{t('summary.restart')}</button>}
                      <button onClick={onViewHistory} className="bg-slate-200 text-slate-700 font-bold py-3 px-8 rounded-lg hover:bg-slate-300">{isHistoryView ? t('summary.backHistory') : t('summary.viewHistory')}</button>
-                     <button 
-                        onClick={handleDownloadPdf} 
-                        disabled={isPdfGenerating}
-                        className="bg-secondary text-white font-bold py-3 px-8 rounded-lg hover:bg-secondary-600 disabled:bg-slate-400 disabled:cursor-not-allowed"
-                     >
-                        {isPdfGenerating ? t('summary.generatingPdf') : t('summary.downloadPdf')}
-                     </button>
-                     <button onClick={() => setIsExportModalOpen(true)} className="text-sm text-slate-500 hover:text-primary-600">{t('summary.exportData')}</button>
+                     {canExportPdf && (
+                        <button 
+                            onClick={handleDownloadPdf} 
+                            disabled={isPdfGenerating}
+                            className="bg-secondary text-white font-bold py-3 px-8 rounded-lg hover:bg-secondary-600 disabled:bg-slate-400 disabled:cursor-not-allowed"
+                        >
+                            {isPdfGenerating ? t('summary.generatingPdf') : t('summary.downloadPdf')}
+                        </button>
+                     )}
+                     {(canExportJson || canExportCsv) && (
+                        <button onClick={() => setIsExportModalOpen(true)} className="text-sm text-slate-500 hover:text-primary-600">
+                            {t('summary.exportData')}
+                        </button>
+                     )}
                      <button onClick={() => setIsCoachModalOpen(true)} className="text-sm text-slate-500 hover:text-primary-600">{t('summary.discussCoach')}</button>
                 </div>
             </div>

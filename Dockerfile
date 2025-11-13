@@ -8,7 +8,10 @@ COPY package*.json ./
 COPY vite.config.ts tsconfig.json ./
 
 # Install dependencies
-RUN npm ci
+# Using --legacy-peer-deps to resolve peer dependency conflicts
+# @refinedev/react-router-v6@4.6.2 requires @refinedev/core@^4.46.1
+# but we're using @refinedev/core@^5.0.6 for compatibility with other packages
+RUN npm ci --legacy-peer-deps
 
 # Copy source files (including .env.local if it exists)
 COPY . .

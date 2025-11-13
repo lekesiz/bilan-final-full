@@ -211,10 +211,13 @@
 
 #### 1. Error Tracking (Sentry) ⭐⭐⭐
 **Durée:** 1 jour  
-**Valeur:** Critique pour production
+**Valeur:** Critique pour production  
+**Durum:** 🔄 Daha sonra eklenecek (external service)
+
+**Not:** Sentry entegrasyonu kod olarak hazır, ancak şimdilik external servis kullanmak istemiyoruz. Production'a geçmeden önce aktif edilebilir.
 
 **Tâches:**
-- [ ] Sentry account setup
+- [ ] Sentry account setup (daha sonra)
 - [ ] Frontend Sentry integration (kod hazır)
 - [ ] Backend Sentry integration (kod hazır)
 - [ ] Error grouping ve analiz
@@ -260,10 +263,13 @@
 
 #### 3. Progress Reminders (Email) ⭐⭐
 **Durée:** 1 jour  
-**Valeur:** Moyenne-Élevée
+**Valeur:** Moyenne-Élevée  
+**Durum:** 🔄 Daha sonra eklenecek (external service)
+
+**Not:** Email reminders için Resend kuruldu, ancak şimdilik external servis kullanmak istemiyoruz. Production'a geçmeden önce aktif edilebilir.
 
 **Fonctionnalités:**
-- [ ] Email service integration (SendGrid/Resend)
+- [ ] Email service integration (SendGrid/Resend) - daha sonra
 - [ ] Scheduled tasks (cron jobs)
 - [ ] Email templates
 - [ ] Reminder logic:
@@ -273,7 +279,7 @@
 - [ ] User preferences (email settings)
 
 **Backend:**
-- [ ] Email service setup
+- [ ] Email service setup (daha sonra)
 - [ ] Cron job configuration
 - [ ] Email queue system
 
@@ -522,9 +528,9 @@ Production Ready: ██████████░░░░░░░░░░  
 - Analytics Dashboard - Kapsamlı analytics endpoint ve frontend component
 
 **📋 Önümüzdeki Adımlar:**
-- Error tracking (Sentry) - Kod hazır, aktif edilecek
-- Email Reminders - Resend kuruldu, implementasyon devam edecek
-- Dashboard Entegrasyonu - 4 hafta içinde (Refine.dev)
+- Dashboard Entegrasyonu - 4 hafta içinde (Refine.dev) ⭐ ÖNCELİKLİ
+- Error tracking (Sentry) - Daha sonra (external service)
+- Email Reminders - Daha sonra (external service)
 
 **Proje durumu:** ✅ **Stable & Ready for Beta Testing**
 

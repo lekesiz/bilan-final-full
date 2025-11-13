@@ -110,6 +110,107 @@ export const modules = pgTable('modules', {
   assessmentIdIdx: index('idx_assessment_id_modules').on(table.assessmentId),
 }));
 
+// ============================================
+// RBAC Tables (Role-Based Access Control)
+// ============================================
+
+// Table: users (kullanıcılar)
+export const users = pgTable('users', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  passwordHash: varchar('password_hash', { length: 255 }).notNull(), // bcrypt hash
+  name: varchar('name', { length: 255 }).notNull(),
+  isActive: boolean('is_active').notNull().default(true),
+  lastLoginAt: timestamp('last_login_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  emailIdx: index('idx_users_email').on(table.email),
+  isActiveIdx: index('idx_users_is_active').on(table.isActive),
+}));
+
+// Table: roles (roller)
+export const roles = pgTable('roles', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 100 }).notNull().unique(),
+  description: text('description'),
+  isSystem: boolean('is_system').notNull().default(false), // System roles cannot be deleted
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  nameIdx: index('idx_roles_name').on(table.name),
+}));
+
+// Table: permissions (izinler)
+// Note: Unique constraint (resource, action) is defined in migration SQL
+export const permissions = pgTable('permissions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  resource: varchar('resource', { length: 100 }).notNull(), // e.g., 'bilan:assessment'
+  action: varchar('action', { length: 50 }).notNull(), // e.g., 'create', 'read', 'update', 'delete'
+  description: text('description'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => ({
+  resourceActionIdx: index('idx_permissions_resource_action').on(table.resource, table.action),
+}));
+
+// Table: role_permissions (many-to-many: roles <-> permissions)
+export const rolePermissions = pgTable('role_permissions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  roleId: uuid('role_id').notNull().references(() => roles.id, { onDelete: 'cascade' }),
+  permissionId: uuid('permission_id').notNull().references(() => permissions.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => ({
+  roleIdIdx: index('idx_role_permissions_role_id').on(table.roleId),
+  permissionIdIdx: index('idx_role_permissions_permission_id').on(table.permissionId),
+  uniqueRolePermission: index('idx_role_permissions_unique').on(table.roleId, table.permissionId),
+}));
+
+// Table: user_roles (many-to-many: users <-> roles)
+export const userRoles = pgTable('user_roles', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  roleId: uuid('role_id').notNull().references(() => roles.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index('idx_user_roles_user_id').on(table.userId),
+  roleIdIdx: index('idx_user_roles_role_id').on(table.roleId),
+  uniqueUserRole: index('idx_user_roles_unique').on(table.userId, table.roleId),
+}));
+
+// Table: dashboard_modules (dashboard modülleri)
+export const dashboardModules = pgTable('dashboard_modules', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 100 }).notNull().unique(),
+  displayName: varchar('display_name', { length: 255 }).notNull(),
+  description: text('description'),
+  icon: varchar('icon', { length: 100 }),
+  route: varchar('route', { length: 255 }).notNull().unique(),
+  isActive: boolean('is_active').notNull().default(true),
+  order: integer('order').notNull().default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  nameIdx: index('idx_dashboard_modules_name').on(table.name),
+  routeIdx: index('idx_dashboard_modules_route').on(table.route),
+  isActiveIdx: index('idx_dashboard_modules_is_active').on(table.isActive),
+}));
+
+// Table: module_permissions (many-to-many: modules <-> permissions)
+export const modulePermissions = pgTable('module_permissions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  moduleId: uuid('module_id').notNull().references(() => dashboardModules.id, { onDelete: 'cascade' }),
+  permissionId: uuid('permission_id').notNull().references(() => permissions.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => ({
+  moduleIdIdx: index('idx_module_permissions_module_id').on(table.moduleId),
+  permissionIdIdx: index('idx_module_permissions_permission_id').on(table.permissionId),
+  uniqueModulePermission: index('idx_module_permissions_unique').on(table.moduleId, table.permissionId),
+}));
+
+// Update assessments table to reference users table
+// Note: We'll keep clerkUserId for backward compatibility, but add userId reference
+// Migration will handle the transition
+
 // Types inférés
 export type Assessment = typeof assessments.$inferSelect;
 export type NewAssessment = typeof assessments.$inferInsert;
@@ -121,3 +222,19 @@ export type SatisfactionRating = typeof satisfactionRatings.$inferSelect;
 export type NewSatisfactionRating = typeof satisfactionRatings.$inferInsert;
 export type Module = typeof modules.$inferSelect;
 export type NewModule = typeof modules.$inferInsert;
+
+// RBAC Types
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type Role = typeof roles.$inferSelect;
+export type NewRole = typeof roles.$inferInsert;
+export type Permission = typeof permissions.$inferSelect;
+export type NewPermission = typeof permissions.$inferInsert;
+export type RolePermission = typeof rolePermissions.$inferSelect;
+export type NewRolePermission = typeof rolePermissions.$inferInsert;
+export type UserRole = typeof userRoles.$inferSelect;
+export type NewUserRole = typeof userRoles.$inferInsert;
+export type DashboardModule = typeof dashboardModules.$inferSelect;
+export type NewDashboardModule = typeof dashboardModules.$inferInsert;
+export type ModulePermission = typeof modulePermissions.$inferSelect;
+export type NewModulePermission = typeof modulePermissions.$inferInsert;

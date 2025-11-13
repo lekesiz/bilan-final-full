@@ -92,15 +92,25 @@ export interface CreateSummaryData {
 // API Client class
 class ApiClient {
   private async getHeaders(token: string | null): Promise<HeadersInit> {
-    // Clerk kaldırıldı - Session-based authentication kullanılıyor
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    // JWT token varsa Authorization header ekle (priority)
+    // Önce parametre olarak gelen token'ı kontrol et, yoksa localStorage'dan al
+    const authToken = token || localStorage.getItem('bilan_auth_token');
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+      return headers;
+    }
+
+    // Fallback: Session-based authentication (test mode - no JWT token)
     const sessionId = getSessionId();
     const userId = getUserId();
-    
-    return {
-      'Content-Type': 'application/json',
-      'X-Test-User-Id': userId,
-      'X-Session-Id': sessionId,
-    };
+    headers['X-Session-Id'] = sessionId;
+    headers['X-Test-User-Id'] = userId;
+
+    return headers;
   }
 
   private async request<T>(
@@ -290,6 +300,49 @@ export const useApi = () => {
     },
     getAnalytics: async (params?: { startDate?: string; endDate?: string }) => {
       return apiClient.getAnalytics(null, params);
+    },
+
+    // Auth methods
+    login: async (email: string, password: string) => {
+      return apiClient.request<{ user: any; token: string }>(
+        '/auth/login',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email, password }),
+        },
+        null
+      );
+    },
+
+    register: async (email: string, password: string, name: string) => {
+      return apiClient.request<{ user: any; token: string }>(
+        '/auth/register',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email, password, name }),
+        },
+        null
+      );
+    },
+
+    getMe: async (token: string | null) => {
+      return apiClient.request<any>('/auth/me', { method: 'GET' }, token);
+    },
+
+    getPermissions: async (token: string | null) => {
+      return apiClient.request<{ permissions: any[]; formatted: string[] }>(
+        '/auth/permissions',
+        { method: 'GET' },
+        token
+      );
+    },
+
+    logout: async (token: string | null) => {
+      return apiClient.request<{ message: string }>(
+        '/auth/logout',
+        { method: 'POST' },
+        token
+      );
     },
   }), []); // Empty deps - apiClient singleton, methods stable
 };
