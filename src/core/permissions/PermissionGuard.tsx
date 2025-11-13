@@ -47,7 +47,7 @@ export const PermissionGuard: React.FC<PermissionGuardProps> = ({
   const { canAccess, isLoading } = usePermissions();
 
   if (isLoading) {
-    return null; // Or a loading spinner
+    return <div style={{ padding: '24px' }}>Loading...</div>; // Return a valid React element instead of null
   }
 
   if (!canAccess(resource, action)) {
@@ -95,7 +95,7 @@ export const AnyPermissionGuard: React.FC<AnyPermissionGuardProps> = ({
   const { canAccessAny, isLoading } = usePermissions();
 
   if (isLoading) {
-    return null;
+    return <div style={{ padding: '24px' }}>Loading...</div>;
   }
 
   if (!canAccessAny(permissions)) {
@@ -143,7 +143,7 @@ export const AllPermissionGuard: React.FC<AllPermissionGuardProps> = ({
   const { canAccessAll, isLoading } = usePermissions();
 
   if (isLoading) {
-    return null;
+    return <div style={{ padding: '24px' }}>Loading...</div>;
   }
 
   if (!canAccessAll(permissions)) {

@@ -12,7 +12,7 @@ interface Permission {
  * Provides convenient methods to check user permissions
  */
 export const usePermissions = () => {
-  const { data: identity } = useGetIdentity();
+  const { data: identity, isLoading: identityLoading } = useGetIdentity();
   const api = useApi();
   
   // Get permissions from localStorage (set by authProvider)
@@ -27,6 +27,9 @@ export const usePermissions = () => {
     }
     return [];
   }, []);
+
+  // Return isLoading state
+  const isLoading = identityLoading;
 
   // Convert permission strings to objects for easier checking
   const permissionObjects = useMemo(() => {

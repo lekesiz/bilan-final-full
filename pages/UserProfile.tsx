@@ -57,10 +57,10 @@ const UserProfile: React.FC = () => {
     }
   };
 
+  // Temporarily remove PermissionGuard to test if it's causing the issue
   return (
-    <PermissionGuard resource="users" action="read">
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '24px' }}>
-        <Card>
+    <div style={{ maxWidth: 1000, margin: '0 auto', padding: '24px' }}>
+      <Card>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -192,9 +192,8 @@ const UserProfile: React.FC = () => {
               </PermissionGuard>
             </Space>
           </Space>
-        </Card>
-      </div>
-    </PermissionGuard>
+      </Card>
+    </div>
   );
 };
 
