@@ -361,6 +361,18 @@
     "expand": "Genişlet",
     "collapse": "Daralt"
   },
+  "export": {
+    "title": "Dışa Aktar",
+    "csv": "CSV olarak dışa aktar",
+    "excel": "Excel olarak dışa aktar",
+    "pdf": "PDF olarak dışa aktar",
+    "csvSuccess": "CSV başarıyla dışa aktarıldı",
+    "excelSuccess": "Excel başarıyla dışa aktarıldı",
+    "pdfSuccess": "PDF başarıyla dışa aktarıldı",
+    "csvError": "CSV dışa aktarma başarısız",
+    "excelError": "Excel dışa aktarma başarısız",
+    "pdfError": "PDF dışa aktarma başarısız"
+  },
   "errors": {
     "generic": "Bir hata oluştu",
     "network": "Bağlantı hatası",

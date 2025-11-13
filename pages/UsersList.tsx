@@ -189,6 +189,12 @@ const UsersList: React.FC = () => {
               }}
               onRefresh={refetch}
             />
+            <ExportButton
+              data={users}
+              columns={columns}
+              filename="users"
+              resource="users"
+            />
             {defaultButtons}
             <PermissionGuard resource="users" action="create" showError={false}>
               <CreateButton />

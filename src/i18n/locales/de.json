@@ -361,6 +361,18 @@
     "expand": "Erweitern",
     "collapse": "Reduzieren"
   },
+  "export": {
+    "title": "Exportieren",
+    "csv": "Als CSV exportieren",
+    "excel": "Als Excel exportieren",
+    "pdf": "Als PDF exportieren",
+    "csvSuccess": "CSV erfolgreich exportiert",
+    "excelSuccess": "Excel erfolgreich exportiert",
+    "pdfSuccess": "PDF erfolgreich exportiert",
+    "csvError": "CSV-Export fehlgeschlagen",
+    "excelError": "Excel-Export fehlgeschlagen",
+    "pdfError": "PDF-Export fehlgeschlagen"
+  },
   "errors": {
     "generic": "Ein Fehler ist aufgetreten",
     "network": "Verbindungsfehler",

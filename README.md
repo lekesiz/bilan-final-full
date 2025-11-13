@@ -1,772 +1,365 @@
-# Bilan de Compétences IA
-
-Une application interactive pour réaliser votre bilan de compétences avec l'aide de l'intelligence artificielle Gemini.
-
-[![Built with AI Studio](https://img.shields.io/badge/Built%20with-AI%20Studio-blue)](https://aistudio.google.com/apps)
-[![React](https://img.shields.io/badge/React-19.2.0-blue)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8.2-blue)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6.2.0-purple)](https://vitejs.dev/)
-
-</div>
-
-## 📋 Table des matières
-
-- [Vue d'ensemble](#-vue-densemble)
-- [État du Projet](#-état-du-projet-novembre-2024)
-- [Fonctionnalités](#-fonctionnalités)
-- [Architecture du projet](#-architecture-du-projet)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Utilisation](#-utilisation)
-- [Structure des données](#-structure-des-données)
-- [API Gemini](#-api-gemini)
-- [Dépannage](#-dépannage)
-- [Contribution](#-contribution)
-
-## 🎯 Vue d'ensemble
-
-**BILAN-EASY** est une application web React/TypeScript qui propose un bilan de compétences interactif et personnalisé, alimenté par l'IA Gemini 2.5. L'application guide l'utilisateur à travers trois phases structurées pour explorer ses compétences, motivations et aspirations professionnelles.
-
-**Version AI Studio**: [Voir dans AI Studio](https://ai.studio/apps/drive/1xKIXDV1a-WYTmcI6iSQtpDZmqzFlPdmG)
-
-## 📊 État du Projet (Novembre 2024)
-
-### ✅ Ce qui a été fait (Complété)
-
-**Backend & Infrastructure:**
-- ✅ Backend complet avec Hono.js, PostgreSQL, Drizzle ORM
-- ✅ API REST pour assessments, answers, summaries
-- ✅ Docker Compose configuration (Frontend, Backend, PostgreSQL)
-- ✅ Authentification système (JWT-based)
-- ✅ RBAC (Role-Based Access Control) system
-- ✅ Database schema ve migrations
-- ✅ Permission guards on all CRUD operations
-
-**Frontend & UX:**
-- ✅ Refine.dev framework integration
-- ✅ Interface conversationnelle complète avec AI coach
-- ✅ 3 formules de bilan (Découverte, Approfondi, Stratégique)
-- ✅ 3 styles de coaching (Collaboratif, Analytique, Créatif)
-- ✅ Dashboard temps réel (word cloud, skills radar)
-- ✅ Analytics Dashboard with charts (Recharts)
-- ✅ Enhanced progress bar avec temps estimé
-- ✅ Break suggestions (toutes les 25 questions)
-- ✅ Milestone notifications
-- ✅ Permission-based access control
-- ✅ User & Role management (CRUD)
-- ✅ Dashboard sticky positioning (panel reste visible)
-- ✅ Speech-to-text et text-to-speech
-- ✅ Session recovery (localStorage + backend)
-
-**Export & Data:**
-- ✅ PDF export avec jsPDF
-- ✅ CSV export complet (toutes les informations de question)
-- ✅ JSON export structuré avec métadonnées
-- ✅ Backend data fetching pour exports complets
-
-**AI & Performance:**
-- ✅ Multi-provider AI (Gemini, OpenAI, Claude) avec fallback
-- ✅ Rate limiting avec exponential backoff
-- ✅ Error handling robuste (Error Boundary, Toast, Retry)
-- ✅ Performance optimizations (debouncing, pagination, code splitting)
-
-**Quality & Testing:**
-- ✅ Vitest configuration (frontend + backend)
-- ✅ TypeScript strict mode
-- ✅ Error boundary implementation
-- ✅ Production-safe logging (backend logger utility, frontend DEV-only logs)
-- ✅ Console.log cleanup completed
-- ✅ CRUD pages test coverage added
-
-### 🔄 Ce que nous faisons actuellement (En cours)
-
-**Stabilisation:**
-- ✅ Analytics Dashboard tamamlandı
-- ✅ Multi-language Support (i18n) tamamlandı
-- ✅ UX İyileştirmeleri tamamlandı
-- ✅ Backend AI Service migration tamamlandı
-- ✅ Console.log cleanup ve production-safe logging
-- ✅ Test coverage (CRUD pages)
-- ✅ Dokümantasyon güncellemeleri
-
-**Production Hazırlığı:**
-- ✅ Dashboard Entegrasyonu (Refine.dev) - TAMAMLANDI
-- 🔄 Error tracking setup (Sentry - daha sonra, external service)
-- 🔄 Email Reminders (daha sonra, external service)
-
-### 🚀 Ce que nous allons faire (Planifié)
-
-**Priorité Haute (1-2 semaines):**
-- [x] **Analytics Dashboard** - ✅ TAMAMLANDI
-  - Toplam bilan sayısı, tamamlama oranları
-  - Drop-off analizi (phase bazlı)
-  - Package & coaching style distributions
-  - Tarih aralığı filtreleme
-  - i18n desteği (4 dil)
-
-- [x] **Dashboard Entegrasyonu (Refine.dev)** - ✅ TAMAMLANDI
-  - ✅ Admin panel entegrasyonu
-  - ✅ RBAC (Role-Based Access Control)
-  - ✅ Modüler yapı
-  - ✅ User Management
-  - ✅ Role & Permission Management
-  - ✅ BILAN Module entegrasyonu
-  - ✅ Analytics Dashboard
-  - Detaylar: `DASHBOARD_CALISMA_PLANI.md`
-
-**Daha Sonra Eklenecek (External Services):**
-- [ ] **Error Tracking (Sentry)** - Production için kritik (daha sonra)
-  - Kod hazır, sadece aktif edilecek
-  - Sentry account gerekiyor
-
-- [ ] **Progress Reminders (Email)** - Kullanıcı engagement (daha sonra)
-  - Resend kuruldu, implementasyon daha sonra
-  - External service gerekiyor
-
-**Priorité Moyenne (2-4 semaines):**
-- [x] **Multi-language Support** - ✅ TAMAMLANDI
-  - i18n implementation (react-i18next)
-  - Français, English, Deutsch, Türkçe
-  - Language switcher component
-
-- [ ] **PWA (Progressive Web App)** - Mobile experience
-  - Service Worker, offline support
-  - Install prompt
-  - App-like experience
-
-- [ ] **History Search & Filter** - UX improvement
-  - Tarih aralığına göre filtreleme
-  - Paket tipine göre filtreleme
-  - Anahtar kelime arama
-
-**Priorité Basse (1-2 mois):**
-- [ ] **Question Quality Analytics** - AI improvement
-  - Soru kalitesi skorlama
-  - En zor sorular analizi
-  - Soru tekrarı önleme iyileştirmeleri
-
-- [ ] **E2E Testing** - Quality assurance
-  - Playwright/Cypress setup
-  - Critical path tests
-
-- [ ] **Production Deployment** - Go-live
-  - CI/CD pipeline
-  - SSL/TLS configuration
-  - Monitoring setup
-
-### 📈 Progression du Projet
-
-```
-MVP Phase:        ████████████████████ 100% ✅
-Backend:          ████████████████████ 100% ✅
-Frontend Core:    ████████████████████ 100% ✅
-UX Improvements:  ███████████████████░  95% 🔄
-Export Features:  ████████████████████ 100% ✅
-Testing:          ████████████░░░░░░░░  60% 🔄
-Production Ready: ██████████░░░░░░░░░░  50% 🔄
-```
-
-**Version actuelle:** v1.0.0-beta  
-**Dernière mise à jour:** 12 Novembre 2024  
-**Statut:** Production-ready (beta), stabilisation en cours
-
-**✅ Dernières réalisations (12 Novembre 2024):**
-- Analytics Dashboard - Kapsamlı analytics endpoint ve frontend component
-- Multi-language Support (i18n) - 4 dil desteği (FR, EN, DE, TR)
-- UX İyileştirmeleri - Cevap düzenleme ve taslak kaydetme
-- Paket saatleri güncellendi (8, 16, 24 saat)
-
-### 🎉 Dernières améliorations (Dernière mise à jour: Novembre 2024)
-
-✅ **Backend complet intégré**: API REST avec Hono.js, PostgreSQL, Drizzle ORM
-✅ **Authentification**: Système de session personnalisé (remplacement de Clerk)
-✅ **Docker**: Configuration complète avec Docker Compose (Frontend, Backend, PostgreSQL)
-✅ **Tests**: Vitest configuré pour frontend et backend
-✅ **Error Handling**: Error Boundary, Toast notifications, retry mechanism
-✅ **Performance**: Debouncing, pagination, code splitting, connection pooling
-✅ **PDF Export**: Génération PDF avec jsPDF et html2canvas
-✅ **Multi-Provider AI**: Support Gemini, OpenAI, Claude avec fallback automatique
-✅ **Rate Limiting**: Exponential backoff, graceful retry, request queue
-✅ **UX Improvements**: 
-  - Typing indicators pour feedback visuel
-  - Break suggestions (toutes les 25 questions)
-  - Enhanced progress bar (phase bazlı + zaman tahmini)
-  - Milestone notifications (10, yarı yol, son 5 soru)
-  - **Dashboard sticky**: Panel de droite reste visible pendant le scroll
-✅ **AI Quality**: Soru tekrarı önleme, context-aware soru üretimi, zorluk seviyesi progresyonu
-✅ **State Management**: Synchronisation d'état améliorée, prévention des boucles infinies
-✅ **Questionnaire Flow**: Correction du flux multi-étapes, satisfaction modal unique par phase
-✅ **Export Improvements**:
-  - **CSV Export**: Toutes les informations de question (numéro, ID, titre, description, type, thème, choix, réponse, date)
-  - **JSON Export**: Métadonnées complètes, toutes les informations de question structurées
-  - Backend data fetching pour export complet
-
-## ✨ Fonctionnalités
-
-### 🎤 **Interface conversationnelle**
-- Chat interactif avec l'IA coach
-- Questions dynamiques générées par AI (Gemini/OpenAI/Claude)
-- **Typing indicators**: Feedback visuel pendant la génération
-- Synthèses régulières toutes les 3 réponses
-- Support de la voix (speech-to-text et text-to-speech)
-- **Break suggestions**: Suggestions de pause automatiques
-
-### 📦 **Trois formules de bilan**
-
-| Formule | Durée | Questions | Description |
-|---------|-------|-----------|-------------|
-| **Parcours Découverte** | 5h | 3 | Premier point sur vos compétences |
-| **Bilan Approfondi** | 12h | 6 | Exploration complète avec plan d'action |
-| **Accompagnement Stratégique** | 24h | 9 | Premium pour transitions majeures |
-
-### 🎨 **Styles de coaching**
-- **Collaboratif**: Chaleureux et encourageant
-- **Analytique**: Méthodique et structuré
-- **Créatif**: Inspirant et novateur
-
-### 📊 **Tableaux de bord en temps réel**
-- Nuage de mots (thèmes émergents)
-- Radar des compétences (5 dimensions)
-- **Enhanced Progress**: Barre de progression double (globale + phase)
-- **Temps estimé**: Affichage du temps restant
-- **Milestones**: Notifications à 10 questions, mi-parcours, et dernières 5 questions
-- **Dashboard sticky**: Panel de droite reste visible pendant le scroll
-
-### 💾 **Sauvegarde et historique**
-- Sauvegarde automatique toutes les 5 questions
-- Reprise de session inachevée
-- Historique complet des bilans
-- **Export CSV complet**: Toutes les informations de question (numéro, ID, titre, description, type, thème, choix, réponse, date)
-- **Export JSON structuré**: Métadonnées complètes avec toutes les informations de question
-
-### 🎓 **Modules optionnels adaptatifs**
-L'IA suggère des modules selon les besoins détectés:
-- Gestion de transition
-- Confiance en soi
-- Équilibre vie pro/perso
-
-### 📄 **Synthèse finale**
-- Type de profil professionnel
-- Forces clés avec justifications (citations)
-- Axes de développement
-- Plan d'action court/moyen terme
-- Recommandations personnalisées
-- Export PDF avec visualisations
-
-## 🏗️ Architecture du projet
-
-```
-BILAN-EASY/
-├── 📁 components/           # Composants React
-│   ├── WelcomeScreen.tsx       # Écran d'accueil
-│   ├── PackageSelector.tsx     # Sélection de formule
-│   ├── PhasePreliminaire.tsx   # Intro et choix de style
-│   ├── PersonalizationStep.tsx # Analyse CV (optionnel)
-│   ├── Questionnaire.tsx       # Interface chat principale ⭐
-│   ├── SummaryDashboard.tsx    # Synthèse finale ⭐ (CSV/JSON export amélioré)
-│   ├── HistoryScreen.tsx       # Historique des bilans
-│   ├── Dashboard.tsx           # Dashboard temps réel (sticky positioning)
-│   ├── JourneyProgress.tsx     # Barre de progression (legacy)
-│   ├── EnhancedProgress.tsx    # Barre de progression améliorée ⭐
-│   ├── TypingIndicator.tsx     # Indicateur de frappe AI ⭐
-│   ├── BreakSuggestionModal.tsx # Modal de suggestion de pause ⭐
-│   ├── SkillsRadar.tsx         # Graphique radar
-│   ├── WordCloud.tsx           # Nuage de mots
-│   ├── SpeechSettings.tsx      # Paramètres vocaux
-│   ├── ErrorBoundary.tsx       # Gestion d'erreurs globales
-│   ├── Toast.tsx               # Notifications toast
-│   └── SkeletonLoader.tsx     # Loaders de chargement
-│
-├── 📁 services/             # Logique métier
-│   ├── aiService.ts            # Multi-provider AI service ⭐
-│   ├── providers/              # AI Providers
-│   │   ├── geminiProvider.ts   # Gemini provider ⭐
-│   │   ├── openaiProvider.ts   # OpenAI provider ⭐
-│   │   └── claudeProvider.ts   # Claude provider ⭐
-│   ├── rateLimitClient.ts      # Rate limiting & retry ⭐
-│   ├── requestQueue.ts         # Request queue ⭐
-│   ├── geminiService.ts        # API Gemini 2.5 (legacy, deprecated)
-│   ├── apiClient.ts            # Client API backend ⭐
-│   ├── historyService.ts       # Gestion localStorage
-│   ├── ttsService.ts           # Text-to-speech
-│   └── liveService.ts          # Services live
-│
-├── 📁 hooks/                # Hooks React personnalisés
-│   ├── useSpeechRecognition.ts # Speech-to-text
-│   ├── useSpeechSynthesis.ts    # Text-to-speech
-│   ├── useDebounce.ts          # Debouncing
-│   ├── useThrottle.ts          # Throttling ⭐
-│   ├── useTheme.tsx            # Dark mode ⭐
-│   ├── useKeyboardShortcuts.ts # Raccourcis clavier ⭐
-│   └── useOfflineDetection.ts  # Détection hors ligne
-│
-├── 📁 backend/              # Backend API (Hono.js + PostgreSQL)
-│   ├── src/
-│   │   ├── app.ts              # Application Hono
-│   │   ├── db/
-│   │   │   ├── schema.ts       # Schéma Drizzle ORM
-│   │   │   └── client.ts       # Client PostgreSQL
-│   │   ├── routes/             # Routes API
-│   │   │   ├── assessments.ts
-│   │   │   ├── answers.ts
-│   │   │   └── summaries.ts
-│   │   ├── middleware/
-│   │   │   ├── auth.ts         # Authentification
-│   │   │   └── error.ts        # Gestion d'erreurs
-│   │   └── test/               # Tests Vitest
-│   ├── Dockerfile
-│   └── package.json
-│
-├── 📁 src/test/             # Tests frontend (Vitest)
-│   ├── components/
-│   ├── hooks/
-│   └── services/
-│
-├── 📄 App.tsx               # Composant racine (routing)
-├── 📄 types.ts              # Définitions TypeScript
-├── 📄 constants.ts          # Packages et catégories
-├── 📄 index.tsx             # Point d'entrée
-├── 📄 vite.config.ts        # Configuration Vite
-├── 📄 tsconfig.json         # Configuration TypeScript
-├── 📄 tailwind.config.js    # Configuration Tailwind CSS ⭐
-├── 📄 postcss.config.js     # Configuration PostCSS ⭐
-├── 📄 src/index.css         # Styles Tailwind ⭐
-├── 📄 package.json          # Dépendances npm
-├── 📄 Dockerfile             # Docker frontend
-├── 📄 docker-compose.yml     # Orchestration Docker
-├── 📄 nginx.conf             # Configuration Nginx
-└── 📄 .env.local             # Variables d'environnement ⚠️
-
-⭐ Fichiers critiques
-⚠️ Nécessite configuration
-```
-
-## 🚀 Installation
-
-### Prérequis
-- **Node.js** (v18+)
-- **npm** ou **yarn**
-- **PostgreSQL** (v14+) - Pour le backend
-- **Docker & Docker Compose** (optionnel, pour déploiement)
-- **Clé API Gemini** ([Obtenir ici](https://aistudio.google.com/app/apikey))
-
-### Installation locale
-
-```bash
-# 1. Cloner le dépôt
-git clone https://github.com/lekesiz/BILAN-EASY.git
-cd BILAN-EASY
-
-# 2. Installer les dépendances frontend
-npm install
-
-# 3. Installer les dépendances backend
-cd backend
-npm install
-cd ..
-
-# 4. Configurer les variables d'environnement
-# Frontend: .env.local
-echo "GEMINI_API_KEY=votre_clé_ici" > .env.local
-
-# Backend: backend/.env
-echo "DATABASE_URL=postgresql://user:password@localhost:5432/bilan_easy" > backend/.env
-echo "PORT=3001" >> backend/.env
-echo "FRONTEND_URL=http://localhost:3000" >> backend/.env
-echo "TEST_MODE=true" >> backend/.env
-
-# 5. Créer la base de données
-cd backend
-npm run db:push
-cd ..
-
-# 6. Lancer en développement
-# Terminal 1: Backend
-cd backend && npm run dev
-
-# Terminal 2: Frontend
-npm run dev
-```
-
-### Installation avec Docker
-
-```bash
-# 1. Cloner le dépôt
-git clone https://github.com/lekesiz/BILAN-EASY.git
-cd BILAN-EASY
-
-# 2. Configurer les variables d'environnement
-# Créer .env.local avec GEMINI_API_KEY
-echo "GEMINI_API_KEY=votre_clé_ici" > .env.local
-
-# 3. Lancer avec Docker Compose
-docker-compose up -d
-
-# 4. Accéder à l'application
-# Frontend: http://localhost:3000
-# Backend: http://localhost:3001/api
-```
-
-Voir [DEPLOYMENT.md](DEPLOYMENT.md) pour plus de détails.
-
-## ⚙️ Configuration
-
-### Clés API AI (Au moins une OBLIGATOIRE)
-
-**Fichier**: `.env.local` (frontend)
-
-Le système supporte maintenant **multi-provider AI** avec fallback automatique entre Gemini, OpenAI et Claude. Si un provider échoue, le système bascule automatiquement vers un autre.
-
-```bash
-# Gemini (Recommandé - Le plus rapide et économique)
-VITE_GEMINI_API_KEY=votre_clé_api_gemini_ici
-# ou
-GEMINI_API_KEY=votre_clé_api_gemini_ici
-
-# OpenAI (Optionnel - Fallback)
-VITE_OPENAI_API_KEY=votre_clé_api_openai_ici
-VITE_OPENAI_MODEL=gpt-4o  # ou gpt-4o-mini, gpt-4-turbo
-
-# Claude (Optionnel - Fallback)
-VITE_CLAUDE_API_KEY=votre_clé_api_claude_ici
-VITE_CLAUDE_MODEL=claude-3-5-sonnet-20241022  # ou claude-3-opus-20240229
-```
-
-**Comment obtenir les clés**:
-- **Gemini**: [Google AI Studio](https://aistudio.google.com/app/apikey)
-- **OpenAI**: [OpenAI Platform](https://platform.openai.com/api-keys)
-- **Claude**: [Anthropic Console](https://console.anthropic.com/)
-
-**Configuration minimale**: Au moins une clé API est requise. Pour une meilleure fiabilité, configurez plusieurs providers.
-
-**Pour Docker**: Voir [GEMINI_API_KEY_SETUP.md](GEMINI_API_KEY_SETUP.md)
-
-### Variables d'environnement
-
-#### Frontend (`.env.local`)
-
-| Variable | Description | Requis |
-|----------|-------------|--------|
-| `GEMINI_API_KEY` ou `VITE_GEMINI_API_KEY` | Clé API Gemini 2.5 | ✅ Au moins un |
-| `VITE_OPENAI_API_KEY` | Clé API OpenAI (fallback) | ⚠️ Optionnel |
-| `VITE_CLAUDE_API_KEY` | Clé API Claude (fallback) | ⚠️ Optionnel |
-| `VITE_OPENAI_MODEL` | Modèle OpenAI (défaut: `gpt-4o`) | ⚠️ Optionnel |
-| `VITE_CLAUDE_MODEL` | Modèle Claude (défaut: `claude-3-5-sonnet-20241022`) | ⚠️ Optionnel |
-| `VITE_API_URL` | URL du backend (défaut: `http://localhost:3001/api`) | ⚠️ Optionnel |
-
-#### Backend (`backend/.env`)
-
-| Variable | Description | Requis |
-|----------|-------------|--------|
-| `DATABASE_URL` | URL PostgreSQL | ✅ Oui |
-| `PORT` | Port du serveur (défaut: `3001`) | ⚠️ Optionnel |
-| `FRONTEND_URL` | URL du frontend (pour CORS) | ⚠️ Optionnel |
-| `TEST_MODE` | Mode test (défaut: `false`) | ⚠️ Optionnel |
-
-**Note**: Vite expose les variables via `process.env.API_KEY` (voir `vite.config.ts`)
-
-## 📖 Utilisation
-
-### Démarrage rapide
-
-1. **Accueil**: Entrer votre nom
-2. **Sélection**: Choisir une formule (Découverte/Approfondi/Stratégique)
-3. **Personnalisation**:
-   - Choisir votre style de coaching
-   - (Optionnel) Uploader un CV pour personnalisation
-4. **Questionnaire**: Répondre aux questions de l'IA
-   - Questions textuelles (PARAGRAPH)
-   - Choix multiples (MULTIPLE_CHOICE)
-   - Utiliser 🎤 pour la voix
-   - Utiliser "Joker" si besoin d'aide
-5. **Synthèse**: Consulter votre bilan complet
-   - Télécharger en PDF
-   - Exporter vos données (JSON/CSV)
-
-### Raccourcis clavier
-
-| Action | Raccourci |
-|--------|-----------|
-| Envoyer réponse | `Enter` |
-| Activer micro | Clic sur 🎤 |
-| Paramètres voix | Clic sur ⚙️ |
-
-## 📊 Structure des données
-
-### Types principaux (`types.ts`)
-
-```typescript
-// Question générée par l'IA
-interface Question {
-  id: string;
-  title: string;
-  description?: string;
-  type: QuestionType.PARAGRAPH | QuestionType.MULTIPLE_CHOICE;
-  theme: string;
-  choices?: string[];
-  required: boolean;
-}
-
-// Réponse utilisateur
-interface Answer {
-  questionId: string;
-  value: string;
-}
-
-// Synthèse finale
-interface Summary {
-  profileType: string;
-  priorityThemes: string[];
-  maturityLevel: string;
-  keyStrengths: SummaryPoint[];
-  areasForDevelopment: SummaryPoint[];
-  recommendations: string[];
-  actionPlan: {
-    shortTerm: ActionPlanItem[];
-    mediumTerm: ActionPlanItem[];
-  };
-}
-```
-
-### Packages (`constants.ts`)
-
-Trois formules avec phases structurées:
-
-```typescript
-PACKAGES = [
-  {
-    id: 'decouverte',
-    totalQuestionnaires: 3,
-    phases: {
-      phase1: { questionnaires: 1 }, // Investigation
-      phase2: { questionnaires: 1 }, // Analyse
-      phase3: { questionnaires: 1 }  // Conclusion
-    }
-  },
-  // ... approfondi (6 questions), stratégique (9 questions)
-]
-```
-
-## 🤖 Multi-Provider AI System
-
-Le système supporte maintenant **trois providers AI** avec fallback automatique :
-- **Gemini** (Google) - Recommandé, rapide et économique
-- **OpenAI** - Puissant et fiable
-- **Claude** (Anthropic) - Haute qualité de sortie
-
-Si un provider échoue, le système bascule automatiquement vers un autre. Voir [ENV_VARIABLES.md](ENV_VARIABLES.md) pour la configuration.
-
-### Modèles utilisés
-
-| Provider | Modèles | Usage |
-|----------|---------|-------|
-| **Gemini** | `gemini-2.5-flash`, `gemini-2.5-pro` | Questions, synthèses, dashboard, résumé final |
-| **OpenAI** | `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo` | Toutes les fonctions (fallback) |
-| **Claude** | `claude-3-5-sonnet-20241022`, `claude-3-opus-20240229` | Toutes les fonctions (fallback) |
-
-### Schemas JSON structurés
-
-Toutes les réponses Gemini utilisent des schémas JSON stricts pour garantir la cohérence:
-
-```typescript
-// Exemple: Schema de question
-const questionSchema = {
-  type: Type.OBJECT,
-  properties: {
-    id: { type: Type.STRING },
-    title: { type: Type.STRING },
-    type: { type: Type.STRING, enum: ['PARAGRAPH', 'MULTIPLE_CHOICE'] },
-    theme: { type: Type.STRING },
-    // ...
-  }
-}
-```
-
-### Fonctionnalités avancées
-
-- **Google Search intégré**: Pour questions métier (phase 2)
-- **Modules optionnels**: Détection automatique de besoins
-- **Joker**: Reformulation de question si bloqué
-- **Styles de coaching**: 3 systèmes d'instructions différents
-
-## 🐛 Dépannage
-
-### Erreur: "API_KEY is undefined"
-
-**Cause**: Clé API non configurée dans `.env.local`
-
-**Solution**:
-```bash
-echo "GEMINI_API_KEY=votre_clé_ici" > .env.local
-npm run dev
-```
-
-### Erreur: "Failed to fetch" (Backend)
-
-**Cause**: Backend non démarré ou CORS mal configuré
-
-**Solution**:
-1. Vérifier que le backend est démarré: `cd backend && npm run dev`
-2. Vérifier `FRONTEND_URL` dans `backend/.env`
-3. Vérifier les logs backend pour les erreurs
-
-### Erreur: "relation 'assessments' does not exist"
-
-**Cause**: Schéma de base de données non créé
-
-**Solution**:
-```bash
-cd backend
-npm run db:push
-```
-
-### Erreur Docker: "Port already in use"
-
-**Cause**: Port 3000, 3001 ou 5432 déjà utilisé
-
-**Solution**:
-1. Trouver le processus: `lsof -i :3000` (ou 3001, 5432)
-2. Arrêter le processus ou changer les ports dans `docker-compose.yml`
-
-Voir [DOCKER_TROUBLESHOOTING.md](DOCKER_TROUBLESHOOTING.md) pour plus de détails.
-
-### Erreur: "503 The model is overloaded" ou "429 Quota exceeded"
-
-**Cause**: Limite de quota Gemini API atteinte
-
-**Solution**: 
-- L'application retry automatiquement (max 3 tentatives)
-- Attendre le délai indiqué par l'API
-- Vérifier votre quota sur [Google AI Studio](https://aistudio.google.com/app/apikey)
-
-### Sauvegarde ne fonctionne pas
-
-**Cause**: localStorage désactivé ou plein
-
-**Solution**:
-1. Vérifier les permissions du navigateur
-2. Vider le localStorage: `localStorage.clear()`
-
-### Voix ne fonctionne pas
-
-**Cause**: API Web Speech non supportée ou permissions refusées
-
-**Solution**:
-1. Utiliser Chrome/Edge (meilleur support)
-2. Autoriser l'accès au microphone
-3. HTTPS requis en production
-
-## 🔧 Scripts npm
+# BILAN-EASY - Skills Assessment Platform
+
+A comprehensive, modern skills assessment platform built with React, TypeScript, and Node.js. This application enables organizations to conduct skills assessments, manage users and roles, track analytics, and maintain audit trails.
+
+## 🚀 Features
+
+### Core Functionality
+- **Skills Assessment System**: Interactive questionnaire system with AI-powered question generation
+- **User Management**: Complete CRUD operations for users with role-based access control
+- **Role & Permission Management**: Flexible RBAC system with granular permissions
+- **Analytics Dashboard**: Comprehensive analytics with charts and metrics
+- **Audit Trail**: Complete activity logging for compliance and security
+
+### Advanced Features
+- **Bulk Operations**: Bulk delete, update, and activate/deactivate operations
+- **Advanced Search & Filters**: Multi-criteria filtering with date ranges, status, and custom filters
+- **Export Functionality**: Export data to CSV, Excel, and PDF formats
+- **Internationalization**: Full i18n support for 4 languages (English, French, Turkish, German)
+- **Responsive Design**: Modern, mobile-friendly UI with Tailwind CSS
+- **Dark Mode Support**: Theme switching capability
+
+### UX Enhancements
+- **Loading Skeletons**: Smooth loading states for better UX
+- **Empty States**: Context-aware empty state messages
+- **Confirmation Modals**: Safe delete operations with confirmation
+- **Tooltips**: Helpful inline guidance for form fields
+- **Keyboard Shortcuts**: Power user shortcuts (Ctrl+K for command palette, Ctrl+/ for shortcuts)
+
+## 🛠️ Tech Stack
 
 ### Frontend
-
-```bash
-npm run dev      # Serveur dev (http://localhost:3000)
-npm run build    # Build production (dist/)
-npm run preview  # Prévisualiser le build
-npm test         # Lancer les tests (Vitest)
-npm run test:ui  # Interface UI pour les tests
-npm run test:coverage  # Tests avec couverture
-```
+- **React 19** with TypeScript
+- **Refine.dev** - Data-driven admin framework
+- **Ant Design 5** - UI component library
+- **Tailwind CSS** - Utility-first CSS framework
+- **React Router v7** - Client-side routing
+- **React Query (TanStack Query)** - Data fetching and caching
+- **i18next** - Internationalization
+- **Recharts** - Data visualization
+- **jsPDF** - PDF generation
+- **xlsx** - Excel export
+- **file-saver** - File download handling
 
 ### Backend
+- **Node.js** with TypeScript
+- **Hono.js** - Fast web framework
+- **Drizzle ORM** - Type-safe database queries
+- **PostgreSQL** - Primary database
+- **JWT** - Authentication
+- **Zod** - Schema validation
+- **Multi-Provider AI Service** - OpenAI, Anthropic Claude, Google Gemini with fallback
+
+### Development Tools
+- **Vite** - Build tool and dev server
+- **Vitest** - Unit testing
+- **Playwright** - E2E testing
+- **ESLint** - Code linting
+- **TypeScript** - Type safety
+
+## 📋 Prerequisites
+
+- **Node.js** 18+ and npm
+- **PostgreSQL** 14+
+- **Git**
+
+## 🔧 Installation
+
+### 1. Clone the Repository
 
 ```bash
+git clone https://github.com/lekesiz/bilan-final-full.git
+cd bilan-final-full
+```
+
+### 2. Install Dependencies
+
+```bash
+# Install frontend dependencies
+npm install
+
+# Install backend dependencies
 cd backend
-npm run dev      # Serveur dev (http://localhost:3001)
-npm run build    # Build production
-npm run db:push  # Créer/mettre à jour le schéma DB
-npm test         # Lancer les tests (Vitest)
+npm install
+cd ..
 ```
 
-### Docker
+### 3. Environment Setup
+
+#### Frontend (.env.local)
+
+```env
+VITE_API_URL=http://localhost:3001/api
+VITE_BACKEND_AI_URL=http://localhost:3001/api/ai
+```
+
+#### Backend (backend/.env)
+
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/bilan_db
+
+# Server
+PORT=3001
+NODE_ENV=development
+FRONTEND_URL=http://localhost:3000
+
+# JWT
+JWT_SECRET=your-secret-key-change-in-production
+JWT_EXPIRES_IN=7d
+
+# AI Providers (at least one required)
+OPENAI_API_KEY=your-openai-key
+ANTHROPIC_API_KEY=your-anthropic-key
+GEMINI_API_KEY=your-gemini-key
+
+# Rate Limiting
+AI_RATE_LIMIT_REQUESTS=100
+AI_RATE_LIMIT_WINDOW=60000
+```
+
+### 4. Database Setup
 
 ```bash
-docker-compose up -d        # Démarrer tous les services
-docker-compose down         # Arrêter tous les services
-docker-compose logs -f      # Voir les logs
-docker-compose build        # Reconstruire les images
+# Run migrations (if using Drizzle migrations)
+cd backend
+npm run db:migrate
+
+# Or create database manually
+createdb bilan_db
 ```
 
-## 📝 Fichiers de configuration
-
-### `vite.config.ts`
-
-```typescript
-// Expose la clé API Gemini
-define: {
-  'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-}
-```
-
-### `tsconfig.json`
-
-TypeScript 5.8 avec strict mode activé.
-
-### `package.json`
-
-Dépendances principales:
-- `react@19.2.0`
-- `@google/genai@1.29.0` (SDK Gemini)
-- `vite@6.2.0`
-- `typescript@5.8.2`
-
-## 🤝 Contribution
-
-### Workflow Git
+### 5. Start Development Servers
 
 ```bash
-# Créer une branche feature
-git checkout -b feature/ma-fonctionnalite
+# Terminal 1: Start backend
+cd backend
+npm run dev
 
-# Commiter les changements
-git commit -m "feat: Description de la fonctionnalité"
-
-# Pousser et créer une PR
-git push -u origin feature/ma-fonctionnalite
+# Terminal 2: Start frontend
+npm run dev
 ```
 
-### Standards de code
+The application will be available at:
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:3001
 
-- **TypeScript strict**: Typage complet obligatoire
-- **React 19**: Hooks modernes (pas de class components)
-- **Tailwind CSS**: Classes utilitaires pour le style
-- **Schémas JSON**: Toutes les réponses IA doivent avoir un schéma
+## 📁 Project Structure
 
-## 📚 Documentation
+```
+bilan-final-full/
+├── backend/                 # Backend API server
+│   ├── src/
+│   │   ├── db/             # Database schema and client
+│   │   ├── routes/         # API routes
+│   │   ├── services/       # Business logic
+│   │   ├── middleware/     # Auth, permissions, etc.
+│   │   └── utils/          # Utilities
+│   ├── package.json
+│   └── tsconfig.json
+├── src/                    # Frontend source
+│   ├── core/               # Core application logic
+│   │   ├── App.tsx         # Main app router
+│   │   ├── components/     # Reusable components
+│   │   ├── layout/         # Layout components
+│   │   └── permissions/    # RBAC system
+│   ├── i18n/               # Internationalization
+│   ├── pages/              # Page components
+│   └── services/           # API client
+├── pages/                  # Additional pages
+├── components/             # Shared components
+├── services/               # Frontend services
+├── package.json
+└── README.md
+```
 
-### User Guides
-- **[API Documentation](docs/API_DOCUMENTATION.md)** - Backend API endpoints ve örnekler
-- **[User Guide](docs/USER_GUIDE.md)** - Kullanıcılar için dashboard kullanım rehberi
-- **[Admin Guide](docs/ADMIN_GUIDE.md)** - Admin kullanıcılar için RBAC ve yönetim rehberi
-- **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Geliştiriciler için modül ekleme ve geliştirme rehberi
+## 🔐 Authentication & Authorization
 
-### Project Documentation
-- **[DASHBOARD_CALISMA_PLANI.md](DASHBOARD_CALISMA_PLANI.md)** - Dashboard entegrasyon çalışma planı
-- **[PROJE_DURUM_RAPORU.md](PROJE_DURUM_RAPORU.md)** - Proje durum raporu ve roadmap
-- **[TESTING.md](TESTING.md)** - Test rehberi ve best practices
+### Authentication
+- JWT-based authentication
+- Session management
+- Password hashing with bcrypt
 
-### Deployment & Setup
-- [DEPLOYMENT.md](docs/deployment/DEPLOYMENT.md) - Guide de déploiement complet
-- [DOCKER_TROUBLESHOOTING.md](docs/deployment/DOCKER_TROUBLESHOOTING.md) - Résolution de problèmes Docker
-- [ENV_VARIABLES.md](ENV_VARIABLES.md) - Variables d'environnement détaillées
-- [GEMINI_API_KEY_SETUP.md](GEMINI_API_KEY_SETUP.md) - Configuration de la clé API pour Docker
+### Authorization (RBAC)
+- Role-based access control
+- Granular permissions (resource:action)
+- Permission guards on routes and components
+- System roles (cannot be deleted)
 
-## 📞 Support
+### Default Roles
+- **Admin**: Full access to all resources
+- **User**: Basic access, can create assessments
+- **Viewer**: Read-only access
 
-- **Issues GitHub**: [Créer une issue](https://github.com/lekesiz/BILAN-EASY/issues)
-- **AI Studio**: [Voir le projet](https://aistudio.google.com/apps)
+## 🎯 API Endpoints
 
-## 📜 Licence
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `GET /api/auth/me` - Get current user
+- `GET /api/auth/permissions` - Get user permissions
 
-Ce projet a été généré avec [Google AI Studio](https://aistudio.google.com/apps).
+### Users
+- `GET /api/users` - List users (with filters)
+- `GET /api/users/:id` - Get user details
+- `POST /api/users` - Create user
+- `PATCH /api/users/:id` - Update user
+- `DELETE /api/users/:id` - Delete user
+
+### Roles
+- `GET /api/roles` - List roles
+- `GET /api/roles/:id` - Get role details
+- `POST /api/roles` - Create role
+- `PATCH /api/roles/:id` - Update role
+- `DELETE /api/roles/:id` - Delete role
+
+### Assessments
+- `GET /api/assessments` - List assessments
+- `GET /api/assessments/:id` - Get assessment details
+- `POST /api/assessments` - Create assessment
+- `PATCH /api/assessments/:id` - Update assessment
+- `DELETE /api/assessments/:id` - Delete assessment
+
+### Bulk Operations
+- `POST /api/bulk/delete` - Bulk delete
+- `POST /api/bulk/update` - Bulk update
+
+### Audit Trail
+- `GET /api/audit` - List audit logs (with filters)
+- `GET /api/audit/resource/:resource/:resourceId` - Get resource logs
+- `GET /api/audit/user/:userId` - Get user logs
+
+### AI Service
+- `POST /api/ai/generate` - Generate content (questions, summaries)
+
+## 🧪 Testing
+
+```bash
+# Run unit tests
+npm test
+
+# Run E2E tests
+npm run test:e2e
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+## 🏗️ Building for Production
+
+```bash
+# Build frontend
+npm run build
+
+# Build backend
+cd backend
+npm run build
+```
+
+## 🐳 Docker (Optional)
+
+```bash
+# Start with Docker Compose
+docker-compose up -d
+```
+
+## 📝 Development Guidelines
+
+### Code Style
+- Use TypeScript for type safety
+- Follow ESLint rules
+- Use functional components with hooks
+- Prefer composition over inheritance
+
+### Git Workflow
+- Main branch: `main`
+- Feature branches: `feature/feature-name`
+- Commit messages: Use conventional commits
+
+### Adding New Features
+1. Create feature branch
+2. Implement feature with tests
+3. Update documentation
+4. Create pull request
+
+## 🔒 Security
+
+- API keys stored server-side only
+- JWT tokens with expiration
+- Password hashing (bcrypt)
+- SQL injection protection (Drizzle ORM)
+- XSS protection
+- CORS configuration
+- Rate limiting for AI endpoints
+
+## 🌍 Internationalization
+
+Supported languages:
+- English (en)
+- French (fr)
+- Turkish (tr)
+- German (de)
+
+Language files located in `src/i18n/locales/`
+
+## 📊 Analytics
+
+The analytics dashboard provides:
+- Assessment completion rates
+- Status distribution
+- Package distribution
+- Activity trends
+- Success rates by package
+- Time metrics
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**Database connection error**
+- Check DATABASE_URL in backend/.env
+- Ensure PostgreSQL is running
+- Verify database exists
+
+**API errors**
+- Check backend server is running
+- Verify API URL in frontend .env.local
+- Check CORS configuration
+
+**Build errors**
+- Clear node_modules and reinstall
+- Check Node.js version (18+)
+- Verify all dependencies are installed
+
+## 📚 Additional Documentation
+
+- [API Documentation](./docs/API.md) (if exists)
+- [Deployment Guide](./docs/DEPLOYMENT.md) (if exists)
+- [Contributing Guide](./CONTRIBUTING.md) (if exists)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
+
+## 📄 License
+
+[Add your license here]
+
+## 👥 Authors
+
+[Add authors/team information]
+
+## 🙏 Acknowledgments
+
+- Refine.dev team for the excellent framework
+- Ant Design for the UI components
+- All open-source contributors
 
 ---
 
-<div align="center">
-
-**Built with ❤️ using Google Gemini 2.5**
-
-[⬆ Retour en haut](#bilan-de-compétences-ia)
-
-</div>
+**Last Updated**: November 2024
+**Version**: 1.0.0
