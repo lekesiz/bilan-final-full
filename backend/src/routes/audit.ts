@@ -6,7 +6,8 @@
 
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { requireAuth, requirePermission } from '../middleware/auth.js';
+import { requireAuth } from '../middleware/auth.js';
+import { requirePermission } from '../middleware/permissions.js';
 import { success, error } from '../utils/response.js';
 import { getAuditLogs, getAuditLogCount, getResourceAuditLogs, getUserAuditLogs } from '../services/auditService.js';
 import { logger } from '../utils/logger.js';

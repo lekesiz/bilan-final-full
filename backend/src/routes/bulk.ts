@@ -7,7 +7,7 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
-import { requireAuth, requirePermission } from '../middleware/auth.js';
+import { requireAuth } from '../middleware/auth.js';
 import { success, error } from '../utils/response.js';
 import { db } from '../db/client.js';
 import { users, roles, assessments, userRoles, rolePermissions, permissions } from '../db/schema.js';
