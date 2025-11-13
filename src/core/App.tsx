@@ -3,7 +3,6 @@ import { Refine, Authenticated } from '@refinedev/core';
 import { RefineKbar, RefineKbarProvider } from '@refinedev/kbar';
 import { RefineThemes } from '@refinedev/antd';
 import { ThemedLayout } from '@refinedev/antd';
-import { DataProvider, AuthProvider } from '@refinedev/core';
 import { ConfigProvider, App as AntdApp, notification } from 'antd';
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import { useApi } from '../../services/apiClient';
@@ -38,8 +37,6 @@ interface RefineAppProps {
 }
 
 // Create a simple notification provider using Ant Design
-import { notification } from 'antd';
-
 const createNotificationProvider = () => {
   return {
     open: ({ message, description, type }: any) => {

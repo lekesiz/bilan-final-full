@@ -4,6 +4,7 @@ import { Table, Card, Typography, Space, Button, Tag, Row, Col } from 'antd';
 import { FileTextOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
+import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 import { LoadingState } from '../src/core/components/LoadingState';
 import { ErrorState } from '../src/core/components/ErrorState';
 import { EmptyState } from '../src/core/components/EmptyState';
@@ -104,52 +105,56 @@ const AssessmentsList: React.FC = () => {
   const assessments = data?.data || [];
 
   return (
-    <PageWrapper>
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <Row justify="space-between" align="middle" gutter={[16, 16]}>
-          <Col xs={24} sm={12}>
-            <Title level={2} style={{ margin: 0 }}>
-              <FileTextOutlined /> Assessments
-            </Title>
-          </Col>
-          <Col xs={24} sm={12} style={{ textAlign: 'right' }}>
-            <Button
-              type="primary"
-              onClick={() => navigate('/bilan')}
-              size="large"
-            >
-              New Assessment
-            </Button>
-          </Col>
-        </Row>
+    <PermissionGuard resource="bilan:assessment" action="read">
+      <PageWrapper>
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <Row justify="space-between" align="middle" gutter={[16, 16]}>
+            <Col xs={24} sm={12}>
+              <Title level={2} style={{ margin: 0 }}>
+                <FileTextOutlined /> Assessments
+              </Title>
+            </Col>
+            <Col xs={24} sm={12} style={{ textAlign: 'right' }}>
+              <PermissionGuard resource="bilan:assessment" action="create" showError={false}>
+                <Button
+                  type="primary"
+                  onClick={() => navigate('/bilan')}
+                  size="large"
+                >
+                  New Assessment
+                </Button>
+              </PermissionGuard>
+            </Col>
+          </Row>
 
-        <Card>
-          {assessments.length === 0 ? (
-            <EmptyState
-              title="No assessments found"
-              description="Get started by creating your first assessment"
-              actionLabel="Create Assessment"
-              onAction={() => navigate('/bilan')}
-            />
-          ) : (
-            <Table
-              columns={columns}
-              dataSource={assessments}
-              loading={isLoading}
-              rowKey="id"
-              scroll={{ x: 'max-content' }}
-              pagination={{
-                total: data?.total || 0,
-                pageSize: 10,
-                showSizeChanger: true,
-                showTotal: (total) => `Total ${total} assessments`,
-                responsive: true,
-              }}
-            />
-          )}
-        </Card>
-      </Space>
-    </PageWrapper>
+          <Card>
+            {assessments.length === 0 ? (
+              <EmptyState
+                title="No assessments found"
+                description="Get started by creating your first assessment"
+                actionLabel="Create Assessment"
+                onAction={() => navigate('/bilan')}
+              />
+            ) : (
+              <Table
+                columns={columns}
+                dataSource={assessments}
+                loading={isLoading}
+                rowKey="id"
+                scroll={{ x: 'max-content' }}
+                pagination={{
+                  total: data?.total || 0,
+                  pageSize: 10,
+                  showSizeChanger: true,
+                  showTotal: (total) => `Total ${total} assessments`,
+                  responsive: true,
+                }}
+              />
+            )}
+          </Card>
+        </Space>
+      </PageWrapper>
+    </PermissionGuard>
   );
 };
 

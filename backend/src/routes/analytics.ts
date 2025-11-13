@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { db, assessments, answers, summaries } from '../db/client.js';
 import { requireAuth } from '../middleware/auth.js';
+import { requireAnyPermission } from '../middleware/permissions.js';
 import { eq, and, sql, count, desc, gte, lte, inArray } from 'drizzle-orm';
 import { success, error } from '../utils/response.js';
 import type { Env } from '../types/env.js';
@@ -8,12 +9,14 @@ import type { Env } from '../types/env.js';
 const app = new Hono<Env>();
 
 // GET /api/admin/analytics - Analytics dashboard data
-app.get('/', requireAuth, async (c) => {
+// Requires: analytics:read OR admin:read OR dashboard:read permission
+app.get('/', requireAuth, requireAnyPermission([
+  { resource: 'analytics', action: 'read' },
+  { resource: 'admin', action: 'read' },
+  { resource: 'dashboard', action: 'read' },
+]), async (c) => {
   try {
     const userId = c.get('userId');
-    
-    // TODO: Add admin check - for now, any authenticated user can access
-    // In production, add: if (!isAdmin(userId)) return error(c, 'Unauthorized', 403);
 
     // Date range filters (optional)
     const startDate = c.req.query('startDate');

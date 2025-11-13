@@ -68,8 +68,16 @@ const DashboardHome: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div 
+      className="w-full min-h-full bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900"
+      style={{
+        margin: '-24px',
+        padding: '24px',
+        minHeight: 'calc(100vh - 64px)',
+        boxSizing: 'border-box',
+      }}
+    >
+      <div className="max-w-7xl mx-auto w-full">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold font-display text-slate-900 dark:text-white mb-2">

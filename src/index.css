@@ -17,3 +17,16 @@ body {
   font-family: 'Lexend', sans-serif;
 }
 
+/* Fix ThemedLayout Content area for Dashboard */
+.ant-layout-content {
+  position: relative !important;
+  overflow: visible !important;
+  min-height: calc(100vh - 64px) !important;
+}
+
+/* Ensure dashboard content is visible */
+.ant-layout-content > div {
+  width: 100% !important;
+  min-height: 100% !important;
+}
+

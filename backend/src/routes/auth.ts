@@ -3,6 +3,7 @@ import { db, users, userRoles, roles, rolePermissions, permissions } from '../db
 import { eq, and } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { requireAuth } from '../middleware/auth.js';
 import { success, error } from '../utils/response.js';
 import type { Env } from '../types/env.js';
 
@@ -191,21 +192,31 @@ app.post('/login', async (c) => {
 // GET /api/auth/me - Mevcut kullanıcı bilgileri
 app.get('/me', async (c) => {
   try {
-    // TODO: JWT token'dan user ID al (şimdilik test mode)
-    const userId = c.req.header('X-User-Id') || c.req.header('Authorization')?.replace('Bearer ', '');
+    // JWT token'dan user ID al
+    const authHeader = c.req.header('Authorization');
+    const userIdHeader = c.req.header('X-User-Id');
     
-    if (!userId) {
-      return error(c, 'Unauthorized', 401);
+    let decodedUserId: string | null = null;
+    
+    // Önce X-User-Id header'ını kontrol et (test mode için)
+    if (userIdHeader) {
+      decodedUserId = userIdHeader;
     }
-
-    // JWT token decode (eğer token ise)
-    let decodedUserId: string;
-    try {
-      const decoded = jwt.verify(userId, JWT_SECRET) as { userId: string };
-      decodedUserId = decoded.userId;
-    } catch {
-      // Token değilse, direkt userId olarak kullan
-      decodedUserId = userId;
+    
+    // Authorization header'dan JWT token'ı al
+    if (!decodedUserId && authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email?: string };
+        decodedUserId = decoded.userId;
+      } catch (err) {
+        // Invalid token
+        return error(c, 'Invalid or expired token', 401);
+      }
+    }
+    
+    if (!decodedUserId) {
+      return error(c, 'Unauthorized - No valid authentication provided', 401);
     }
 
     const foundUsers = await db
@@ -262,18 +273,31 @@ app.get('/me', async (c) => {
 // GET /api/auth/permissions - Kullanıcının permission'ları
 app.get('/permissions', async (c) => {
   try {
-    const userId = c.req.header('X-User-Id') || c.req.header('Authorization')?.replace('Bearer ', '');
+    // JWT token'dan user ID al
+    const authHeader = c.req.header('Authorization');
+    const userIdHeader = c.req.header('X-User-Id');
     
-    if (!userId) {
-      return error(c, 'Unauthorized', 401);
+    let decodedUserId: string | null = null;
+    
+    // Önce X-User-Id header'ını kontrol et (test mode için)
+    if (userIdHeader) {
+      decodedUserId = userIdHeader;
     }
-
-    let decodedUserId: string;
-    try {
-      const decoded = jwt.verify(userId, JWT_SECRET) as { userId: string };
-      decodedUserId = decoded.userId;
-    } catch {
-      decodedUserId = userId;
+    
+    // Authorization header'dan JWT token'ı al
+    if (!decodedUserId && authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email?: string };
+        decodedUserId = decoded.userId;
+      } catch (err) {
+        // Invalid token
+        return error(c, 'Invalid or expired token', 401);
+      }
+    }
+    
+    if (!decodedUserId) {
+      return error(c, 'Unauthorized - No valid authentication provided', 401);
     }
 
     // Kullanıcının permission'larını çek
@@ -311,6 +335,107 @@ app.post('/logout', async (c) => {
   // JWT stateless olduğu için backend'de bir şey yapmaya gerek yok
   // Client-side token'ı siler
   return success(c, { message: 'Logged out successfully' });
+});
+
+// POST /api/auth/password/reset - Password reset request
+// Note: In production, this should send an email with reset token
+app.post('/password/reset', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { email } = body;
+
+    if (!email) {
+      return error(c, 'Email is required', 400);
+    }
+
+    // Find user by email
+    const foundUsers = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+    
+    const user = foundUsers[0];
+
+    // Don't reveal if user exists (security best practice)
+    if (!user) {
+      // Still return success to prevent email enumeration
+      return success(c, { 
+        message: 'If the email exists, a password reset link has been sent' 
+      });
+    }
+
+    // TODO: In production, generate reset token and send email
+    // For now, just return success
+    // const resetToken = jwt.sign({ userId: user.id, type: 'password-reset' }, JWT_SECRET, { expiresIn: '1h' });
+    // await sendPasswordResetEmail(user.email, resetToken);
+
+    return success(c, { 
+      message: 'If the email exists, a password reset link has been sent' 
+    });
+  } catch (err) {
+    console.error('Password reset error:', err);
+    if (err instanceof Error) {
+      return error(c, err.message, 500);
+    }
+    return error(c, 'Failed to process password reset request', 500);
+  }
+});
+
+// POST /api/auth/password/update - Update password (requires authentication)
+app.post('/password/update', requireAuth, async (c) => {
+  try {
+    const userId = c.get('userId');
+    const body = await c.req.json();
+    const { currentPassword, newPassword } = body;
+
+    if (!currentPassword || !newPassword) {
+      return error(c, 'Current password and new password are required', 400);
+    }
+
+    // Password validation
+    if (newPassword.length < 8) {
+      return error(c, 'New password must be at least 8 characters', 400);
+    }
+
+    // Get user
+    const foundUsers = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    
+    const user = foundUsers[0];
+
+    if (!user) {
+      return error(c, 'User not found', 404);
+    }
+
+    // Verify current password
+    const isValidPassword = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isValidPassword) {
+      return error(c, 'Current password is incorrect', 401);
+    }
+
+    // Hash new password
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await db.update(users)
+      .set({ 
+        passwordHash: newPasswordHash,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+
+    return success(c, { message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('Password update error:', err);
+    if (err instanceof Error) {
+      return error(c, err.message, 500);
+    }
+    return error(c, 'Failed to update password', 500);
+  }
 });
 
 export default app;

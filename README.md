@@ -37,17 +37,23 @@ Une application interactive pour réaliser votre bilan de compétences avec l'ai
 - ✅ Backend complet avec Hono.js, PostgreSQL, Drizzle ORM
 - ✅ API REST pour assessments, answers, summaries
 - ✅ Docker Compose configuration (Frontend, Backend, PostgreSQL)
-- ✅ Authentification système (test mode)
+- ✅ Authentification système (JWT-based)
+- ✅ RBAC (Role-Based Access Control) system
 - ✅ Database schema ve migrations
+- ✅ Permission guards on all CRUD operations
 
 **Frontend & UX:**
+- ✅ Refine.dev framework integration
 - ✅ Interface conversationnelle complète avec AI coach
 - ✅ 3 formules de bilan (Découverte, Approfondi, Stratégique)
 - ✅ 3 styles de coaching (Collaboratif, Analytique, Créatif)
 - ✅ Dashboard temps réel (word cloud, skills radar)
+- ✅ Analytics Dashboard with charts (Recharts)
 - ✅ Enhanced progress bar avec temps estimé
 - ✅ Break suggestions (toutes les 25 questions)
 - ✅ Milestone notifications
+- ✅ Permission-based access control
+- ✅ User & Role management (CRUD)
 - ✅ Dashboard sticky positioning (panel reste visible)
 - ✅ Speech-to-text et text-to-speech
 - ✅ Session recovery (localStorage + backend)

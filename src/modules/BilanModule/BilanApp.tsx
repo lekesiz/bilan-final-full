@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import WelcomeScreen from '../../../components/WelcomeScreen';
 import PackageSelector from '../../../components/PackageSelector';
 import PhasePreliminaire from '../../../components/PhasePreliminaire';
@@ -33,6 +34,7 @@ export const BilanApp: React.FC = () => {
   
   const api = useApi();
   const { showToast } = useToast();
+  const navigate = useNavigate();
 
   const handleStart = (name: string) => {
     setUserName(name);
@@ -81,27 +83,78 @@ export const BilanApp: React.FC = () => {
     setAppState('personalization-step');
   };
 
-  const handlePersonalizationNext = (profile: UserProfile | null) => {
+  const handlePersonalizationComplete = async (profile: UserProfile | null) => {
     setUserProfile(profile);
+    
+    // Eğer assessment varsa ve userProfile varsa, assessment'ı güncelle
+    if (currentAssessmentId && profile) {
+      try {
+        await api.updateAssessment(currentAssessmentId, {
+          userProfile: {
+            fullName: profile.fullName,
+            currentRole: profile.currentRole,
+            keySkills: profile.keySkills,
+            pastExperiences: profile.pastExperiences,
+          }
+        });
+        showToast('Profil mis à jour', 'success', 2000);
+      } catch (error) {
+        console.error('Failed to update assessment with user profile:', error);
+        showToast('Impossible de sauvegarder le profil, mais nous continuons', 'warning', 3000);
+      }
+    }
+    
     setAppState('questionnaire');
   };
 
   const handleQuestionnaireComplete = async (answers: Answer[], summary: Summary) => {
-    setCurrentAnswers(answers);
+    // Eğer assessmentId varsa, backend'den tam answer bilgilerini çek
+    let fullAnswers = answers;
+    if (currentAssessmentId) {
+      try {
+        console.log('📥 Backend\'den answers çekiliyor, assessmentId:', currentAssessmentId);
+        const answersResponse = await api.getAnswers(currentAssessmentId);
+        console.log('✅ Backend\'den gelen answers:', answersResponse);
+        
+        // Backend'den gelen tam bilgileri kullan
+        fullAnswers = (answersResponse.answers || []).map((a: any) => {
+          const mapped = {
+            questionId: a.questionId,
+            value: a.value,
+            // Backend'den gelen ek bilgileri ekle
+            questionTitle: a.questionTitle,
+            questionDescription: a.questionDescription,
+            questionType: a.questionType,
+            questionTheme: a.questionTheme,
+            questionChoices: a.questionChoices,
+            answeredAt: a.answeredAt,
+          };
+          return mapped;
+        }) as Answer[];
+        
+        console.log('✅ Mapped fullAnswers:', fullAnswers.length, 'answers');
+      } catch (error) {
+        console.error('❌ Failed to fetch full answers from backend:', error);
+        // Hata durumunda mevcut answers'ı kullan
+        showToast('Impossible de récupérer les détails complets, mais nous continuons', 'warning', 3000);
+      }
+    } else {
+      console.warn('⚠️ AssessmentId yok, backend\'den veri çekilemiyor. Mevcut answers kullanılıyor:', answers.length);
+    }
+    
+    setCurrentAnswers(fullAnswers);
     setCurrentSummary(summary);
     
     // Save to history
-    if (currentAssessmentId) {
-      const historyItem: HistoryItem = {
-        id: currentAssessmentId,
-        userName,
-        packageName: selectedPackage?.name || '',
-        completedAt: new Date().toISOString(),
-        summary,
-        answers,
-      };
-      saveAssessmentToHistory(historyItem);
-    }
+    const historyItem: HistoryItem = {
+      id: currentAssessmentId || new Date().toISOString(),
+      date: new Date().toISOString(),
+      userName,
+      packageName: selectedPackage?.name || '',
+      summary,
+      answers: fullAnswers,
+    };
+    saveAssessmentToHistory(historyItem);
     
     setAppState('summary');
   };
@@ -133,6 +186,12 @@ export const BilanApp: React.FC = () => {
     setAppState('history');
   };
 
+  const handleShowAnalytics = () => {
+    // Analytics is handled by the main dashboard route
+    // Navigate to analytics dashboard using React Router
+    navigate('/analytics');
+  };
+
   const handleViewHistoryRecord = (record: HistoryItem) => {
     setViewingRecord(record);
     setAppState('view-history-record');
@@ -161,6 +220,7 @@ export const BilanApp: React.FC = () => {
           <WelcomeScreen
             onStart={handleStart}
             onShowHistory={handleViewHistory}
+            onShowAnalytics={handleShowAnalytics}
           />
         );
       case 'package-selection':
@@ -186,7 +246,7 @@ export const BilanApp: React.FC = () => {
       case 'personalization-step':
         return (
           <PersonalizationStep
-            onNext={handlePersonalizationNext}
+            onComplete={handlePersonalizationComplete}
           />
         );
       case 'questionnaire':
@@ -233,7 +293,7 @@ export const BilanApp: React.FC = () => {
           />
         );
       default:
-        return <WelcomeScreen onStart={handleStart} onShowHistory={handleViewHistory} />;
+        return <WelcomeScreen onStart={handleStart} onShowHistory={handleViewHistory} onShowAnalytics={handleShowAnalytics} />;
     }
   };
 

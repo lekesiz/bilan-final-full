@@ -4,6 +4,8 @@ import { Summary, SummaryPoint, ActionPlanItem, Answer, DashboardData } from '..
 import { findResourceLeads, analyzeThemesAndSkills } from '../services/aiService';
 import { usePermissions } from '../src/core/permissions/usePermissions';
 import SkillsRadar from './SkillsRadar';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 interface SummaryDashboardProps {
   summary: Summary;
@@ -209,19 +211,12 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ summary, answers, u
             return;
         }
 
-        // jspdf ve html2canvas kontrolü
-        if (typeof window === 'undefined' || !(window as any).jspdf || !(window as any).html2canvas) {
-            console.error('❌ PDF: jspdf veya html2canvas yüklenmemiş');
-            alert(t('summary.pdfLibraryError'));
-            return;
-        }
-
         setIsPdfGenerating(true);
         try {
             console.log('📄 PDF oluşturuluyor...');
             
             // html2canvas ile screenshot al
-            const canvas = await (window as any).html2canvas(content, { 
+            const canvas = await html2canvas(content, { 
                 scale: 2,
                 useCORS: true,
                 logging: false,
@@ -232,7 +227,6 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ summary, answers, u
             console.log('✅ Canvas oluşturuldu, PDF oluşturuluyor...');
             
             // jsPDF ile PDF oluştur
-            const { jsPDF } = (window as any).jspdf;
             const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();

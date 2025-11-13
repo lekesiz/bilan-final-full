@@ -5,6 +5,19 @@ import { usePermissions } from '../src/core/permissions/usePermissions';
 import { useNavigate } from 'react-router-dom';
 import { Result, Button } from 'antd';
 import { StopOutlined } from '@ant-design/icons';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
 interface AnalyticsData {
   overview: {
@@ -231,64 +244,87 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Distributions */}
+        {/* Distributions with Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Package Distribution */}
+          {/* Package Distribution - Pie Chart */}
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
               {t('analytics.packageDistribution') || 'Package Distribution'}
             </h3>
-            <div className="space-y-3">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={data.distributions.packages.map((pkg) => ({
+                    name: pkg.packageName,
+                    value: pkg.count,
+                  }))}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {data.distributions.packages.map((_, index) => {
+                    const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981'];
+                    return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                  })}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="mt-4 space-y-2">
               {data.distributions.packages.map((pkg) => {
                 const percentage = data.overview.totalAssessments > 0
                   ? Math.round((pkg.count / data.overview.totalAssessments) * 100)
                   : 0;
                 return (
-                  <div key={pkg.packageId}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-slate-700 dark:text-slate-300">{pkg.packageName}</span>
-                      <span className="font-semibold text-slate-900 dark:text-slate-100">
-                        {pkg.count} ({percentage}%)
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                      <div
-                        className="bg-primary-600 h-2 rounded-full transition-all"
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
+                  <div key={pkg.packageId} className="flex justify-between text-sm">
+                    <span className="text-slate-700 dark:text-slate-300">{pkg.packageName}</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                      {pkg.count} ({percentage}%)
+                    </span>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Coaching Style Distribution */}
+          {/* Coaching Style Distribution - Bar Chart */}
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
               {t('analytics.coachingStyleDistribution') || 'Coaching Style Distribution'}
             </h3>
-            <div className="space-y-3">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={data.distributions.coachingStyles.map((style) => ({
+                  name: style.coachingStyle.charAt(0).toUpperCase() + style.coachingStyle.slice(1),
+                  value: style.count,
+                }))}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" fill="#8b5cf6" />
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="mt-4 space-y-2">
               {data.distributions.coachingStyles.map((style) => {
                 const percentage = data.overview.totalAssessments > 0
                   ? Math.round((style.count / data.overview.totalAssessments) * 100)
                   : 0;
                 return (
-                  <div key={style.coachingStyle}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-slate-700 dark:text-slate-300 capitalize">
-                        {style.coachingStyle}
-                      </span>
-                      <span className="font-semibold text-slate-900 dark:text-slate-100">
-                        {style.count} ({percentage}%)
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                      <div
-                        className="bg-indigo-600 h-2 rounded-full transition-all"
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
+                  <div key={style.coachingStyle} className="flex justify-between text-sm">
+                    <span className="text-slate-700 dark:text-slate-300 capitalize">
+                      {style.coachingStyle}
+                    </span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                      {style.count} ({percentage}%)
+                    </span>
                   </div>
                 );
               })}
@@ -296,12 +332,96 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Drop-off Analysis */}
+        {/* Status Breakdown - Pie Chart */}
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 mb-8">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
+            {t('analytics.statusBreakdown') || 'Status Breakdown'}
+          </h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={data.statusBreakdown.map((status) => ({
+                    name: status.status === 'completed' ? 'Completed' : 
+                          status.status === 'in_progress' ? 'In Progress' : 
+                          status.status,
+                    value: status.count,
+                  }))}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {data.statusBreakdown.map((_, index) => {
+                    const colors = ['#10b981', '#f59e0b', '#ef4444'];
+                    return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                  })}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="flex flex-col justify-center space-y-3">
+              {data.statusBreakdown.map((status) => {
+                const percentage = data.overview.totalAssessments > 0
+                  ? Math.round((status.count / data.overview.totalAssessments) * 100)
+                  : 0;
+                const statusColors: Record<string, string> = {
+                  completed: 'text-green-600 dark:text-green-400',
+                  in_progress: 'text-yellow-600 dark:text-yellow-400',
+                };
+                return (
+                  <div key={status.status} className="flex justify-between items-center">
+                    <span className={`font-medium capitalize ${statusColors[status.status] || 'text-slate-700 dark:text-slate-300'}`}>
+                      {status.status === 'completed' ? 'Completed' : 
+                       status.status === 'in_progress' ? 'In Progress' : 
+                       status.status}
+                    </span>
+                    <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                      {status.count} ({percentage}%)
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Drop-off Analysis - Bar Chart */}
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 mb-8">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
             {t('analytics.dropOffAnalysis') || 'Drop-off Analysis (In Progress)'}
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={data.dropOffAnalysis.map((dropOff) => {
+                const totalInProgress = data.overview.inProgressCount;
+                const percentage = totalInProgress > 0
+                  ? Math.round((dropOff.count / totalInProgress) * 100)
+                  : 0;
+                return {
+                  name: dropOff.phase,
+                  count: dropOff.count,
+                  percentage: percentage,
+                };
+              })}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip formatter={(value: number, name: string) => {
+                if (name === 'count') return [`${value} assessments`, 'Count'];
+                return [`${value}%`, 'Percentage'];
+              }} />
+              <Legend />
+              <Bar dataKey="count" fill="#ef4444" name="Count" />
+              <Bar dataKey="percentage" fill="#f59e0b" name="Percentage" />
+            </BarChart>
+          </ResponsiveContainer>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
             {data.dropOffAnalysis.map((dropOff) => {
               const totalInProgress = data.overview.inProgressCount;
               const percentage = totalInProgress > 0
