@@ -16,9 +16,11 @@ import '@refinedev/antd/dist/reset.css';
 import BilanModule from '../modules/BilanModule';
 import AnalyticsDashboard from '../../components/AnalyticsDashboard';
 
-// Login/Register pages (to be created)
+// Login/Register pages
 import LoginPage from '../../pages/LoginPage';
 import RegisterPage from '../../pages/RegisterPage';
+import PasswordResetPage from '../../pages/PasswordResetPage';
+import PasswordUpdatePage from '../../pages/PasswordUpdatePage';
 
 // Dashboard pages
 import DashboardHome from '../../pages/DashboardHome';
@@ -103,6 +105,7 @@ const RefineApp: React.FC<RefineAppProps> = ({ api }) => {
                 {/* Public routes */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/password-reset" element={<PasswordResetPage />} />
 
                 {/* Protected routes */}
                 <Route
@@ -120,6 +123,7 @@ const RefineApp: React.FC<RefineAppProps> = ({ api }) => {
                 >
                   <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="/dashboard" element={<DashboardHome />} />
+                  <Route path="/password-update" element={<PasswordUpdatePage />} />
                   <Route path="/analytics" element={<AnalyticsDashboard />} />
                   <Route path="/assessments" element={<AssessmentsList />} />
                   <Route path="/assessments/show/:id" element={<AssessmentsShow />} />

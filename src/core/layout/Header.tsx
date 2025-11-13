@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout, Space, Dropdown, Avatar, Typography, Menu, Grid } from 'antd';
 import { useGetIdentity, useLogout } from '@refinedev/core';
-import { UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
+import { UserOutlined, LogoutOutlined, SettingOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../../../components/ThemeToggle';
 import { LanguageSwitcher } from '../../../components/LanguageSwitcher';
@@ -25,6 +25,14 @@ export const Header: React.FC = () => {
       onClick: () => {
         // Navigate to profile page when available
         console.log('Profile clicked');
+      },
+    },
+    {
+      key: 'password',
+      icon: <LockOutlined />,
+      label: 'Change Password',
+      onClick: () => {
+        navigate('/password-update');
       },
     },
     {

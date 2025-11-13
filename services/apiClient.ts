@@ -247,6 +247,75 @@ class ApiClient {
     const query = params ? `?${new URLSearchParams(params as any).toString()}` : '';
     return this.request<any>(`/admin/analytics${query}`, {}, token);
   }
+
+  // Users
+  async getUsers(token: string | null = null, params?: { limit?: number; offset?: number; search?: string }) {
+    const query = params ? `?${new URLSearchParams(params as any).toString()}` : '';
+    return this.request<{ users: any[]; pagination: { total: number; limit: number; offset: number } }>(`/users${query}`, {}, token);
+  }
+
+  async getUser(id: string, token: string | null = null) {
+    return this.request<any>(`/users/${id}`, {}, token);
+  }
+
+  async createUser(data: { email: string; password: string; name: string; roleIds?: string[]; isActive?: boolean }, token: string | null = null) {
+    return this.request<any>('/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }, token);
+  }
+
+  async updateUser(id: string, data: { name?: string; email?: string; password?: string; roleIds?: string[]; isActive?: boolean }, token: string | null = null) {
+    return this.request<any>(`/users/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }, token);
+  }
+
+  async deleteUser(id: string, token: string | null = null) {
+    return this.request<{ message: string }>(`/users/${id}`, {
+      method: 'DELETE',
+    }, token);
+  }
+
+  // Roles
+  async getRoles(token: string | null = null, params?: { limit?: number; offset?: number }) {
+    const query = params ? `?${new URLSearchParams(params as any).toString()}` : '';
+    return this.request<{ roles: any[]; pagination?: { total: number; limit: number; offset: number } }>(`/roles${query}`, {}, token);
+  }
+
+  async getRole(id: string, token: string | null = null) {
+    return this.request<any>(`/roles/${id}`, {}, token);
+  }
+
+  async createRole(data: { name: string; description?: string; permissionIds?: string[] }, token: string | null = null) {
+    return this.request<any>('/roles', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }, token);
+  }
+
+  async updateRole(id: string, data: { name?: string; description?: string; permissionIds?: string[] }, token: string | null = null) {
+    return this.request<any>(`/roles/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }, token);
+  }
+
+  async deleteRole(id: string, token: string | null = null) {
+    return this.request<{ message: string }>(`/roles/${id}`, {
+      method: 'DELETE',
+    }, token);
+  }
+
+  // Permissions
+  async getPermissions(token: string | null = null) {
+    return this.request<{ permissions: any[] }>('/permissions', {}, token);
+  }
+
+  async getPermissionsByResource(resource: string, token: string | null = null) {
+    return this.request<{ permissions: any[] }>(`/permissions/by-resource/${resource}`, {}, token);
+  }
 }
 
 export const apiClient = new ApiClient();
@@ -343,6 +412,92 @@ export const useApi = () => {
         { method: 'POST' },
         token
       );
+    },
+
+    // Password management
+    resetPassword: async (email: string) => {
+      return apiClient.request<{ message: string }>(
+        '/auth/password/reset',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email }),
+        },
+        null
+      );
+    },
+
+    updatePassword: async (currentPassword: string, newPassword: string, token: string | null) => {
+      return apiClient.request<{ message: string }>(
+        '/auth/password/update',
+        {
+          method: 'POST',
+          body: JSON.stringify({ currentPassword, newPassword }),
+        },
+        token
+      );
+    },
+
+    // Users
+    getUsers: async (params?: { limit?: number; offset?: number; search?: string }) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.getUsers(token, params);
+    },
+
+    getUser: async (id: string) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.getUser(id, token);
+    },
+
+    createUser: async (data: { email: string; password: string; name: string; roleIds?: string[]; isActive?: boolean }) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.createUser(data, token);
+    },
+
+    updateUser: async (id: string, data: { name?: string; email?: string; password?: string; roleIds?: string[]; isActive?: boolean }) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.updateUser(id, data, token);
+    },
+
+    deleteUser: async (id: string) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.deleteUser(id, token);
+    },
+
+    // Roles
+    getRoles: async (params?: { limit?: number; offset?: number }) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.getRoles(token, params);
+    },
+
+    getRole: async (id: string) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.getRole(id, token);
+    },
+
+    createRole: async (data: { name: string; description?: string; permissionIds?: string[] }) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.createRole(data, token);
+    },
+
+    updateRole: async (id: string, data: { name?: string; description?: string; permissionIds?: string[] }) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.updateRole(id, data, token);
+    },
+
+    deleteRole: async (id: string) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.deleteRole(id, token);
+    },
+
+    // Permissions
+    getPermissionsList: async () => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.getPermissions(token);
+    },
+
+    getPermissionsByResource: async (resource: string) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.getPermissionsByResource(resource, token);
     },
   }), []); // Empty deps - apiClient singleton, methods stable
 };

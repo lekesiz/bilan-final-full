@@ -110,12 +110,17 @@ const LoginPage: React.FC = () => {
           </Form>
 
           <div style={{ textAlign: 'center' }}>
-            <Text type="secondary">
-              Don't have an account?{' '}
-              <Link to="/register" style={{ fontWeight: 500 }}>
-                Sign up
+            <Space direction="vertical" size="small" style={{ width: '100%' }}>
+              <Link to="/password-reset" style={{ fontSize: 14 }}>
+                Forgot password?
               </Link>
-            </Text>
+              <Text type="secondary">
+                Don't have an account?{' '}
+                <Link to="/register" style={{ fontWeight: 500 }}>
+                  Sign up
+                </Link>
+              </Text>
+            </Space>
           </div>
         </Space>
       </Card>

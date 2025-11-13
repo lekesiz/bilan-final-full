@@ -228,17 +228,65 @@ export const createAuthProvider = (api: ReturnType<typeof useApi>): AuthProvider
   },
 
   forgotPassword: async ({ email }) => {
-    // TODO: Implement password reset
-    return {
-      success: true,
-    };
+    try {
+      await api.resetPassword(email);
+      return {
+        success: true,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: {
+          message: error.message || 'Failed to send password reset email',
+          name: 'PasswordResetError',
+        },
+      };
+    }
   },
 
   updatePassword: async ({ password, confirmPassword }) => {
-    // TODO: Implement password update
-    return {
-      success: true,
-    };
+    try {
+      const token = localStorage.getItem('bilan_auth_token');
+      
+      if (!token) {
+        return {
+          success: false,
+          error: {
+            message: 'You must be logged in to update your password',
+            name: 'PasswordUpdateError',
+          },
+        };
+      }
+
+      if (password !== confirmPassword) {
+        return {
+          success: false,
+          error: {
+            message: 'Passwords do not match',
+            name: 'PasswordUpdateError',
+          },
+        };
+      }
+
+      // Note: updatePassword requires currentPassword, but Refine's updatePassword
+      // only provides new password. We'll need to handle this differently.
+      // For now, we'll use a custom implementation in the UI.
+      return {
+        success: false,
+        error: {
+          message: 'Please use the password update form in your profile settings',
+          name: 'PasswordUpdateError',
+        },
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: {
+          message: error.message || 'Failed to update password',
+          name: 'PasswordUpdateError',
+        },
+      };
+    }
   },
 });
 
