@@ -7,7 +7,8 @@ import type { ColumnsType } from 'antd/es/table';
 import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 import { LoadingState } from '../src/core/components/LoadingState';
 import { ErrorState } from '../src/core/components/ErrorState';
-import { EmptyState } from '../src/core/components/EmptyState';
+import { NoAssessmentsYet } from '../src/core/components/ContextualEmptyStates';
+import { TableSkeleton } from '../src/core/components/TableSkeleton';
 import { PageWrapper } from '../src/core/components/PageWrapper';
 
 const { Title } = Typography;
@@ -89,7 +90,13 @@ const AssessmentsList: React.FC = () => {
   ];
 
   if (isLoading) {
-    return <LoadingState message="Loading assessments..." />;
+    return (
+      <PermissionGuard resource="bilan:assessment" action="read">
+        <PageWrapper>
+          <TableSkeleton columns={6} rows={10} />
+        </PageWrapper>
+      </PermissionGuard>
+    );
   }
 
   if (isError) {
@@ -129,12 +136,7 @@ const AssessmentsList: React.FC = () => {
 
           <Card>
             {assessments.length === 0 ? (
-              <EmptyState
-                title="No assessments found"
-                description="Get started by creating your first assessment"
-                actionLabel="Create Assessment"
-                onAction={() => navigate('/bilan')}
-              />
+              <NoAssessmentsYet onCreateClick={() => navigate('/bilan')} />
             ) : (
               <Table
                 columns={columns}

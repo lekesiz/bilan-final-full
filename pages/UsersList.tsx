@@ -1,7 +1,10 @@
 import React from 'react';
-import { List, useTable, EditButton, ShowButton, DeleteButton, CreateButton } from '@refinedev/antd';
+import { List, useTable, EditButton, ShowButton, CreateButton } from '@refinedev/antd';
 import { Table, Space, Tag } from 'antd';
 import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
+import { CustomDeleteButton } from '../src/core/components/CustomDeleteButton';
+import { TableSkeleton } from '../src/core/components/TableSkeleton';
+import { NoUsersFound } from '../src/core/components/ContextualEmptyStates';
 import type { ColumnsType } from 'antd/es/table';
 
 interface User {
@@ -83,12 +86,30 @@ const UsersList: React.FC = () => {
             <EditButton hideText size="small" recordItemId={record.id} />
           </PermissionGuard>
           <PermissionGuard resource="users" action="delete" showError={false}>
-            <DeleteButton hideText size="small" recordItemId={record.id} />
+            <CustomDeleteButton
+              resource="users"
+              recordItemId={record.id}
+              recordName={record.name || record.email}
+              hideText
+              size="small"
+            />
           </PermissionGuard>
         </Space>
       ),
     },
   ];
+
+  if (tableProps.loading) {
+    return (
+      <PermissionGuard resource="users" action="read">
+        <List>
+          <TableSkeleton columns={6} rows={10} />
+        </List>
+      </PermissionGuard>
+    );
+  }
+
+  const users = tableProps.dataSource || [];
 
   return (
     <PermissionGuard resource="users" action="read">
@@ -102,18 +123,22 @@ const UsersList: React.FC = () => {
           </>
         )}
       >
-        <Table 
-          {...tableProps} 
-          columns={columns} 
-          rowKey="id"
-          scroll={{ x: 'max-content' }}
-          pagination={{
-            ...tableProps.pagination,
-            responsive: true,
-            showSizeChanger: true,
-            showTotal: (total) => `Total ${total} users`,
-          }}
-        />
+        {users.length === 0 ? (
+          <NoUsersFound />
+        ) : (
+          <Table 
+            {...tableProps} 
+            columns={columns} 
+            rowKey="id"
+            scroll={{ x: 'max-content' }}
+            pagination={{
+              ...tableProps.pagination,
+              responsive: true,
+              showSizeChanger: true,
+              showTotal: (total) => `Total ${total} users`,
+            }}
+          />
+        )}
       </List>
     </PermissionGuard>
   );

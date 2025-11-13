@@ -213,6 +213,38 @@
     "timeMetricsNote": "Basé uniquement sur les bilans complétés",
     "statusBreakdown": "Répartition par Statut"
   },
+  "common": {
+    "confirmDelete": "Confirmer la suppression",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "deleteConfirmMessage": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" ? Cette action est irréversible.",
+    "deleteConfirmMessageGeneric": "Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible."
+  },
+  "emptyStates": {
+    "noAssessments": "Aucun bilan trouvé",
+    "noAssessmentsDesc": "Créez votre premier bilan pour commencer",
+    "createAssessment": "Créer un bilan",
+    "noUsers": "Aucun utilisateur trouvé",
+    "noUsersDesc": "Créez votre premier utilisateur pour commencer",
+    "createUser": "Créer un utilisateur",
+    "noRoles": "Aucun rôle trouvé",
+    "noRolesDesc": "Créez votre premier rôle pour commencer",
+    "createRole": "Créer un rôle",
+    "noResults": "Aucun résultat trouvé",
+    "noResultsDesc": "Aucun résultat trouvé pour \"{{query}}\". Essayez d'ajuster vos filtres.",
+    "clearFilters": "Effacer les filtres"
+  },
+  "shortcuts": {
+    "title": "Raccourcis clavier",
+    "navigation": "Navigation",
+    "general": "Général",
+    "commandPalette": "Ouvrir la palette de commandes",
+    "newAssessment": "Créer un nouveau bilan",
+    "showShortcuts": "Afficher les raccourcis clavier",
+    "closeModal": "Fermer la fenêtre ou annuler l'action",
+    "submitForm": "Soumettre le formulaire ou confirmer l'action",
+    "tip": "Astuce : Appuyez sur Ctrl+/ (ou ⌘+/) à tout moment pour ouvrir cette aide"
+  },
   "errors": {
     "generic": "Une erreur est survenue",
     "network": "Erreur de connexion",

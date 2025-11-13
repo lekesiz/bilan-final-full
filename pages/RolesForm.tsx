@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, useSelect } from '@refinedev/antd';
-import { Form, Input, Checkbox, Card, Typography, Space, Divider } from 'antd';
+import { Form, Input, Checkbox, Card, Typography, Space, Divider, Tooltip } from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import type { FormProps } from 'antd';
 
 const { Title, Text } = Typography;
@@ -87,7 +88,14 @@ const RolesForm: React.FC<RolesFormProps> = ({ formProps, saveButtonProps }) => 
   return (
     <Form {...formProps} layout="vertical">
       <Form.Item
-        label="Role Name"
+        label={
+          <Space>
+            Role Name
+            <Tooltip title="A unique identifier for this role (e.g., manager, editor)">
+              <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
+            </Tooltip>
+          </Space>
+        }
         name="name"
         rules={[{ required: true, message: 'Please enter role name' }]}
       >
@@ -95,7 +103,14 @@ const RolesForm: React.FC<RolesFormProps> = ({ formProps, saveButtonProps }) => 
       </Form.Item>
 
       <Form.Item
-        label="Description"
+        label={
+          <Space>
+            Description
+            <Tooltip title="Optional description explaining the purpose of this role">
+              <QuestionCircleOutlined style={{ color: '#8c8c8c' }} />
+            </Tooltip>
+          </Space>
+        }
         name="description"
       >
         <Input.TextArea rows={3} placeholder="Describe the role's purpose" />

@@ -209,6 +209,38 @@
     "timeMetricsNote": "Sadece tamamlanan değerlendirmelere dayanır",
     "statusBreakdown": "Durum Dağılımı"
   },
+  "common": {
+    "confirmDelete": "Silme Onayı",
+    "delete": "Sil",
+    "cancel": "İptal",
+    "deleteConfirmMessage": "\"{{name}}\" öğesini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "deleteConfirmMessageGeneric": "Bu öğeyi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+  },
+  "emptyStates": {
+    "noAssessments": "Henüz değerlendirme yok",
+    "noAssessmentsDesc": "Başlamak için ilk değerlendirmenizi oluşturun",
+    "createAssessment": "Değerlendirme Oluştur",
+    "noUsers": "Kullanıcı bulunamadı",
+    "noUsersDesc": "Başlamak için ilk kullanıcınızı oluşturun",
+    "createUser": "Kullanıcı Oluştur",
+    "noRoles": "Rol bulunamadı",
+    "noRolesDesc": "Başlamak için ilk rolünüzü oluşturun",
+    "createRole": "Rol Oluştur",
+    "noResults": "Sonuç bulunamadı",
+    "noResultsDesc": "\"{{query}}\" için sonuç bulunamadı. Filtrelerinizi ayarlamayı deneyin.",
+    "clearFilters": "Filtreleri Temizle"
+  },
+  "shortcuts": {
+    "title": "Klavye Kısayolları",
+    "navigation": "Navigasyon",
+    "general": "Genel",
+    "commandPalette": "Komut paletini aç",
+    "newAssessment": "Yeni değerlendirme oluştur",
+    "showShortcuts": "Klavye kısayollarını göster",
+    "closeModal": "Pencereyi kapat veya işlemi iptal et",
+    "submitForm": "Formu gönder veya işlemi onayla",
+    "tip": "İpucu: Bu yardımı açmak için istediğiniz zaman Ctrl+/ (veya ⌘+/) tuşlarına basın"
+  },
   "errors": {
     "generic": "Bir hata oluştu",
     "network": "Bağlantı hatası",

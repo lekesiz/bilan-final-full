@@ -209,6 +209,38 @@
     "timeMetricsNote": "Nur auf abgeschlossene Bewertungen basierend",
     "statusBreakdown": "Statusaufschlüsselung"
   },
+  "common": {
+    "confirmDelete": "Löschen bestätigen",
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+    "deleteConfirmMessage": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteConfirmMessageGeneric": "Sind Sie sicher, dass Sie dieses Element löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+  },
+  "emptyStates": {
+    "noAssessments": "Noch keine Bewertungen",
+    "noAssessmentsDesc": "Erstellen Sie Ihre erste Bewertung, um zu beginnen",
+    "createAssessment": "Bewertung erstellen",
+    "noUsers": "Keine Benutzer gefunden",
+    "noUsersDesc": "Erstellen Sie Ihren ersten Benutzer, um zu beginnen",
+    "createUser": "Benutzer erstellen",
+    "noRoles": "Keine Rollen gefunden",
+    "noRolesDesc": "Erstellen Sie Ihre erste Rolle, um zu beginnen",
+    "createRole": "Rolle erstellen",
+    "noResults": "Keine Ergebnisse gefunden",
+    "noResultsDesc": "Keine Ergebnisse für \"{{query}}\" gefunden. Versuchen Sie, Ihre Filter anzupassen.",
+    "clearFilters": "Filter löschen"
+  },
+  "shortcuts": {
+    "title": "Tastenkürzel",
+    "navigation": "Navigation",
+    "general": "Allgemein",
+    "commandPalette": "Befehls-Palette öffnen",
+    "newAssessment": "Neue Bewertung erstellen",
+    "showShortcuts": "Tastenkürzel anzeigen",
+    "closeModal": "Fenster schließen oder Aktion abbrechen",
+    "submitForm": "Formular absenden oder Aktion bestätigen",
+    "tip": "Tipp: Drücken Sie jederzeit Strg+/ (oder ⌘+/), um diese Hilfe zu öffnen"
+  },
   "errors": {
     "generic": "Ein Fehler ist aufgetreten",
     "network": "Verbindungsfehler",

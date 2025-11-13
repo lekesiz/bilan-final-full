@@ -1,10 +1,11 @@
-import React from 'react';
-import { Layout, Space, Dropdown, Avatar, Typography, Menu, Grid } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Layout, Space, Dropdown, Avatar, Typography, Menu, Grid, Button } from 'antd';
 import { useGetIdentity, useLogout } from '@refinedev/core';
-import { UserOutlined, LogoutOutlined, SettingOutlined, LockOutlined } from '@ant-design/icons';
+import { UserOutlined, LogoutOutlined, SettingOutlined, LockOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../../../components/ThemeToggle';
 import { LanguageSwitcher } from '../../../components/LanguageSwitcher';
+import KeyboardShortcutsModal from '../../../components/KeyboardShortcutsModal';
 
 const { useBreakpoint } = Grid;
 
@@ -16,6 +17,21 @@ export const Header: React.FC = () => {
   const { mutate: logout } = useLogout();
   const navigate = useNavigate();
   const screens = useBreakpoint();
+  const [shortcutsVisible, setShortcutsVisible] = useState(false);
+
+  // Keyboard shortcut handler
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + /: Show keyboard shortcuts
+      if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+        e.preventDefault();
+        setShortcutsVisible(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
 
   const userMenuItems = [
     {
@@ -75,6 +91,12 @@ export const Header: React.FC = () => {
         </Text>
       </div>
       <Space size="middle">
+        <Button
+          type="text"
+          icon={<QuestionCircleOutlined />}
+          onClick={() => setShortcutsVisible(true)}
+          title="Keyboard Shortcuts (Ctrl+/)"
+        />
         <LanguageSwitcher />
         <ThemeToggle />
         {identity && (
@@ -106,6 +128,10 @@ export const Header: React.FC = () => {
           </Dropdown>
         )}
       </Space>
+      <KeyboardShortcutsModal
+        visible={shortcutsVisible}
+        onClose={() => setShortcutsVisible(false)}
+      />
     </AntHeader>
   );
 };

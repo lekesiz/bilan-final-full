@@ -209,6 +209,38 @@
     "timeMetricsNote": "Based on completed assessments only",
     "statusBreakdown": "Status Breakdown"
   },
+  "common": {
+    "confirmDelete": "Confirm Delete",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteConfirmMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "deleteConfirmMessageGeneric": "Are you sure you want to delete this item? This action cannot be undone."
+  },
+  "emptyStates": {
+    "noAssessments": "No assessments yet",
+    "noAssessmentsDesc": "Create your first assessment to get started",
+    "createAssessment": "Create Assessment",
+    "noUsers": "No users found",
+    "noUsersDesc": "Create your first user to get started",
+    "createUser": "Create User",
+    "noRoles": "No roles found",
+    "noRolesDesc": "Create your first role to get started",
+    "createRole": "Create Role",
+    "noResults": "No results found",
+    "noResultsDesc": "No results found for \"{{query}}\". Try adjusting your filters.",
+    "clearFilters": "Clear Filters"
+  },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "navigation": "Navigation",
+    "general": "General",
+    "commandPalette": "Open command palette",
+    "newAssessment": "Create new assessment",
+    "showShortcuts": "Show keyboard shortcuts",
+    "closeModal": "Close modal or cancel action",
+    "submitForm": "Submit form or confirm action",
+    "tip": "Tip: Press Ctrl+/ (or ⌘+/) anytime to open this help"
+  },
   "errors": {
     "generic": "An error occurred",
     "network": "Connection error",

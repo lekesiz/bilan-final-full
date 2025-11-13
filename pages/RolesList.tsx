@@ -1,7 +1,10 @@
 import React from 'react';
-import { List, useTable, EditButton, ShowButton, DeleteButton, CreateButton } from '@refinedev/antd';
+import { List, useTable, EditButton, ShowButton, CreateButton } from '@refinedev/antd';
 import { Table, Space, Tag } from 'antd';
 import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
+import { CustomDeleteButton } from '../src/core/components/CustomDeleteButton';
+import { TableSkeleton } from '../src/core/components/TableSkeleton';
+import { NoRolesFound } from '../src/core/components/ContextualEmptyStates';
 import type { ColumnsType } from 'antd/es/table';
 
 interface Role {
@@ -71,7 +74,13 @@ const RolesList: React.FC = () => {
                 <EditButton hideText size="small" recordItemId={record.id} />
               </PermissionGuard>
               <PermissionGuard resource="roles" action="delete" showError={false}>
-                <DeleteButton hideText size="small" recordItemId={record.id} />
+                <CustomDeleteButton
+                  resource="roles"
+                  recordItemId={record.id}
+                  recordName={record.name}
+                  hideText
+                  size="small"
+                />
               </PermissionGuard>
             </>
           )}
@@ -79,6 +88,18 @@ const RolesList: React.FC = () => {
       ),
     },
   ];
+
+  if (tableProps.loading) {
+    return (
+      <PermissionGuard resource="roles" action="read">
+        <List>
+          <TableSkeleton columns={5} rows={10} />
+        </List>
+      </PermissionGuard>
+    );
+  }
+
+  const roles = tableProps.dataSource || [];
 
   return (
     <PermissionGuard resource="roles" action="read">
@@ -92,18 +113,22 @@ const RolesList: React.FC = () => {
           </>
         )}
       >
-        <Table 
-          {...tableProps} 
-          columns={columns} 
-          rowKey="id"
-          scroll={{ x: 'max-content' }}
-          pagination={{
-            ...tableProps.pagination,
-            responsive: true,
-            showSizeChanger: true,
-            showTotal: (total) => `Total ${total} roles`,
-          }}
-        />
+        {roles.length === 0 ? (
+          <NoRolesFound />
+        ) : (
+          <Table 
+            {...tableProps} 
+            columns={columns} 
+            rowKey="id"
+            scroll={{ x: 'max-content' }}
+            pagination={{
+              ...tableProps.pagination,
+              responsive: true,
+              showSizeChanger: true,
+              showTotal: (total) => `Total ${total} roles`,
+            }}
+          />
+        )}
       </List>
     </PermissionGuard>
   );
