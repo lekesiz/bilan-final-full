@@ -536,5 +536,64 @@ console.log('Query result:', result);
 
 ---
 
+---
+
+## 🧹 Code Quality & Best Practices
+
+### Logging
+
+**Backend:**
+- Use `logger` utility from `backend/src/utils/logger.ts`
+- Production-safe: Only logs in development or when `ENABLE_LOGGING=true`
+- Error and warn logs are always active
+
+```typescript
+import { logger } from '../utils/logger.js';
+
+// Development-only log
+logger.info('Debug information');
+
+// Always logged (errors/warnings)
+logger.error('Error occurred:', error);
+logger.warn('Warning message');
+```
+
+**Frontend:**
+- Use `import.meta.env.DEV` for development-only logs
+- Error and warn logs are always active
+- Debug logs should be removed or wrapped in DEV check
+
+```typescript
+// Development-only log
+if (import.meta.env.DEV) {
+  console.log('Debug information');
+}
+
+// Always logged
+console.error('Error occurred:', error);
+console.warn('Warning message');
+```
+
+### Testing
+
+**Test Coverage:**
+- CRUD pages have basic tests (`src/test/pages/*.test.tsx`)
+- Component tests use React Testing Library
+- Backend tests use Vitest
+
+**Running Tests:**
+```bash
+# Frontend tests
+npm test
+
+# Backend tests
+cd backend && npm test
+
+# Test coverage
+npm run test:coverage
+```
+
+---
+
 **Son Güncelleme:** 12 Kasım 2024
 
