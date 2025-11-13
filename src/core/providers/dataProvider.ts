@@ -57,11 +57,27 @@ export const createDataProvider = (api: ReturnType<typeof useApi>): DataProvider
       const total = response.pagination?.total || data.length;
 
       return {
-        data: Array.isArray(data) ? data : [],
+        data: Array.isArray(data) ? data : (data?.assessments || data?.users || data?.roles || []),
         total,
       };
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      // Better error handling
+      console.error(`Error fetching ${resource} list:`, error);
+      
+      // If unauthorized, clear auth and redirect
+      if (error?.statusCode === 401 || error?.status === 401 || error?.message?.includes('Unauthorized')) {
+        localStorage.removeItem('bilan_auth_token');
+        localStorage.removeItem('bilan_user_id');
+        localStorage.removeItem('bilan_user_name');
+        localStorage.removeItem('bilan_user_email');
+        window.location.href = '/login';
+      }
+      
+      throw {
+        message: error?.message || `Failed to fetch ${resource}`,
+        statusCode: error?.statusCode || error?.status || 500,
+        ...error,
+      };
     }
   },
 
@@ -106,8 +122,19 @@ export const createDataProvider = (api: ReturnType<typeof useApi>): DataProvider
       return {
         data: response.data || response,
       };
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      console.error(`Error fetching ${resource} with id ${id}:`, error);
+      
+      if (error?.statusCode === 401 || error?.status === 401 || error?.message?.includes('Unauthorized')) {
+        localStorage.removeItem('bilan_auth_token');
+        window.location.href = '/login';
+      }
+      
+      throw {
+        message: error?.message || `Failed to fetch ${resource}`,
+        statusCode: error?.statusCode || error?.status || 500,
+        ...error,
+      };
     }
   },
 
@@ -156,8 +183,19 @@ export const createDataProvider = (api: ReturnType<typeof useApi>): DataProvider
       return {
         data: response.data || response,
       };
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      console.error(`Error creating ${resource}:`, error);
+      
+      if (error?.statusCode === 401 || error?.status === 401 || error?.message?.includes('Unauthorized')) {
+        localStorage.removeItem('bilan_auth_token');
+        window.location.href = '/login';
+      }
+      
+      throw {
+        message: error?.message || `Failed to create ${resource}`,
+        statusCode: error?.statusCode || error?.status || 500,
+        ...error,
+      };
     }
   },
 
@@ -206,8 +244,19 @@ export const createDataProvider = (api: ReturnType<typeof useApi>): DataProvider
       return {
         data: response.data || response,
       };
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      console.error(`Error updating ${resource} with id ${id}:`, error);
+      
+      if (error?.statusCode === 401 || error?.status === 401 || error?.message?.includes('Unauthorized')) {
+        localStorage.removeItem('bilan_auth_token');
+        window.location.href = '/login';
+      }
+      
+      throw {
+        message: error?.message || `Failed to update ${resource}`,
+        statusCode: error?.statusCode || error?.status || 500,
+        ...error,
+      };
     }
   },
 
@@ -250,8 +299,19 @@ export const createDataProvider = (api: ReturnType<typeof useApi>): DataProvider
       return {
         data: { id },
       };
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      console.error(`Error deleting ${resource} with id ${id}:`, error);
+      
+      if (error?.statusCode === 401 || error?.status === 401 || error?.message?.includes('Unauthorized')) {
+        localStorage.removeItem('bilan_auth_token');
+        window.location.href = '/login';
+      }
+      
+      throw {
+        message: error?.message || `Failed to delete ${resource}`,
+        statusCode: error?.statusCode || error?.status || 500,
+        ...error,
+      };
     }
   },
 

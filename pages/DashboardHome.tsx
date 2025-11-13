@@ -1,7 +1,22 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useGetIdentity, useList } from '@refinedev/core';
 import { useNavigate } from 'react-router-dom';
 import { LoadingState } from '../src/core/components/LoadingState';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from 'recharts';
 
 const DashboardHome: React.FC = () => {
   const { data: identity, isLoading: identityLoading } = useGetIdentity();
@@ -22,6 +37,56 @@ const DashboardHome: React.FC = () => {
   const totalAssessments = assessments.length;
   const completedAssessments = assessments.filter((a: any) => a.status === 'completed').length;
   const inProgressAssessments = assessments.filter((a: any) => a.status === 'in_progress').length;
+  const completionRate = totalAssessments > 0 ? Math.round((completedAssessments / totalAssessments) * 100) : 0;
+
+  // Chart data preparation
+  const statusChartData = useMemo(() => {
+    const statusCounts = assessments.reduce((acc: any, assessment: any) => {
+      const status = assessment.status || 'unknown';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+
+    return [
+      { name: 'Completed', value: statusCounts.completed || 0, color: '#10b981' },
+      { name: 'In Progress', value: statusCounts.in_progress || 0, color: '#f59e0b' },
+      { name: 'Abandoned', value: statusCounts.abandoned || 0, color: '#ef4444' },
+    ].filter(item => item.value > 0);
+  }, [assessments]);
+
+  const packageChartData = useMemo(() => {
+    const packageCounts = assessments.reduce((acc: any, assessment: any) => {
+      const pkg = assessment.packageName || 'Unknown';
+      acc[pkg] = (acc[pkg] || 0) + 1;
+      return acc;
+    }, {});
+
+    return Object.entries(packageCounts).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [assessments]);
+
+  const recentActivityData = useMemo(() => {
+    // Get last 7 days activity
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (6 - i));
+      return date.toISOString().split('T')[0];
+    });
+
+    return last7Days.map(date => {
+      const count = assessments.filter((a: any) => {
+        const assessmentDate = new Date(a.startedAt || a.createdAt || 0).toISOString().split('T')[0];
+        return assessmentDate === date;
+      }).length;
+
+      return {
+        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        count,
+      };
+    });
+  }, [assessments]);
 
   // Icon components
   const FileIcon = () => (
@@ -132,16 +197,89 @@ const DashboardHome: React.FC = () => {
             <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">{inProgressAssessments}</p>
           </div>
 
-          {/* Analytics */}
+          {/* Completion Rate */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400">
                 <ChartIcon />
               </div>
             </div>
-            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Analytics</h3>
-            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{totalAssessments}</p>
+            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Completion Rate</h3>
+            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{completionRate}%</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              {completedAssessments} of {totalAssessments}
+            </p>
           </div>
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Status Distribution - Pie Chart */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
+            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-4">Status Distribution</h2>
+            {statusChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={statusChartData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {statusChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-slate-400 dark:text-slate-500">
+                No data available
+              </div>
+            )}
+          </div>
+
+          {/* Package Distribution - Bar Chart */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
+            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-4">Package Distribution</h2>
+            {packageChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={packageChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="value" fill="#8b5cf6" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-slate-400 dark:text-slate-500">
+                No data available
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Recent Activity Chart */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 mb-8">
+          <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-4">Activity Trend (Last 7 Days)</h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={recentActivityData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2} name="Assessments" />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
 
         {/* Main Content Grid */}

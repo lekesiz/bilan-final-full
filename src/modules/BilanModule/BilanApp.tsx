@@ -267,7 +267,7 @@ export const BilanApp: React.FC = () => {
             packageName={selectedPackage?.name || ''}
             answers={currentAnswers}
             summary={currentSummary!}
-            onNewAssessment={handleNewAssessment}
+            onRestart={handleNewAssessment}
             onViewHistory={handleViewHistory}
           />
         );
@@ -288,8 +288,9 @@ export const BilanApp: React.FC = () => {
             packageName={viewingRecord?.packageName || ''}
             answers={viewingRecord?.answers || []}
             summary={viewingRecord?.summary!}
-            onNewAssessment={handleNewAssessment}
+            onRestart={handleNewAssessment}
             onViewHistory={handleViewHistory}
+            isHistoryView={true}
           />
         );
       default:

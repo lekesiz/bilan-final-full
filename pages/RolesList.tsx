@@ -62,11 +62,17 @@ const RolesList: React.FC = () => {
       key: 'actions',
       render: (_, record) => (
         <Space>
-          <ShowButton hideText size="small" recordItemId={record.id} />
+          <PermissionGuard resource="roles" action="read" showError={false}>
+            <ShowButton hideText size="small" recordItemId={record.id} />
+          </PermissionGuard>
           {!record.isSystem && (
             <>
-              <EditButton hideText size="small" recordItemId={record.id} />
-              <DeleteButton hideText size="small" recordItemId={record.id} />
+              <PermissionGuard resource="roles" action="update" showError={false}>
+                <EditButton hideText size="small" recordItemId={record.id} />
+              </PermissionGuard>
+              <PermissionGuard resource="roles" action="delete" showError={false}>
+                <DeleteButton hideText size="small" recordItemId={record.id} />
+              </PermissionGuard>
             </>
           )}
         </Space>

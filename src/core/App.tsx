@@ -23,6 +23,9 @@ import RegisterPage from '../../pages/RegisterPage';
 // Dashboard pages
 import DashboardHome from '../../pages/DashboardHome';
 import AssessmentsList from '../../pages/AssessmentsList';
+import AssessmentsShow from '../../pages/AssessmentsShow';
+import AssessmentsCreate from '../../pages/AssessmentsCreate';
+import AssessmentsEdit from '../../pages/AssessmentsEdit';
 import UsersList from '../../pages/UsersList';
 import UsersCreate from '../../pages/UsersCreate';
 import UsersEdit from '../../pages/UsersEdit';
@@ -119,6 +122,9 @@ const RefineApp: React.FC<RefineAppProps> = ({ api }) => {
                   <Route path="/dashboard" element={<DashboardHome />} />
                   <Route path="/analytics" element={<AnalyticsDashboard />} />
                   <Route path="/assessments" element={<AssessmentsList />} />
+                  <Route path="/assessments/show/:id" element={<AssessmentsShow />} />
+                  <Route path="/assessments/create" element={<AssessmentsCreate />} />
+                  <Route path="/assessments/edit/:id" element={<AssessmentsEdit />} />
                   <Route path="/users" element={<UsersList />} />
                   <Route path="/users/create" element={<UsersCreate />} />
                   <Route path="/users/edit/:id" element={<UsersEdit />} />

@@ -76,9 +76,15 @@ const UsersList: React.FC = () => {
       key: 'actions',
       render: (_, record) => (
         <Space>
-          <ShowButton hideText size="small" recordItemId={record.id} />
-          <EditButton hideText size="small" recordItemId={record.id} />
-          <DeleteButton hideText size="small" recordItemId={record.id} />
+          <PermissionGuard resource="users" action="read" showError={false}>
+            <ShowButton hideText size="small" recordItemId={record.id} />
+          </PermissionGuard>
+          <PermissionGuard resource="users" action="update" showError={false}>
+            <EditButton hideText size="small" recordItemId={record.id} />
+          </PermissionGuard>
+          <PermissionGuard resource="users" action="delete" showError={false}>
+            <DeleteButton hideText size="small" recordItemId={record.id} />
+          </PermissionGuard>
         </Space>
       ),
     },

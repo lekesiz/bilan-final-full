@@ -74,9 +74,26 @@ export const createAuthProvider = (api: ReturnType<typeof useApi>): AuthProvider
           authenticated: true,
         };
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Auth check error:', error);
-      // Token geçersiz, logout yap
+      
+      // 401 Unauthorized - token expired veya geçersiz
+      if (error?.statusCode === 401 || error?.status === 401 || error?.message?.includes('Unauthorized') || error?.message?.includes('expired')) {
+        // Token geçersiz veya expire olmuş, logout yap
+        localStorage.removeItem('bilan_auth_token');
+        localStorage.removeItem('bilan_user_id');
+        localStorage.removeItem('bilan_user_name');
+        localStorage.removeItem('bilan_user_email');
+        localStorage.removeItem('bilan_permissions');
+        
+        return {
+          authenticated: false,
+          redirectTo: '/login',
+          logout: true,
+        };
+      }
+      
+      // Diğer hatalar için de logout yap (güvenlik için)
       localStorage.removeItem('bilan_auth_token');
       localStorage.removeItem('bilan_user_id');
       localStorage.removeItem('bilan_user_name');

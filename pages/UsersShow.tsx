@@ -2,6 +2,7 @@ import React from 'react';
 import { Show, TextField, DateField, TagField } from '@refinedev/antd';
 import { useShow } from '@refinedev/core';
 import { Typography, Space, Tag } from 'antd';
+import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 
 const { Title } = Typography;
 
@@ -12,7 +13,8 @@ const UsersShow: React.FC = () => {
   const record = data?.data;
 
   return (
-    <Show isLoading={isLoading}>
+    <PermissionGuard resource="users" action="read">
+      <Show isLoading={isLoading}>
       <Title level={5}>Name</Title>
       <TextField value={record?.name} />
 
@@ -39,7 +41,8 @@ const UsersShow: React.FC = () => {
 
       <Title level={5}>Created At</Title>
       <DateField value={record?.createdAt} format="LLL" />
-    </Show>
+      </Show>
+    </PermissionGuard>
   );
 };
 
