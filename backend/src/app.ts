@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.js';
 import rolesRoutes from './routes/roles.js';
 import permissionsRoutes from './routes/permissions.js';
 import usersRoutes from './routes/users.js';
+import aiRoutes from './routes/ai.js';
 import type { Env } from './types/env.js';
 
 const app = new Hono<Env>();
@@ -43,6 +44,7 @@ app.route('/api/assessments', assessmentsRoutes);
 app.route('/api/assessments', answersRoutes);
 app.route('/api/assessments', summariesRoutes);
 app.route('/api/admin/analytics', analyticsRoutes);
+app.route('/api/ai', aiRoutes);
 
 // 404 handler
 app.notFound((c) => {

@@ -673,10 +673,204 @@ All endpoints return errors in the following format:
 
 ---
 
+## 🤖 AI Endpoints
+
+### POST `/api/ai/generate/question`
+Generate a question for an assessment.
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "phaseKey": "phase1",
+  "categoryIndex": 0,
+  "previousAnswers": [],
+  "userName": "John Doe",
+  "coachingStyle": "collaborative",
+  "userProfile": null,
+  "options": {
+    "useJoker": false,
+    "useGoogleSearch": false
+  },
+  "language": "fr"
+}
+```
+
+**Response (200):**
+```json
+{
+  "id": "question_id",
+  "text": "Question text",
+  "type": "PARAGRAPH",
+  "category": "category_name"
+}
+```
+
+**Errors:**
+- `400` - Validation error
+- `401` - Unauthorized
+- `501` - Not implemented (temporary - AI service migration in progress)
+
+---
+
+### POST `/api/ai/generate/summary`
+Generate a summary for completed assessment.
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "answers": [...],
+  "packageName": "Découverte",
+  "userName": "John Doe",
+  "coachingStyle": "collaborative",
+  "language": "fr"
+}
+```
+
+**Response (200):**
+```json
+{
+  "profileType": "...",
+  "keyStrengths": [...],
+  "areasForDevelopment": [...],
+  "actionPlan": [...],
+  "priorityThemes": [...],
+  "recommendations": [...]
+}
+```
+
+---
+
+### POST `/api/ai/generate/synthesis`
+Generate synthesis from last answers.
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "lastAnswers": [...],
+  "userName": "John Doe",
+  "coachingStyle": "collaborative",
+  "language": "fr"
+}
+```
+
+**Response (200):**
+```json
+{
+  "synthesis": "...",
+  "confirmationRequest": "..."
+}
+```
+
+---
+
+### POST `/api/ai/analyze/themes-and-skills`
+Analyze themes and skills from answers.
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "answers": [...],
+  "language": "fr"
+}
+```
+
+**Response (200):**
+```json
+{
+  "themes": [...],
+  "skills": [...]
+}
+```
+
+---
+
+### POST `/api/ai/analyze/user-profile`
+Analyze user profile from CV text.
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "cvText": "...",
+  "language": "fr"
+}
+```
+
+**Response (200):**
+```json
+{
+  "fullName": "...",
+  "currentRole": "...",
+  "keySkills": [...],
+  "pastExperiences": [...]
+}
+```
+
+---
+
+### POST `/api/ai/suggest/optional-module`
+Suggest optional module based on answers.
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "answers": [...],
+  "language": "fr"
+}
+```
+
+**Response (200):**
+```json
+{
+  "isNeeded": true,
+  "moduleId": "module_id",
+  "reason": "..."
+}
+```
+
+---
+
+### POST `/api/ai/find/resource-leads`
+Find resource leads for action items.
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "actionItemText": "...",
+  "language": "fr"
+}
+```
+
+**Response (200):**
+```json
+{
+  "searchKeywords": [...],
+  "resourceTypes": [...],
+  "platformExamples": [...]
+}
+```
+
+---
+
 ## 📝 Notes
 
 - All timestamps are in ISO 8601 format (UTC)
 - JWT tokens expire after 7 days (configurable)
 - Password requirements: minimum 8 characters
 - All endpoints require authentication except `/api/auth/register` and `/api/auth/login`
+- AI endpoints are currently returning 501 (Not Implemented) - AI service migration to backend in progress
+- **Security Note**: AI API keys should be stored server-side only. Frontend should use `/api/ai/*` endpoints instead of direct provider calls.
 
