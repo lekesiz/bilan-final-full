@@ -18,9 +18,8 @@ import type {
   GenerateQuestionOptions,
 } from '../../types/ai.js';
 import { GeminiProvider } from './providers/geminiProvider.js';
-// TODO: Add OpenAI and Claude providers when needed
-// import { OpenAIProvider } from './providers/openaiProvider.js';
-// import { ClaudeProvider } from './providers/claudeProvider.js';
+import { OpenAIProvider } from './providers/openaiProvider.js';
+import { ClaudeProvider } from './providers/claudeProvider.js';
 
 class MultiProviderAIService {
   private providers: AIProviderInterface[] = [];
@@ -38,24 +37,23 @@ class MultiProviderAIService {
       }
     }
 
-    // TODO: Add OpenAI and Claude providers
-    // if (config.openai?.enabled && config.openai?.apiKey) {
-    //   try {
-    //     this.providers.push(new OpenAIProvider(config.openai.apiKey, config.openai.model || 'gpt-4o'));
-    //     console.log('✅ OpenAI provider initialized');
-    //   } catch (error) {
-    //     console.error('❌ Failed to initialize OpenAI provider:', error);
-    //   }
-    // }
+    if (config.openai?.enabled && config.openai?.apiKey) {
+      try {
+        this.providers.push(new OpenAIProvider(config.openai.apiKey, config.openai.model || 'gpt-4o'));
+        console.log('✅ OpenAI provider initialized');
+      } catch (error) {
+        console.error('❌ Failed to initialize OpenAI provider:', error);
+      }
+    }
 
-    // if (config.claude?.enabled && config.claude?.apiKey) {
-    //   try {
-    //     this.providers.push(new ClaudeProvider(config.claude.apiKey, config.claude.model || 'claude-3-5-sonnet-20241022'));
-    //     console.log('✅ Claude provider initialized');
-    //   } catch (error) {
-    //     console.error('❌ Failed to initialize Claude provider:', error);
-    //   }
-    // }
+    if (config.claude?.enabled && config.claude?.apiKey) {
+      try {
+        this.providers.push(new ClaudeProvider(config.claude.apiKey, config.claude.model || 'claude-3-5-sonnet-20241022'));
+        console.log('✅ Claude provider initialized');
+      } catch (error) {
+        console.error('❌ Failed to initialize Claude provider:', error);
+      }
+    }
 
     if (this.providers.length === 0) {
       throw new Error('No AI providers available. Please configure at least one provider in .env');
@@ -186,23 +184,22 @@ export const getAIService = (): MultiProviderAIService => {
         apiKey: process.env.GEMINI_API_KEY || '',
         enabled: !!process.env.GEMINI_API_KEY,
       },
-      // TODO: Add OpenAI and Claude when providers are implemented
-      // openai: {
-      //   apiKey: process.env.OPENAI_API_KEY || '',
-      //   enabled: !!process.env.OPENAI_API_KEY,
-      //   model: process.env.OPENAI_MODEL || 'gpt-4o',
-      // },
-      // claude: {
-      //   apiKey: process.env.CLAUDE_API_KEY || '',
-      //   enabled: !!process.env.CLAUDE_API_KEY,
-      //   model: process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022',
-      // },
+      openai: {
+        apiKey: process.env.OPENAI_API_KEY || '',
+        enabled: !!process.env.OPENAI_API_KEY,
+        model: process.env.OPENAI_MODEL || 'gpt-4o',
+      },
+      claude: {
+        apiKey: process.env.CLAUDE_API_KEY || '',
+        enabled: !!process.env.CLAUDE_API_KEY,
+        model: process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022',
+      },
     };
 
     console.log('🤖 AI Provider Configuration:', {
       gemini: config.gemini?.enabled ? `✅ Enabled` : '❌ Disabled',
-      // openai: config.openai?.enabled ? `✅ Enabled` : '❌ Disabled',
-      // claude: config.claude?.enabled ? `✅ Enabled` : '❌ Disabled',
+      openai: config.openai?.enabled ? `✅ Enabled` : '❌ Disabled',
+      claude: config.claude?.enabled ? `✅ Enabled` : '❌ Disabled',
     });
 
     aiServiceInstance = new MultiProviderAIService(config);
