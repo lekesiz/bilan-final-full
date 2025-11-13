@@ -245,6 +245,23 @@
     "submitForm": "Soumettre le formulaire ou confirmer l'action",
     "tip": "Astuce : Appuyez sur Ctrl+/ (ou ⌘+/) à tout moment pour ouvrir cette aide"
   },
+  "profile": {
+    "notFound": "Profil utilisateur non trouvé",
+    "never": "Jamais",
+    "profileInformation": "Informations du Profil",
+    "email": "Email",
+    "name": "Nom",
+    "notSet": "Non défini",
+    "role": "Rôle",
+    "roles": "Rôles",
+    "lastLogin": "Dernière Connexion",
+    "memberSince": "Membre depuis",
+    "status": "Statut",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "changePassword": "Changer le Mot de Passe",
+    "editProfile": "Modifier le Profil"
+  },
   "errors": {
     "generic": "Une erreur est survenue",
     "network": "Erreur de connexion",

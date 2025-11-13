@@ -241,6 +241,23 @@
     "submitForm": "Formular absenden oder Aktion bestätigen",
     "tip": "Tipp: Drücken Sie jederzeit Strg+/ (oder ⌘+/), um diese Hilfe zu öffnen"
   },
+  "profile": {
+    "notFound": "Benutzerprofil nicht gefunden",
+    "never": "Nie",
+    "profileInformation": "Profilinformationen",
+    "email": "E-Mail",
+    "name": "Name",
+    "notSet": "Nicht festgelegt",
+    "role": "Rolle",
+    "roles": "Rollen",
+    "lastLogin": "Letzte Anmeldung",
+    "memberSince": "Mitglied seit",
+    "status": "Status",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "changePassword": "Passwort ändern",
+    "editProfile": "Profil bearbeiten"
+  },
   "errors": {
     "generic": "Ein Fehler ist aufgetreten",
     "network": "Verbindungsfehler",

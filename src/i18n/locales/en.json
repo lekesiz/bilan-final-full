@@ -241,6 +241,23 @@
     "submitForm": "Submit form or confirm action",
     "tip": "Tip: Press Ctrl+/ (or ⌘+/) anytime to open this help"
   },
+  "profile": {
+    "notFound": "User profile not found",
+    "never": "Never",
+    "profileInformation": "Profile Information",
+    "email": "Email",
+    "name": "Name",
+    "notSet": "Not set",
+    "role": "Role",
+    "roles": "Roles",
+    "lastLogin": "Last Login",
+    "memberSince": "Member Since",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "changePassword": "Change Password",
+    "editProfile": "Edit Profile"
+  },
   "errors": {
     "generic": "An error occurred",
     "network": "Connection error",

@@ -241,6 +241,23 @@
     "submitForm": "Formu gönder veya işlemi onayla",
     "tip": "İpucu: Bu yardımı açmak için istediğiniz zaman Ctrl+/ (veya ⌘+/) tuşlarına basın"
   },
+  "profile": {
+    "notFound": "Kullanıcı profili bulunamadı",
+    "never": "Hiç",
+    "profileInformation": "Profil Bilgileri",
+    "email": "E-posta",
+    "name": "İsim",
+    "notSet": "Ayarlanmamış",
+    "role": "Rol",
+    "roles": "Roller",
+    "lastLogin": "Son Giriş",
+    "memberSince": "Üyelik Tarihi",
+    "status": "Durum",
+    "active": "Aktif",
+    "inactive": "Pasif",
+    "changePassword": "Şifre Değiştir",
+    "editProfile": "Profili Düzenle"
+  },
   "errors": {
     "generic": "Bir hata oluştu",
     "network": "Bağlantı hatası",

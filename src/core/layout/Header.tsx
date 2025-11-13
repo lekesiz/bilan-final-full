@@ -39,8 +39,7 @@ export const Header: React.FC = () => {
       icon: <UserOutlined />,
       label: 'Profile',
       onClick: () => {
-        // Navigate to profile page when available
-        // TODO: implement profile page
+        navigate('/profile');
       },
     },
     {
