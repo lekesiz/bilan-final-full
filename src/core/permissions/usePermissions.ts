@@ -137,7 +137,7 @@ export const usePermissions = () => {
     canAccessAll,
     canAccessModule,
     getResourcePermissions,
-    isLoading: !permissions && !identity, // Loading if no permissions and no identity
+    isLoading: isLoading || false, // Use the isLoading state we defined
   };
 };
 
