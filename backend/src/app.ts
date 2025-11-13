@@ -12,6 +12,7 @@ import permissionsRoutes from './routes/permissions.js';
 import usersRoutes from './routes/users.js';
 import auditRoutes from './routes/audit.js';
 import aiRoutes from './routes/ai.js';
+import bulkRoutes from './routes/bulk.js';
 import type { Env } from './types/env.js';
 
 const app = new Hono<Env>();
