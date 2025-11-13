@@ -327,6 +327,20 @@
     "status.failure": "Fehler",
     "status.error": "Fehler"
   },
+  "bulk": {
+    "selectedCount": "{{count}} ausgewählt",
+    "actions": "Massenaktionen",
+    "delete": "Ausgewählte löschen",
+    "deleteConfirm": "Ausgewählte Elemente löschen",
+    "deleteConfirmMessage": "Sind Sie sicher, dass Sie {{count}} ausgewählte(s) Element(e) löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteSuccess": "{{count}} Element(e) erfolgreich gelöscht",
+    "deleteError": "Fehler beim Löschen der Elemente",
+    "activate": "Ausgewählte aktivieren",
+    "deactivate": "Ausgewählte deaktivieren",
+    "activateNotSupported": "Massenaktivierung/Deaktivierung wird nur für Benutzer unterstützt",
+    "updateSuccess": "{{count}} Element(e) erfolgreich aktualisiert",
+    "updateError": "Fehler beim Aktualisieren der Elemente"
+  },
   "errors": {
     "generic": "Ein Fehler ist aufgetreten",
     "network": "Verbindungsfehler",

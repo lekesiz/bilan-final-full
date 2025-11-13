@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { List, useTable, EditButton, ShowButton, CreateButton } from '@refinedev/antd';
 import { Table, Space, Tag } from 'antd';
 import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 import { CustomDeleteButton } from '../src/core/components/CustomDeleteButton';
 import { TableSkeleton } from '../src/core/components/TableSkeleton';
 import { NoUsersFound } from '../src/core/components/ContextualEmptyStates';
+import { BulkActions } from '../src/core/components/BulkActions';
 import type { ColumnsType } from 'antd/es/table';
 
 interface User {
@@ -18,7 +19,8 @@ interface User {
 }
 
 const UsersList: React.FC = () => {
-  const { tableProps, searchFormProps } = useTable<User>({
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const { tableProps, searchFormProps, refetch } = useTable<User>({
     resource: 'users',
     onSearch: (values) => {
       return [
@@ -116,6 +118,15 @@ const UsersList: React.FC = () => {
       <List
         headerButtons={({ defaultButtons }) => (
           <>
+            <BulkActions
+              selectedRowKeys={selectedRowKeys}
+              resource="users"
+              onSuccess={() => {
+                setSelectedRowKeys([]);
+                refetch();
+              }}
+              onRefresh={refetch}
+            />
             {defaultButtons}
             <PermissionGuard resource="users" action="create" showError={false}>
               <CreateButton />
@@ -130,6 +141,10 @@ const UsersList: React.FC = () => {
             {...tableProps} 
             columns={columns} 
             rowKey="id"
+            rowSelection={{
+              selectedRowKeys,
+              onChange: setSelectedRowKeys,
+            }}
             scroll={{ x: 'max-content' }}
             pagination={{
               ...tableProps.pagination,

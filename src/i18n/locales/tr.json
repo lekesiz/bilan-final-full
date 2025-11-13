@@ -327,6 +327,20 @@
     "status.failure": "Başarısız",
     "status.error": "Hata"
   },
+  "bulk": {
+    "selectedCount": "{{count}} seçili",
+    "actions": "Toplu İşlemler",
+    "delete": "Seçilenleri Sil",
+    "deleteConfirm": "Seçili Öğeleri Sil",
+    "deleteConfirmMessage": "{{count}} seçili öğeyi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "deleteSuccess": "{{count}} öğe başarıyla silindi",
+    "deleteError": "Öğeler silinemedi",
+    "activate": "Seçilenleri Etkinleştir",
+    "deactivate": "Seçilenleri Devre Dışı Bırak",
+    "activateNotSupported": "Toplu etkinleştirme/devre dışı bırakma yalnızca kullanıcılar için desteklenir",
+    "updateSuccess": "{{count}} öğe başarıyla güncellendi",
+    "updateError": "Öğeler güncellenemedi"
+  },
   "errors": {
     "generic": "Bir hata oluştu",
     "network": "Bağlantı hatası",

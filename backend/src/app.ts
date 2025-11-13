@@ -47,6 +47,7 @@ app.route('/api/assessments', answersRoutes);
 app.route('/api/assessments', summariesRoutes);
 app.route('/api/admin/analytics', analyticsRoutes);
 app.route('/api/ai', aiRoutes);
+app.route('/api/bulk', bulkRoutes);
 
 // 404 handler
 app.notFound((c) => {

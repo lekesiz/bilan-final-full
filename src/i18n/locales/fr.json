@@ -331,6 +331,20 @@
     "status.failure": "Échec",
     "status.error": "Erreur"
   },
+  "bulk": {
+    "selectedCount": "{{count}} sélectionné(s)",
+    "actions": "Actions en Masse",
+    "delete": "Supprimer la Sélection",
+    "deleteConfirm": "Supprimer les Éléments Sélectionnés",
+    "deleteConfirmMessage": "Êtes-vous sûr de vouloir supprimer {{count}} élément(s) sélectionné(s) ? Cette action est irréversible.",
+    "deleteSuccess": "{{count}} élément(s) supprimé(s) avec succès",
+    "deleteError": "Échec de la suppression des éléments",
+    "activate": "Activer la Sélection",
+    "deactivate": "Désactiver la Sélection",
+    "activateNotSupported": "L'activation/désactivation en masse n'est prise en charge que pour les utilisateurs",
+    "updateSuccess": "{{count}} élément(s) mis à jour avec succès",
+    "updateError": "Échec de la mise à jour des éléments"
+  },
   "errors": {
     "generic": "Une erreur est survenue",
     "network": "Erreur de connexion",

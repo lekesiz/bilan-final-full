@@ -427,6 +427,21 @@ class ApiClient {
   async getUserAuditLogs(userId: string, token: string | null = null, limit: number = 100) {
     return this.request<{ logs: any[] }>(`/audit/user/${userId}?limit=${limit}`, {}, token);
   }
+
+  // Bulk Operations
+  async bulkDelete(ids: string[], resource: 'users' | 'roles' | 'assessments', token: string | null = null) {
+    return this.request<{ deletedCount: number; errors?: string[] }>('/bulk/delete', {
+      method: 'POST',
+      body: JSON.stringify({ ids, resource }),
+    }, token);
+  }
+
+  async bulkUpdate(ids: string[], resource: 'users' | 'roles' | 'assessments', updates: Record<string, any>, token: string | null = null) {
+    return this.request<{ updatedCount: number; errors?: string[] }>('/bulk/update', {
+      method: 'POST',
+      body: JSON.stringify({ ids, resource, updates }),
+    }, token);
+  }
 }
 
 export const apiClient = new ApiClient();
@@ -635,6 +650,17 @@ export const useApi = () => {
     getUserAuditLogs: async (userId: string, limit: number = 100) => {
       const token = localStorage.getItem('bilan_auth_token');
       return apiClient.getUserAuditLogs(userId, token, limit);
+    },
+
+    // Bulk Operations
+    bulkDelete: async (ids: string[], resource: 'users' | 'roles' | 'assessments') => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.bulkDelete(ids, resource, token);
+    },
+
+    bulkUpdate: async (ids: string[], resource: 'users' | 'roles' | 'assessments', updates: Record<string, any>) => {
+      const token = localStorage.getItem('bilan_auth_token');
+      return apiClient.bulkUpdate(ids, resource, updates, token);
     },
   }), []); // Empty deps - apiClient singleton, methods stable
 };

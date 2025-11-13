@@ -327,6 +327,20 @@
     "status.failure": "Failure",
     "status.error": "Error"
   },
+  "bulk": {
+    "selectedCount": "{{count}} selected",
+    "actions": "Bulk Actions",
+    "delete": "Delete Selected",
+    "deleteConfirm": "Delete Selected Items",
+    "deleteConfirmMessage": "Are you sure you want to delete {{count}} selected item(s)? This action cannot be undone.",
+    "deleteSuccess": "Successfully deleted {{count}} item(s)",
+    "deleteError": "Failed to delete items",
+    "activate": "Activate Selected",
+    "deactivate": "Deactivate Selected",
+    "activateNotSupported": "Bulk activate/deactivate is only supported for users",
+    "updateSuccess": "Successfully updated {{count}} item(s)",
+    "updateError": "Failed to update items"
+  },
   "errors": {
     "generic": "An error occurred",
     "network": "Connection error",
