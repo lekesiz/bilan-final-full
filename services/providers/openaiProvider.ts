@@ -18,10 +18,11 @@ export class OpenAIProvider implements AIProviderInterface {
     if (!apiKey || apiKey === 'undefined' || apiKey === '') {
       throw new Error('OPENAI_API_KEY is required');
     }
-    // Allow browser usage for frontend (API keys are already exposed in Vite build)
+    // Note: dangerouslyAllowBrowser removed - use backend AI proxy instead
+    // For frontend fallback only (will be removed after full migration)
     this.client = new OpenAI({ 
       apiKey,
-      dangerouslyAllowBrowser: true 
+      dangerouslyAllowBrowser: true // TODO: Remove after backend AI migration complete
     });
     this.model = model;
   }

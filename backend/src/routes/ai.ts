@@ -2,9 +2,8 @@ import { Hono } from 'hono';
 import { requireAuth } from '../middleware/auth.js';
 import { error, success } from '../utils/response.js';
 import { z } from 'zod';
-
-// AI Service will be imported from a shared location or recreated in backend
-// For now, we'll create a proxy that calls the AI providers server-side
+import { getAIService } from '../services/ai/aiService.js';
+import type { Package } from '../types/ai.js';
 
 const app = new Hono();
 
@@ -69,9 +68,19 @@ app.post('/generate/question', requireAuth, async (c) => {
     const body = await c.req.json();
     const validated = generateQuestionSchema.parse(body);
 
-    // TODO: Implement AI service call here
-    // For now, return error indicating implementation needed
-    return error(c, 'AI service not yet implemented in backend. Please use frontend AI service temporarily.', 501);
+    const aiService = getAIService();
+    const question = await aiService.generateQuestion(
+      validated.phaseKey,
+      validated.categoryIndex,
+      validated.previousAnswers,
+      validated.userName,
+      validated.coachingStyle,
+      validated.userProfile,
+      validated.options || {},
+      validated.language || 'fr'
+    );
+
+    return success(c, question);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
@@ -87,8 +96,31 @@ app.post('/generate/summary', requireAuth, async (c) => {
     const body = await c.req.json();
     const validated = generateSummarySchema.parse(body);
 
-    // TODO: Implement AI service call here
-    return error(c, 'AI service not yet implemented in backend. Please use frontend AI service temporarily.', 501);
+    // Convert packageName to Package object
+    const pkg: Package = {
+      id: validated.packageName.toLowerCase().replace(/\s+/g, '-'),
+      name: validated.packageName,
+      totalHours: 8,
+      totalQuestionnaires: 30,
+      description: '',
+      features: [],
+      phases: {
+        phase1: { questionnaires: 1, duration_min: 60, name: "Phase d'Investigation" },
+        phase2: { questionnaires: 1, duration_min: 120, name: "Phase d'Analyse" },
+        phase3: { questionnaires: 1, duration_min: 120, name: "Phase de Conclusion" }
+      }
+    };
+
+    const aiService = getAIService();
+    const summary = await aiService.generateSummary(
+      validated.answers,
+      pkg,
+      validated.userName,
+      validated.coachingStyle,
+      validated.language || 'fr'
+    );
+
+    return success(c, summary);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
@@ -104,8 +136,15 @@ app.post('/generate/synthesis', requireAuth, async (c) => {
     const body = await c.req.json();
     const validated = generateSynthesisSchema.parse(body);
 
-    // TODO: Implement AI service call here
-    return error(c, 'AI service not yet implemented in backend. Please use frontend AI service temporarily.', 501);
+    const aiService = getAIService();
+    const result = await aiService.generateSynthesis(
+      validated.lastAnswers,
+      validated.userName,
+      validated.coachingStyle,
+      validated.language || 'fr'
+    );
+
+    return success(c, result);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
@@ -121,8 +160,13 @@ app.post('/analyze/themes-and-skills', requireAuth, async (c) => {
     const body = await c.req.json();
     const validated = analyzeThemesAndSkillsSchema.parse(body);
 
-    // TODO: Implement AI service call here
-    return error(c, 'AI service not yet implemented in backend. Please use frontend AI service temporarily.', 501);
+    const aiService = getAIService();
+    const result = await aiService.analyzeThemesAndSkills(
+      validated.answers,
+      validated.language || 'fr'
+    );
+
+    return success(c, result);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
@@ -138,8 +182,13 @@ app.post('/analyze/user-profile', requireAuth, async (c) => {
     const body = await c.req.json();
     const validated = analyzeUserProfileSchema.parse(body);
 
-    // TODO: Implement AI service call here
-    return error(c, 'AI service not yet implemented in backend. Please use frontend AI service temporarily.', 501);
+    const aiService = getAIService();
+    const result = await aiService.analyzeUserProfile(
+      validated.cvText,
+      validated.language || 'fr'
+    );
+
+    return success(c, result);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
@@ -155,8 +204,13 @@ app.post('/suggest/optional-module', requireAuth, async (c) => {
     const body = await c.req.json();
     const validated = suggestOptionalModuleSchema.parse(body);
 
-    // TODO: Implement AI service call here
-    return error(c, 'AI service not yet implemented in backend. Please use frontend AI service temporarily.', 501);
+    const aiService = getAIService();
+    const result = await aiService.suggestOptionalModule(
+      validated.answers,
+      validated.language || 'fr'
+    );
+
+    return success(c, result);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
@@ -172,8 +226,13 @@ app.post('/find/resource-leads', requireAuth, async (c) => {
     const body = await c.req.json();
     const validated = findResourceLeadsSchema.parse(body);
 
-    // TODO: Implement AI service call here
-    return error(c, 'AI service not yet implemented in backend. Please use frontend AI service temporarily.', 501);
+    const aiService = getAIService();
+    const result = await aiService.findResourceLeads(
+      validated.actionItemText,
+      validated.language || 'fr'
+    );
+
+    return success(c, result);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);

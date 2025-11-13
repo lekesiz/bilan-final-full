@@ -433,6 +433,27 @@ export const generateSynthesis = async (
   coachingStyle: CoachingStyle,
   language?: string
 ): Promise<{ synthesis: string; confirmationRequest: string }> => {
+  if (useBackendAI()) {
+    try {
+      const { apiClient } = await import('./apiClient');
+      const token = localStorage.getItem('bilan_auth_token');
+      const response = await apiClient.generateSynthesis({
+        lastAnswers,
+        userName,
+        coachingStyle,
+        language: language || getCurrentLanguage(),
+      }, token);
+      
+      if (response.error && response.error.includes('501')) {
+        throw new Error('Backend AI not implemented, using frontend fallback');
+      }
+      
+      return response;
+    } catch (error: any) {
+      console.warn('Backend AI failed, using frontend AI service:', error.message);
+    }
+  }
+  
   const service = getAIService();
   return service.generateSynthesis(lastAnswers, userName, coachingStyle, language || getCurrentLanguage());
 };
@@ -444,16 +465,76 @@ export const generateSummary = async (
   coachingStyle: CoachingStyle,
   language?: string
 ): Promise<Summary> => {
+  if (useBackendAI()) {
+    try {
+      const { apiClient } = await import('./apiClient');
+      const token = localStorage.getItem('bilan_auth_token');
+      const response = await apiClient.generateSummary({
+        answers,
+        packageName: pkg.name,
+        userName,
+        coachingStyle,
+        language: language || getCurrentLanguage(),
+      }, token);
+      
+      if (response.error && response.error.includes('501')) {
+        throw new Error('Backend AI not implemented, using frontend fallback');
+      }
+      
+      return response;
+    } catch (error: any) {
+      console.warn('Backend AI failed, using frontend AI service:', error.message);
+    }
+  }
+  
   const service = getAIService();
   return service.generateSummary(answers, pkg, userName, coachingStyle, language || getCurrentLanguage());
 };
 
 export const analyzeThemesAndSkills = async (answers: Answer[], language?: string): Promise<DashboardData> => {
+  if (useBackendAI()) {
+    try {
+      const { apiClient } = await import('./apiClient');
+      const token = localStorage.getItem('bilan_auth_token');
+      const response = await apiClient.analyzeThemesAndSkills({
+        answers,
+        language: language || getCurrentLanguage(),
+      }, token);
+      
+      if (response.error && response.error.includes('501')) {
+        throw new Error('Backend AI not implemented, using frontend fallback');
+      }
+      
+      return response;
+    } catch (error: any) {
+      console.warn('Backend AI failed, using frontend AI service:', error.message);
+    }
+  }
+  
   const service = getAIService();
   return service.analyzeThemesAndSkills(answers, language || getCurrentLanguage());
 };
 
 export const analyzeUserProfile = async (cvText: string, language?: string): Promise<UserProfile> => {
+  if (useBackendAI()) {
+    try {
+      const { apiClient } = await import('./apiClient');
+      const token = localStorage.getItem('bilan_auth_token');
+      const response = await apiClient.analyzeUserProfile({
+        cvText,
+        language: language || getCurrentLanguage(),
+      }, token);
+      
+      if (response.error && response.error.includes('501')) {
+        throw new Error('Backend AI not implemented, using frontend fallback');
+      }
+      
+      return response;
+    } catch (error: any) {
+      console.warn('Backend AI failed, using frontend AI service:', error.message);
+    }
+  }
+  
   const service = getAIService();
   return service.analyzeUserProfile(cvText, language || getCurrentLanguage());
 };
@@ -462,6 +543,25 @@ export const suggestOptionalModule = async (
   answers: Answer[],
   language?: string
 ): Promise<{ isNeeded: boolean; moduleId?: string; reason?: string }> => {
+  if (useBackendAI()) {
+    try {
+      const { apiClient } = await import('./apiClient');
+      const token = localStorage.getItem('bilan_auth_token');
+      const response = await apiClient.suggestOptionalModule({
+        answers,
+        language: language || getCurrentLanguage(),
+      }, token);
+      
+      if (response.error && response.error.includes('501')) {
+        throw new Error('Backend AI not implemented, using frontend fallback');
+      }
+      
+      return response;
+    } catch (error: any) {
+      console.warn('Backend AI failed, using frontend AI service:', error.message);
+    }
+  }
+  
   const service = getAIService();
   return service.suggestOptionalModule(answers, language || getCurrentLanguage());
 };
@@ -470,6 +570,25 @@ export const findResourceLeads = async (
   actionItemText: string,
   language?: string
 ): Promise<{ searchKeywords: string[]; resourceTypes: string[]; platformExamples: string[] }> => {
+  if (useBackendAI()) {
+    try {
+      const { apiClient } = await import('./apiClient');
+      const token = localStorage.getItem('bilan_auth_token');
+      const response = await apiClient.findResourceLeads({
+        actionItemText,
+        language: language || getCurrentLanguage(),
+      }, token);
+      
+      if (response.error && response.error.includes('501')) {
+        throw new Error('Backend AI not implemented, using frontend fallback');
+      }
+      
+      return response;
+    } catch (error: any) {
+      console.warn('Backend AI failed, using frontend AI service:', error.message);
+    }
+  }
+  
   const service = getAIService();
   return service.findResourceLeads(actionItemText, language || getCurrentLanguage());
 };
