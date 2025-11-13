@@ -108,22 +108,36 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
       doc.setFontSize(10);
       doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 22);
       
-      // Table
-      const tableColumn = columns.map(col => col.title);
-      const tableRows = preparedData.map(row => 
-        columns.map(col => {
-          const value = row[col.title];
-          return value !== null && value !== undefined ? String(value) : '';
-        })
-      );
+      // Table - Simple text-based table
+      let yPos = 28;
+      const cellHeight = 7;
+      const cellWidth = doc.internal.pageSize.width / columns.length;
       
-      (doc as any).autoTable({
-        head: [tableColumn],
-        body: tableRows,
-        startY: 28,
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [66, 139, 202] },
-        margin: { top: 28 },
+      // Header
+      doc.setFillColor(66, 139, 202);
+      doc.setTextColor(255, 255, 255);
+      columns.forEach((col, index) => {
+        doc.rect(14 + (index * cellWidth), yPos, cellWidth, cellHeight, 'F');
+        doc.text(col.title, 16 + (index * cellWidth), yPos + 5);
+      });
+      
+      yPos += cellHeight;
+      doc.setTextColor(0, 0, 0);
+      
+      // Rows
+      preparedData.forEach((row, rowIndex) => {
+        if (yPos > doc.internal.pageSize.height - 20) {
+          doc.addPage();
+          yPos = 15;
+        }
+        
+        columns.forEach((col, colIndex) => {
+          const value = row[col.title];
+          const text = value !== null && value !== undefined ? String(value).substring(0, 30) : '';
+          doc.text(text, 16 + (colIndex * cellWidth), yPos + 5);
+        });
+        
+        yPos += cellHeight;
       });
       
       doc.save(`${filename || resource}_${new Date().toISOString().split('T')[0]}.pdf`);
