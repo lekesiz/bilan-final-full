@@ -30,12 +30,21 @@ async function createTestUsers() {
     }
 
     // 2. Check if User role exists, create if not
+    // Try different role name variations
     let userRole = await db.select().from(roles).where(eq(roles.name, 'User')).limit(1);
+    
+    if (userRole.length === 0) {
+      userRole = await db.select().from(roles).where(eq(roles.name, 'user')).limit(1);
+    }
+    
+    if (userRole.length === 0) {
+      userRole = await db.select().from(roles).where(eq(roles.name, 'bilan-user')).limit(1);
+    }
     
     if (userRole.length === 0) {
       console.log('📝 Creating User role...');
       const [newUserRole] = await db.insert(roles).values({
-        name: 'User',
+        name: 'user',
         description: 'Regular user with basic access',
         isSystem: true,
       }).returning();
@@ -77,7 +86,7 @@ async function createTestUsers() {
       .where(eq(permissions.action, 'create'));
     
     if (basicPermissions.length > 0) {
-      console.log('📝 Assigning basic permissions to User role...');
+      console.log(`📝 Assigning ${basicPermissions.length} bilan:assessment permissions to User role...`);
       
       for (const perm of basicPermissions) {
         const existing = await db
@@ -95,6 +104,8 @@ async function createTestUsers() {
         }
       }
       console.log('✅ Basic permissions assigned to User role\n');
+    } else {
+      console.log('⚠️  No bilan:assessment permissions found. User role will have no permissions.\n');
     }
 
     // 5. Create or update admin user
