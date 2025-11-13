@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Select, DatePicker, Space, Button, Row, Col } from 'antd';
 import { SearchOutlined, ClearOutlined, FilterOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-// Using native Date for date handling
-type Dayjs = Date;
+import dayjs, { Dayjs } from 'dayjs';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -52,8 +51,8 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
       const formValues: any = { ...initialFilters };
       if (initialFilters.dateRange && Array.isArray(initialFilters.dateRange)) {
         formValues.dateRange = [
-          initialFilters.dateRange[0] instanceof Date ? initialFilters.dateRange[0] : new Date(initialFilters.dateRange[0]),
-          initialFilters.dateRange[1] instanceof Date ? initialFilters.dateRange[1] : new Date(initialFilters.dateRange[1]),
+          dayjs(initialFilters.dateRange[0]),
+          dayjs(initialFilters.dateRange[1]),
         ];
       }
       form.setFieldsValue(formValues);
