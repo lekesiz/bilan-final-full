@@ -6,6 +6,7 @@
 
 import { Hono } from 'hono';
 import { z } from 'zod';
+import jwt from 'jsonwebtoken';
 import { requireAuth, requirePermission } from '../middleware/auth.js';
 import { success, error } from '../utils/response.js';
 import { db } from '../db/client.js';
@@ -13,6 +14,9 @@ import { users, roles, assessments, userRoles, rolePermissions, permissions } fr
 import { eq, inArray, and } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';
 import { createAuditLog } from '../services/auditService.js';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
 // Helper to get auth context from request
 async function getAuthContext(c: any) {
   // Get user from JWT token or test header (same logic as auth routes)
@@ -22,7 +26,7 @@ async function getAuthContext(c: any) {
   let userId: string | null = null;
   let userEmail: string | null = null;
   let userName: string | null = null;
-  let permissions: string[] = [];
+  let userPermissions: string[] = [];
 
   // Get from X-User-Id header (test mode)
   if (userIdHeader) {
@@ -30,8 +34,6 @@ async function getAuthContext(c: any) {
   } else if (authHeader && authHeader.startsWith('Bearer ')) {
     // Extract from JWT token
     const token = authHeader.substring(7);
-    const jwt = await import('jsonwebtoken');
-    const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email?: string };
       userId = decoded.userId;
@@ -64,7 +66,7 @@ async function getAuthContext(c: any) {
         .innerJoin(permissions, eq(rolePermissions.permissionId, permissions.id))
         .where(eq(userRoles.userId, user.id));
       
-      permissions = userRolesData.map((ur: any) => `${ur.permission.resource}:${ur.permission.action}`);
+      userPermissions = userRolesData.map((ur: any) => `${ur.permission.resource}:${ur.permission.action}`);
     }
   }
 
@@ -72,7 +74,7 @@ async function getAuthContext(c: any) {
     userId,
     userEmail,
     userName,
-    permissions,
+    permissions: userPermissions,
   };
 }
 
