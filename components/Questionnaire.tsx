@@ -79,6 +79,7 @@ const EditAnswerModal: React.FC<{
     onCancel: () => void;
     questionTitle?: string;
 }> = ({ isOpen, currentValue, onSave, onCancel, questionTitle }) => {
+    const { t } = useTranslation();
     const [editedValue, setEditedValue] = useState(currentValue);
     
     useEffect(() => {
