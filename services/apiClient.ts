@@ -316,6 +316,93 @@ class ApiClient {
   async getPermissionsByResource(resource: string, token: string | null = null) {
     return this.request<{ permissions: any[] }>(`/permissions/by-resource/${resource}`, {}, token);
   }
+
+  // AI Endpoints (Backend Proxy)
+  async generateQuestion(data: {
+    phaseKey: 'phase1' | 'phase2' | 'phase3';
+    categoryIndex: number;
+    previousAnswers: any[];
+    userName: string;
+    coachingStyle: 'collaborative' | 'analytic' | 'creative';
+    userProfile: any | null;
+    options?: {
+      useJoker?: boolean;
+      useGoogleSearch?: boolean;
+      searchTopic?: string;
+      isModuleQuestion?: { moduleId: string; questionNum: number };
+    };
+    language?: string;
+  }, token: string | null = null) {
+    return this.request<any>('/ai/generate/question', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }, token);
+  }
+
+  async generateSummary(data: {
+    answers: any[];
+    packageName: string;
+    userName: string;
+    coachingStyle: 'collaborative' | 'analytic' | 'creative';
+    language?: string;
+  }, token: string | null = null) {
+    return this.request<any>('/ai/generate/summary', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }, token);
+  }
+
+  async generateSynthesis(data: {
+    lastAnswers: any[];
+    userName: string;
+    coachingStyle: 'collaborative' | 'analytic' | 'creative';
+    language?: string;
+  }, token: string | null = null) {
+    return this.request<any>('/ai/generate/synthesis', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }, token);
+  }
+
+  async analyzeThemesAndSkills(data: {
+    answers: any[];
+    language?: string;
+  }, token: string | null = null) {
+    return this.request<any>('/ai/analyze/themes-and-skills', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }, token);
+  }
+
+  async analyzeUserProfile(data: {
+    cvText: string;
+    language?: string;
+  }, token: string | null = null) {
+    return this.request<any>('/ai/analyze/user-profile', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }, token);
+  }
+
+  async suggestOptionalModule(data: {
+    answers: any[];
+    language?: string;
+  }, token: string | null = null) {
+    return this.request<any>('/ai/suggest/optional-module', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }, token);
+  }
+
+  async findResourceLeads(data: {
+    actionItemText: string;
+    language?: string;
+  }, token: string | null = null) {
+    return this.request<any>('/ai/find/resource-leads', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }, token);
+  }
 }
 
 export const apiClient = new ApiClient();

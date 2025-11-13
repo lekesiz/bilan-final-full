@@ -375,7 +375,15 @@ const getCurrentLanguage = (): string => {
   }
 };
 
+// Try to use backend AI proxy first, fallback to frontend AI service
+const useBackendAI = (): boolean => {
+  // Check if backend AI is available (not returning 501)
+  // For now, we'll use a feature flag or check API availability
+  return import.meta.env.VITE_USE_BACKEND_AI === 'true' || false;
+};
+
 // Export convenience functions that match the old geminiService interface
+// These functions now try backend API first, then fallback to frontend AI service
 export const generateQuestion = async (
   phaseKey: 'phase1' | 'phase2' | 'phase3',
   categoryIndex: number,
@@ -386,6 +394,35 @@ export const generateQuestion = async (
   options: GenerateQuestionOptions = {},
   language?: string
 ): Promise<Question> => {
+  // Try backend API first if enabled
+  if (useBackendAI()) {
+    try {
+      const { apiClient } = await import('./apiClient');
+      const token = localStorage.getItem('bilan_auth_token');
+      const response = await apiClient.generateQuestion({
+        phaseKey,
+        categoryIndex,
+        previousAnswers,
+        userName,
+        coachingStyle,
+        userProfile,
+        options,
+        language: language || getCurrentLanguage(),
+      }, token);
+      
+      // Check if backend returned an error (501 = not implemented)
+      if (response.error && response.error.includes('501')) {
+        throw new Error('Backend AI not implemented, using frontend fallback');
+      }
+      
+      return response;
+    } catch (error: any) {
+      // If backend fails, fallback to frontend AI service
+      console.warn('Backend AI failed, using frontend AI service:', error.message);
+    }
+  }
+  
+  // Fallback to frontend AI service
   const service = getAIService();
   return service.generateQuestion(phaseKey, categoryIndex, previousAnswers, userName, coachingStyle, userProfile, options, language || getCurrentLanguage());
 };
