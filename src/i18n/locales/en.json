@@ -52,7 +52,29 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "progress": "Progress"
+    "progress": "Progress",
+    "welcomeBack": "Welcome back, {{name}}! 👋",
+    "welcomeBackUser": "Welcome back, User! 👋",
+    "overview": "Here's an overview of your assessments and activity.",
+    "totalAssessments": "Total Assessments",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "completionRate": "Completion Rate",
+    "of": "of",
+    "statusDistribution": "Status Distribution",
+    "packageDistribution": "Package Distribution",
+    "activityTrend": "Activity Trend (Last 7 Days)",
+    "quickActions": "Quick Actions",
+    "startNewAssessment": "Start New Assessment",
+    "viewAllAssessments": "View All Assessments",
+    "viewAnalytics": "View Analytics",
+    "recentActivity": "Recent Activity",
+    "noRecentActivity": "No recent activity",
+    "noRecentActivityMessage": "Start your first assessment to see activity here!",
+    "getStarted": "Get Started",
+    "viewAll": "View all assessments →",
+    "loadingDashboard": "Loading dashboard...",
+    "noDataAvailable": "No data available"
   },
   "history": {
     "title": "Assessment History",
@@ -177,7 +199,15 @@
     "totalAnswers": "Total Answers",
     "avgPerAssessment": "Avg per assessment",
     "summariesGenerated": "Summaries Generated",
-    "inProgress": "In Progress"
+    "inProgress": "In Progress",
+    "accessDenied": "Access Denied",
+    "accessDeniedMessage": "You don't have permission to view analytics.",
+    "goToDashboard": "Go to Dashboard",
+    "failedToLoad": "Failed to load analytics",
+    "successRateByPackage": "Success Rate by Package",
+    "timeMetrics": "Time Metrics",
+    "timeMetricsNote": "Based on completed assessments only",
+    "statusBreakdown": "Status Breakdown"
   },
   "errors": {
     "generic": "An error occurred",

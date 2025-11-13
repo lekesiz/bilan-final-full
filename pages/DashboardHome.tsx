@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useGetIdentity, useList } from '@refinedev/core';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { LoadingState } from '../src/core/components/LoadingState';
 import {
   PieChart,
@@ -19,6 +20,7 @@ import {
 } from 'recharts';
 
 const DashboardHome: React.FC = () => {
+  const { t } = useTranslation();
   const { data: identity, isLoading: identityLoading } = useGetIdentity();
   const navigate = useNavigate();
   
@@ -30,7 +32,7 @@ const DashboardHome: React.FC = () => {
   });
 
   if (identityLoading) {
-    return <LoadingState message="Loading dashboard..." />;
+    return <LoadingState message={t('dashboard.loadingDashboard')} />;
   }
 
   const assessments = assessmentsData?.data || [];
@@ -146,10 +148,13 @@ const DashboardHome: React.FC = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold font-display text-slate-900 dark:text-white mb-2">
-            Welcome back, {identity?.name || 'User'}! 👋
+            {identity?.name 
+              ? t('dashboard.welcomeBack', { name: identity.name })
+              : t('dashboard.welcomeBackUser')
+            }
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400">
-            Here's an overview of your assessments and activity.
+            {t('dashboard.overview')}
           </p>
         </div>
 
@@ -165,7 +170,7 @@ const DashboardHome: React.FC = () => {
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
               )}
             </div>
-            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Total Assessments</h3>
+            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t('dashboard.totalAssessments')}</h3>
             <p className="text-3xl font-bold text-slate-900 dark:text-white">{totalAssessments}</p>
           </div>
 
@@ -179,7 +184,7 @@ const DashboardHome: React.FC = () => {
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
               )}
             </div>
-            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Completed</h3>
+            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t('dashboard.completed')}</h3>
             <p className="text-3xl font-bold text-green-600 dark:text-green-400">{completedAssessments}</p>
           </div>
 
@@ -193,7 +198,7 @@ const DashboardHome: React.FC = () => {
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-600"></div>
               )}
             </div>
-            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">In Progress</h3>
+            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t('dashboard.inProgress')}</h3>
             <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">{inProgressAssessments}</p>
           </div>
 
@@ -204,10 +209,10 @@ const DashboardHome: React.FC = () => {
                 <ChartIcon />
               </div>
             </div>
-            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Completion Rate</h3>
+            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t('dashboard.completionRate')}</h3>
             <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{completionRate}%</p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              {completedAssessments} of {totalAssessments}
+              {completedAssessments} {t('dashboard.of')} {totalAssessments}
             </p>
           </div>
         </div>
@@ -216,7 +221,7 @@ const DashboardHome: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Status Distribution - Pie Chart */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
-            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-4">Status Distribution</h2>
+            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-4">{t('dashboard.statusDistribution')}</h2>
             {statusChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -240,14 +245,14 @@ const DashboardHome: React.FC = () => {
               </ResponsiveContainer>
             ) : (
               <div className="flex items-center justify-center h-[300px] text-slate-400 dark:text-slate-500">
-                No data available
+                {t('dashboard.noDataAvailable')}
               </div>
             )}
           </div>
 
           {/* Package Distribution - Bar Chart */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
-            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-4">Package Distribution</h2>
+            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-4">{t('dashboard.packageDistribution')}</h2>
             {packageChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={packageChartData}>
@@ -261,7 +266,7 @@ const DashboardHome: React.FC = () => {
               </ResponsiveContainer>
             ) : (
               <div className="flex items-center justify-center h-[300px] text-slate-400 dark:text-slate-500">
-                No data available
+                {t('dashboard.noDataAvailable')}
               </div>
             )}
           </div>
@@ -269,7 +274,7 @@ const DashboardHome: React.FC = () => {
 
         {/* Recent Activity Chart */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 mb-8">
-          <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-4">Activity Trend (Last 7 Days)</h2>
+          <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-4">{t('dashboard.activityTrend')}</h2>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={recentActivityData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -286,35 +291,35 @@ const DashboardHome: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Quick Actions */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
-            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-6">Quick Actions</h2>
+            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-6">{t('dashboard.quickActions')}</h2>
             <div className="space-y-3">
               <button
                 onClick={() => navigate('/bilan')}
                 className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all transform hover:scale-[1.02] shadow-md hover:shadow-lg"
               >
                 <PlayIcon />
-                Start New Assessment
+                {t('dashboard.startNewAssessment')}
               </button>
               <button
                 onClick={() => navigate('/assessments')}
                 className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-4 px-6 rounded-lg border-2 border-slate-300 dark:border-slate-600 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-600 transition-all transform hover:scale-[1.02]"
               >
                 <ListIcon />
-                View All Assessments
+                {t('dashboard.viewAllAssessments')}
               </button>
               <button
                 onClick={() => navigate('/analytics')}
                 className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-4 px-6 rounded-lg border-2 border-slate-300 dark:border-slate-600 hover:border-purple-500 dark:hover:border-purple-500 hover:bg-slate-50 dark:hover:bg-slate-600 transition-all transform hover:scale-[1.02]"
               >
                 <AnalyticsIcon />
-                View Analytics
+                {t('dashboard.viewAnalytics')}
               </button>
             </div>
           </div>
 
           {/* Recent Activity */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
-            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-6">Recent Activity</h2>
+            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-6">{t('dashboard.recentActivity')}</h2>
             {assessmentsLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -324,13 +329,13 @@ const DashboardHome: React.FC = () => {
                 <div className="mb-4">
                   <FileIcon />
                 </div>
-                <p className="text-slate-500 dark:text-slate-400 text-lg mb-2">No recent activity</p>
-                <p className="text-slate-400 dark:text-slate-500 text-sm">Start your first assessment to see activity here!</p>
+                <p className="text-slate-500 dark:text-slate-400 text-lg mb-2">{t('dashboard.noRecentActivity')}</p>
+                <p className="text-slate-400 dark:text-slate-500 text-sm">{t('dashboard.noRecentActivityMessage')}</p>
                 <button
                   onClick={() => navigate('/bilan')}
                   className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
                 >
-                  Get Started
+                  {t('dashboard.getStarted')}
                 </button>
               </div>
             ) : (
@@ -372,7 +377,7 @@ const DashboardHome: React.FC = () => {
                     onClick={() => navigate('/assessments')}
                     className="w-full mt-4 text-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium py-2"
                   >
-                    View all assessments →
+                    {t('dashboard.viewAll')}
                   </button>
                 )}
               </div>

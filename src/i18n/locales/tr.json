@@ -52,7 +52,29 @@
   },
   "dashboard": {
     "title": "Kontrol Paneli",
-    "progress": "İlerleme"
+    "progress": "İlerleme",
+    "welcomeBack": "Tekrar hoş geldiniz, {{name}}! 👋",
+    "welcomeBackUser": "Tekrar hoş geldiniz, Kullanıcı! 👋",
+    "overview": "İşte değerlendirmeleriniz ve aktivitelerinizin bir özeti.",
+    "totalAssessments": "Toplam Değerlendirme",
+    "completed": "Tamamlandı",
+    "inProgress": "Devam Ediyor",
+    "completionRate": "Tamamlama Oranı",
+    "of": "/",
+    "statusDistribution": "Durum Dağılımı",
+    "packageDistribution": "Paket Dağılımı",
+    "activityTrend": "Aktivite Trendi (Son 7 Gün)",
+    "quickActions": "Hızlı İşlemler",
+    "startNewAssessment": "Yeni Değerlendirme Başlat",
+    "viewAllAssessments": "Tüm Değerlendirmeleri Görüntüle",
+    "viewAnalytics": "İstatistikleri Görüntüle",
+    "recentActivity": "Son Aktiviteler",
+    "noRecentActivity": "Son aktivite yok",
+    "noRecentActivityMessage": "Aktiviteyi görmek için ilk değerlendirmenizi başlatın!",
+    "getStarted": "Başla",
+    "viewAll": "Tüm değerlendirmeleri görüntüle →",
+    "loadingDashboard": "Kontrol paneli yükleniyor...",
+    "noDataAvailable": "Veri mevcut değil"
   },
   "history": {
     "title": "Değerlendirme Geçmişi",
@@ -177,7 +199,15 @@
     "totalAnswers": "Toplam Cevaplar",
     "avgPerAssessment": "Değerlendirme başına ortalama",
     "summariesGenerated": "Oluşturulan Özetler",
-    "inProgress": "Devam Eden"
+    "inProgress": "Devam Eden",
+    "accessDenied": "Erişim Reddedildi",
+    "accessDeniedMessage": "İstatistikleri görüntüleme izniniz yok.",
+    "goToDashboard": "Kontrol Paneline Git",
+    "failedToLoad": "İstatistikler yüklenemedi",
+    "successRateByPackage": "Pakete Göre Başarı Oranı",
+    "timeMetrics": "Zaman Metrikleri",
+    "timeMetricsNote": "Sadece tamamlanan değerlendirmelere dayanır",
+    "statusBreakdown": "Durum Dağılımı"
   },
   "errors": {
     "generic": "Bir hata oluştu",

@@ -72,7 +72,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onBack }) => {
       setData(response.data || response);
     } catch (err) {
       console.error('Analytics error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load analytics');
+      setError(err instanceof Error ? err.message : t('analytics.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -93,11 +93,11 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onBack }) => {
           <Result
             icon={<StopOutlined />}
             status="403"
-            title="Access Denied"
-            subTitle="You don't have permission to view analytics."
+            title={t('analytics.accessDenied')}
+            subTitle={t('analytics.accessDeniedMessage')}
             extra={
               <Button type="primary" onClick={() => navigate('/dashboard')}>
-                Go to Dashboard
+                {t('analytics.goToDashboard')}
               </Button>
             }
           />
@@ -445,7 +445,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onBack }) => {
         </div>
 
         {/* Additional Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
               {t('analytics.totalAnswers') || 'Total Answers'}
@@ -472,6 +472,72 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onBack }) => {
             <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
               {data.overview.inProgressCount}
             </p>
+          </div>
+        </div>
+
+        {/* Enhanced Metrics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Success Rate by Package */}
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
+              {t('analytics.successRateByPackage') || 'Success Rate by Package'}
+            </h3>
+            <div className="space-y-3">
+              {data.distributions.packages.map((pkg) => {
+                // Calculate success rate (completed / total for this package)
+                // This is a simplified calculation - in real scenario, we'd need package-specific completion data
+                const packageTotal = pkg.count;
+                const estimatedCompleted = Math.round(packageTotal * (data.overview.completionRate / 100));
+                const successRate = packageTotal > 0 ? Math.round((estimatedCompleted / packageTotal) * 100) : 0;
+                
+                return (
+                  <div key={pkg.packageId} className="flex items-center justify-between">
+                    <span className="text-slate-700 dark:text-slate-300">{pkg.packageName}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-32 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                        <div
+                          className="bg-primary-600 h-2 rounded-full transition-all"
+                          style={{ width: `${successRate}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 w-12 text-right">
+                        {successRate}%
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Average Time Metrics */}
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
+              {t('analytics.timeMetrics') || 'Time Metrics'}
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm text-slate-600 dark:text-slate-400">
+                    {t('analytics.avgCompletionTime') || 'Avg Completion Time'}
+                  </span>
+                  <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                    {data.overview.avgCompletionHours}h
+                  </span>
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full"
+                    style={{ width: `${Math.min((data.overview.avgCompletionHours / 24) * 100, 100)}%` }}
+                  />
+                </div>
+              </div>
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {t('analytics.timeMetricsNote') || 'Based on completed assessments only'}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

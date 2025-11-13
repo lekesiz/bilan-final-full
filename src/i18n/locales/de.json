@@ -52,7 +52,29 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "progress": "Fortschritt"
+    "progress": "Fortschritt",
+    "welcomeBack": "Willkommen zurück, {{name}}! 👋",
+    "welcomeBackUser": "Willkommen zurück, Benutzer! 👋",
+    "overview": "Hier ist eine Übersicht über Ihre Bewertungen und Aktivitäten.",
+    "totalAssessments": "Gesamtbewertungen",
+    "completed": "Abgeschlossen",
+    "inProgress": "In Bearbeitung",
+    "completionRate": "Abschlussquote",
+    "of": "von",
+    "statusDistribution": "Statusverteilung",
+    "packageDistribution": "Paketverteilung",
+    "activityTrend": "Aktivitätstrend (Letzte 7 Tage)",
+    "quickActions": "Schnellaktionen",
+    "startNewAssessment": "Neue Bewertung starten",
+    "viewAllAssessments": "Alle Bewertungen anzeigen",
+    "viewAnalytics": "Statistiken anzeigen",
+    "recentActivity": "Aktuelle Aktivität",
+    "noRecentActivity": "Keine aktuelle Aktivität",
+    "noRecentActivityMessage": "Starten Sie Ihre erste Bewertung, um hier Aktivität zu sehen!",
+    "getStarted": "Loslegen",
+    "viewAll": "Alle Bewertungen anzeigen →",
+    "loadingDashboard": "Dashboard wird geladen...",
+    "noDataAvailable": "Keine Daten verfügbar"
   },
   "history": {
     "title": "Bewertungsverlauf",
@@ -177,7 +199,15 @@
     "totalAnswers": "Gesamtantworten",
     "avgPerAssessment": "Durchschnitt pro Bewertung",
     "summariesGenerated": "Generierte Zusammenfassungen",
-    "inProgress": "In Bearbeitung"
+    "inProgress": "In Bearbeitung",
+    "accessDenied": "Zugriff verweigert",
+    "accessDeniedMessage": "Sie haben keine Berechtigung, Statistiken anzuzeigen.",
+    "goToDashboard": "Zum Dashboard gehen",
+    "failedToLoad": "Statistiken konnten nicht geladen werden",
+    "successRateByPackage": "Erfolgsquote nach Paket",
+    "timeMetrics": "Zeitmetriken",
+    "timeMetricsNote": "Nur auf abgeschlossene Bewertungen basierend",
+    "statusBreakdown": "Statusaufschlüsselung"
   },
   "errors": {
     "generic": "Ein Fehler ist aufgetreten",
