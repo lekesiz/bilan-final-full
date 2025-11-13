@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 
 interface ExportButtonProps {
   data: any[];
