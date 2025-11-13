@@ -95,7 +95,9 @@ class MultiProviderAIService {
     if (config.openai?.enabled && config.openai?.apiKey) {
       try {
         this.providers.push(new OpenAIProvider(config.openai.apiKey, config.openai.model || 'gpt-4o'));
-        console.log('✅ OpenAI provider initialized');
+        if (import.meta.env.DEV) {
+          console.log('✅ OpenAI provider initialized');
+        }
       } catch (error) {
         console.error('❌ Failed to initialize OpenAI provider:', error);
       }
@@ -104,7 +106,9 @@ class MultiProviderAIService {
     if (config.claude?.enabled && config.claude?.apiKey) {
       try {
         this.providers.push(new ClaudeProvider(config.claude.apiKey, config.claude.model || 'claude-3-5-sonnet-20241022'));
-        console.log('✅ Claude provider initialized');
+        if (import.meta.env.DEV) {
+          console.log('✅ Claude provider initialized');
+        }
       } catch (error) {
         console.error('❌ Failed to initialize Claude provider:', error);
       }
@@ -114,7 +118,9 @@ class MultiProviderAIService {
       throw new Error('No AI providers available. Please configure at least one provider in .env.local');
     }
 
-    console.log(`✅ Multi-Provider AI Service initialized with ${this.providers.length} provider(s)`);
+    if (import.meta.env.DEV) {
+      console.log(`✅ Multi-Provider AI Service initialized with ${this.providers.length} provider(s)`);
+    }
   }
 
   private async executeWithFallback<T>(
@@ -129,7 +135,7 @@ class MultiProviderAIService {
       const provider = this.providers[this.currentProviderIndex];
       
       try {
-        console.log(`🤖 Using ${provider.name} provider for ${operationName}`);
+        // Using provider for operation
         const result = await operation(provider);
         
         // Reset error count on success
@@ -160,14 +166,18 @@ class MultiProviderAIService {
                             errorMessage.includes('quota');
         
         if (isQuotaError) {
-          console.warn(`⚠️ ${provider.name} quota exceeded, switching to next provider immediately`);
+          if (import.meta.env.DEV) {
+            console.warn(`⚠️ ${provider.name} quota exceeded, switching to next provider immediately`);
+          }
           this.currentProviderIndex = (this.currentProviderIndex + 1) % this.providers.length;
         } else {
           console.error(`❌ ${provider.name} provider failed for ${operationName}:`, structuredError.message);
           
           // If error count is too high, temporarily disable this provider
           if (errorCount >= 3) {
-            console.warn(`⚠️ Temporarily disabling ${provider.name} provider due to repeated errors`);
+            if (import.meta.env.DEV) {
+              console.warn(`⚠️ Temporarily disabling ${provider.name} provider due to repeated errors`);
+            }
             this.currentProviderIndex = (this.currentProviderIndex + 1) % this.providers.length;
           } else {
             // Try next provider immediately
@@ -343,16 +353,18 @@ export const getAIService = (): MultiProviderAIService => {
       },
     };
     
-    // Log configuration status (without exposing keys)
-    console.log('🤖 AI Provider Configuration:', {
-      gemini: config.gemini.enabled ? `✅ Enabled (key length: ${config.gemini.apiKey.length})` : '❌ Disabled',
-      openai: config.openai.enabled ? `✅ Enabled (key length: ${config.openai.apiKey.length})` : '❌ Disabled',
-      claude: config.claude.enabled ? `✅ Enabled (key length: ${config.claude.apiKey.length})` : '❌ Disabled',
-    });
+    // Log configuration status (without exposing keys) - only in development
+    if (import.meta.env.DEV) {
+      console.log('🤖 AI Provider Configuration:', {
+        gemini: config.gemini.enabled ? `✅ Enabled` : '❌ Disabled',
+        openai: config.openai.enabled ? `✅ Enabled` : '❌ Disabled',
+        claude: config.claude.enabled ? `✅ Enabled` : '❌ Disabled',
+      });
+    }
 
     // Check for fallback model
     const fallbackModel = getEnvVar(['GEMINI_FALLBACK_MODEL', 'VITE_GEMINI_FALLBACK_MODEL']);
-    if (fallbackModel && config.gemini?.enabled) {
+    if (fallbackModel && config.gemini?.enabled && import.meta.env.DEV) {
       console.log(`🔄 Fallback model configured: ${fallbackModel}`);
     }
 
@@ -418,7 +430,9 @@ export const generateQuestion = async (
       return response;
     } catch (error: any) {
       // If backend fails, fallback to frontend AI service
-      console.warn('Backend AI failed, using frontend AI service:', error.message);
+      if (import.meta.env.DEV) {
+        console.warn('Backend AI failed, using frontend AI service:', error.message);
+      }
     }
   }
   
@@ -450,7 +464,9 @@ export const generateSynthesis = async (
       
       return response;
     } catch (error: any) {
-      console.warn('Backend AI failed, using frontend AI service:', error.message);
+      if (import.meta.env.DEV) {
+        console.warn('Backend AI failed, using frontend AI service:', error.message);
+      }
     }
   }
   
@@ -483,7 +499,9 @@ export const generateSummary = async (
       
       return response;
     } catch (error: any) {
-      console.warn('Backend AI failed, using frontend AI service:', error.message);
+      if (import.meta.env.DEV) {
+        console.warn('Backend AI failed, using frontend AI service:', error.message);
+      }
     }
   }
   
@@ -507,7 +525,9 @@ export const analyzeThemesAndSkills = async (answers: Answer[], language?: strin
       
       return response;
     } catch (error: any) {
-      console.warn('Backend AI failed, using frontend AI service:', error.message);
+      if (import.meta.env.DEV) {
+        console.warn('Backend AI failed, using frontend AI service:', error.message);
+      }
     }
   }
   
@@ -531,7 +551,9 @@ export const analyzeUserProfile = async (cvText: string, language?: string): Pro
       
       return response;
     } catch (error: any) {
-      console.warn('Backend AI failed, using frontend AI service:', error.message);
+      if (import.meta.env.DEV) {
+        console.warn('Backend AI failed, using frontend AI service:', error.message);
+      }
     }
   }
   
@@ -558,7 +580,9 @@ export const suggestOptionalModule = async (
       
       return response;
     } catch (error: any) {
-      console.warn('Backend AI failed, using frontend AI service:', error.message);
+      if (import.meta.env.DEV) {
+        console.warn('Backend AI failed, using frontend AI service:', error.message);
+      }
     }
   }
   
@@ -585,7 +609,9 @@ export const findResourceLeads = async (
       
       return response;
     } catch (error: any) {
-      console.warn('Backend AI failed, using frontend AI service:', error.message);
+      if (import.meta.env.DEV) {
+        console.warn('Backend AI failed, using frontend AI service:', error.message);
+      }
     }
   }
   

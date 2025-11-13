@@ -30,7 +30,9 @@ export class GeminiProvider implements AIProviderInterface {
                           (process.env as any).GEMINI_FALLBACK_MODEL) as string;
     if (fallbackModel) {
       this.fallbackModel = fallbackModel;
-      console.log(`🔄 Fallback model configured: ${fallbackModel}`);
+      if (import.meta.env.DEV) {
+        console.log(`🔄 Fallback model configured: ${fallbackModel}`);
+      }
     }
   }
 
@@ -306,7 +308,9 @@ The response MUST be a valid JSON object. Ensure the question is unique, context
         
         // If 429 persists and fallback model is configured, try fallback
         if (this.fallbackModel && isRateLimit) {
-          console.warn(`⚠️ Switching to fallback model: ${this.fallbackModel}`);
+          if (import.meta.env.DEV) {
+            console.warn(`⚠️ Switching to fallback model: ${this.fallbackModel}`);
+          }
           const previousModel = this.currentModel;
           this.currentModel = this.fallbackModel;
           

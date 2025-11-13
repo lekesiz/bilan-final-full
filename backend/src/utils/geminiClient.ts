@@ -5,6 +5,8 @@
  * Includes request coalescing for duplicate requests
  */
 
+import { logger } from './logger.js';
+
 interface RateLimitConfig {
   baseDelay?: number;
   maxDelay?: number;
@@ -104,7 +106,7 @@ class GeminiClient {
       try {
         const result = await fn();
         if (attempt > 0) {
-          console.log(`✅ ${operationName} succeeded after ${attempt} retry(ies)`);
+          logger.info(`✅ ${operationName} succeeded after ${attempt} retry(ies)`);
         }
         return result;
       } catch (error: any) {
@@ -125,7 +127,7 @@ class GeminiClient {
           const delay = this.calculateDelay(attempt, retryAfter);
           const nextRetryAt = new Date(Date.now() + delay);
 
-          console.warn(
+          logger.warn(
             `⚠️ Rate limit (429) for ${operationName}, attempt ${attempt + 1}/${this.config.maxRetries + 1}. ` +
             `Retrying in ${Math.round(delay / 1000)}s...`
           );
@@ -168,7 +170,7 @@ class GeminiClient {
 
     // Check if there's a recent request for the same prompt
     if (this.coalesceCache[key] && now - this.coalesceCache[key].timestamp < this.coalesceWindow) {
-      console.log(`🔄 Request coalescing: reusing cached promise for ${operationName}`);
+      logger.debug(`🔄 Request coalescing: reusing cached promise for ${operationName}`);
       return this.coalesceCache[key].promise;
     }
 

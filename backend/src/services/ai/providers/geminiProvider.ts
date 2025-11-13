@@ -20,6 +20,7 @@ import type {
 import { QuestionType } from '../../../types/ai.js';
 import { QUESTION_CATEGORIES } from '../../../constants/questionCategories.js';
 import { callGeminiWithBackoff } from '../../../utils/geminiClient.js';
+import { logger } from '../../../utils/logger.js';
 
 export class GeminiProvider implements AIProviderInterface {
   name: 'gemini' = 'gemini';
@@ -37,7 +38,7 @@ export class GeminiProvider implements AIProviderInterface {
     const fallbackModel = process.env.GEMINI_FALLBACK_MODEL as string;
     if (fallbackModel) {
       this.fallbackModel = fallbackModel;
-      console.log(`🔄 Fallback model configured: ${fallbackModel}`);
+      logger.info(`🔄 Fallback model configured: ${fallbackModel}`);
     }
   }
 
@@ -306,7 +307,7 @@ The response MUST be a valid JSON object.`;
     } catch (error: any) {
       // Try fallback model if rate limited
       if (this.fallbackModel && (error?.code === 429 || error?.error?.code === 429)) {
-        console.warn(`⚠️ Switching to fallback model: ${this.fallbackModel}`);
+          logger.warn(`⚠️ Switching to fallback model: ${this.fallbackModel}`);
         try {
           const response = await this.ai.models.generateContent({
             model: this.fallbackModel,

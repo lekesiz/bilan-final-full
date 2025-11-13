@@ -230,10 +230,10 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
         // ÖNEMLİ: currentAnswers parametresi varsa onu kullan, yoksa answers state'ini kullan
         // Bu, state güncellemesi gecikmelerini önler
         const answersToUse = options.currentAnswers || answers;
-        console.log('🔍 fetchNextQuestion çağrıldı, answersToUse.length:', answersToUse.length, ', answers.length:', answers.length);
+        // Debug: fetchNextQuestion called
         
         if (isRequestPending) {
-            console.log('⏸️ Request already pending, skipping...');
+            // Request already pending, skipping
             return;
         }
         
@@ -243,17 +243,17 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
         try {
             let question;
             if (activeModule) {
-                console.log('📦 Module sorusu oluşturuluyor:', activeModule);
+                // Generating module question
                 question = await generateQuestion('phase2', 0, answersToUse, userName, coachingStyle, null, { isModuleQuestion: { moduleId: activeModule, questionNum: moduleQuestionCount + 1 } });
             } else {
                 const info = getPhaseInfo(answersToUse.length);
-                console.log('📊 Phase bilgisi:', info, 'answersToUse.length:', answersToUse.length);
+                // Phase info calculated
                 setCurrentPhaseInfo(info);
                 const phaseKey = `phase${info.phase}` as 'phase1' | 'phase2' | 'phase3';
                 const phaseCategories = QUESTION_CATEGORIES[phaseKey].categories;
                 const categoryIndex = (info.positionInPhase - 1) % phaseCategories.length;
                 
-                console.log(`🎯 Soru oluşturuluyor: Phase ${info.phase}, Category: ${phaseCategories[categoryIndex]}, Index: ${categoryIndex}`);
+                // Generating question
                 
                 let genOptions: any = { useJoker: options.useJoker };
                 if (info.phase === 2 && info.positionInPhase === 2 && answersToUse.length > 0 && answersToUse[answersToUse.length - 1].value.length > 3) {
@@ -261,7 +261,7 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                 }
                 question = await generateQuestion(phaseKey, categoryIndex, answersToUse, userName, coachingStyle, answersToUse.length === 0 ? userProfile : null, genOptions);
             }
-            console.log('✅ Soru oluşturuldu:', question.title);
+            // Question generated successfully
             setCurrentQuestion(question);
             const aiMessage: Message = { sender: 'ai', text: `${question.title}${question.description ? `\n\n${question.description}` : ''}`, question };
             setMessages(prev => [...prev, aiMessage]);
@@ -348,18 +348,16 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
     const runNextStep = useCallback(async (currentAnswers: Answer[], skipSynthesis: boolean = false) => {
         // Synthesis beklenirken veya zaten oluşturulmuşsa, synthesis kontrolünü atla
         if (isAwaitingSynthesisConfirmation && !skipSynthesis) {
-            console.log('⏸️ Synthesis bekleniyor, runNextStep atlanıyor');
+            // Synthesis pending, skipping runNextStep
             return;
         }
 
-        console.log(`🔄 runNextStep çağrıldı: ${currentAnswers.length}/${pkg.totalQuestionnaires} cevap, skipSynthesis: ${skipSynthesis}`);
-        console.log(`📦 Package bilgisi: ${pkg.name}, totalQuestionnaires: ${pkg.totalQuestionnaires}`);
+        // runNextStep called
 
         // Tüm sorular tamamlandı mı?
         // ÖNEMLİ: Sadece gerçekten tüm sorular tamamlandıysa summary oluştur
         if (currentAnswers.length >= pkg.totalQuestionnaires) {
-            console.log('✅ Tüm sorular tamamlandı, final summary oluşturuluyor...');
-            console.log(`📊 Cevap sayısı kontrolü: ${currentAnswers.length} >= ${pkg.totalQuestionnaires} = ${currentAnswers.length >= pkg.totalQuestionnaires}`);
+            // All questions completed, generating final summary
             setIsSummarizing(true);
             
             try {
@@ -371,7 +369,7 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                 
                 const finalSummary = await Promise.race([summaryPromise, timeoutPromise]) as Summary;
                 
-                console.log('✅ Summary oluşturuldu:', finalSummary.profileType);
+                // Summary generated successfully
                 
                 // Backend'e summary kaydet
                 if (assessmentId) {
@@ -503,22 +501,22 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
             const info = getPhaseInfo(currentAnswers.length);
             const prevInfo = getPhaseInfo(currentAnswers.length - 1);
             if (info.phase !== prevInfo.phase) {
-                console.log(`📊 Phase geçişi: Phase ${prevInfo.phase} → Phase ${info.phase}`);
+                // Phase transition detected
                 setUnlockedBadge(`Phase ${prevInfo.phase} : ${prevInfo.name}`);
                 const moduleSuggestion = await suggestOptionalModule(currentAnswers);
                 if (moduleSuggestion.isNeeded && moduleSuggestion.moduleId && moduleSuggestion.reason) {
-                    console.log('🔍 Module önerisi:', moduleSuggestion.moduleId);
+                    // Module suggestion received
                     setSuggestedModule({ id: moduleSuggestion.moduleId, reason: moduleSuggestion.reason });
                     return;
                 }
                 // ÖNEMLİ: Eğer bu phase için satisfaction zaten gönderildiyse, tekrar gösterme
                 if (prevInfo.satisfactionActive && satisfactionSubmittedForPhase !== prevInfo.phase) {
-                    console.log('⭐ Satisfaction modal gösteriliyor (Phase', prevInfo.phase, ')');
+                    // Showing satisfaction modal
                     setSatisfactionPhaseInfo(prevInfo);
                     setShowSatisfactionModal(true);
                     return;
                 } else if (prevInfo.satisfactionActive && satisfactionSubmittedForPhase === prevInfo.phase) {
-                    console.log('⏭️ Satisfaction zaten gönderildi (Phase', prevInfo.phase, '), atlanıyor');
+                    // Satisfaction already submitted, skipping
                 }
             }
         }
@@ -526,13 +524,13 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
         // Synthesis kontrolü: Her 3 cevapta bir (ama 5'in katı değilse) VE synthesis beklenmiyorsa
         // İLK CEVAPTA SYNTHESIS OLUŞTURMA! (currentAnswers.length > 1 kontrolü eklendi)
         if (!skipSynthesis && currentAnswers.length > 1 && currentAnswers.length % 3 === 0 && currentAnswers.length % 5 !== 0) {
-            console.log('📝 Synthesis oluşturuluyor (3. cevap)');
+            // Generating synthesis (3rd answer)
             await handleGenerateSynthesis(currentAnswers);
             return;
         }
         
         // Sonraki soruyu getir
-        console.log('❓ Sonraki soru getiriliyor... (cevap sayısı:', currentAnswers.length, ', toplam:', pkg.totalQuestionnaires, ')');
+        // Fetching next question
         
         // Eğer tüm sorular tamamlandıysa, buraya gelmemeli (yukarıdaki kontrol zaten yapıldı)
         if (currentAnswers.length >= pkg.totalQuestionnaires) {
@@ -604,8 +602,7 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
 
     useEffect(() => {
         if (synthesisConfirmed !== null) {
-            console.log('✅ Synthesis confirmation alındı:', synthesisConfirmed);
-            console.log('📊 Mevcut answers:', answers.length, 'cevap');
+            // Synthesis confirmation received
             // Synthesis confirmation sonrası, synthesis kontrolünü atlayarak devam et
             try {
                 runNextStep(answers, true); // skipSynthesis = true
@@ -689,7 +686,7 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
         
         if (assessmentId && previousQuestion && isOnline) {
             try {
-                console.log('💾 Backend\'e answer kaydediliyor...', newAnswers.length);
+                // Saving answers to backend
                 const answerResponse = await api.addAnswer(assessmentId, {
                     questionId: previousQuestion.id,
                     questionTitle: previousQuestion.title,
@@ -722,10 +719,10 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                         currentQuestionIndex: newAnswers.length,
                         lastActivityAt: new Date().toISOString(),
                     });
-                    console.log('💾 Otomatik taslak kaydedildi (soru', newAnswers.length, ')');
+                    // Auto-saved draft
                 }
                 
-                console.log('✅ Answer backend\'e kaydedildi:', newAnswers.length);
+                // Answers saved to backend
             } catch (error) {
                 console.error('❌ Failed to save answer to backend:', error);
                 
@@ -748,23 +745,23 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
 
         // Her durumda sonraki adıma geç (backend kaydı başarısız olsa bile)
         if (shouldContinue) {
-            console.log(`➡️ Sonraki adıma geçiliyor: newAnswers.length=${newAnswers.length}, pkg.totalQuestionnaires=${pkg.totalQuestionnaires}`);
+            // Moving to next step
             
             // ÖNEMLİ: Eğer tüm sorular tamamlandıysa runNextStep çağrılmalı (summary için)
             // Ama eğer henüz sorular varsa, runNextStep çağrılmalı (sonraki soru için)
             if (activeModule) {
                 if (moduleQuestionCount + 1 >= 3) {
-                    console.log('✅ Module tamamlandı, normal akışa dönülüyor');
+                    // Module completed, returning to normal flow
                     setActiveModule(null); 
                     setModuleQuestionCount(0);
                     runNextStep(newAnswers);
                 } else {
-                    console.log('📝 Module sorusu devam ediyor:', moduleQuestionCount + 1);
+                    // Continuing module question
                     setModuleQuestionCount(prev => prev + 1);
                     fetchNextQuestion();
                 }
             } else {
-                console.log('➡️ Normal akış: runNextStep çağrılıyor (newAnswers.length:', newAnswers.length, ')');
+                // Normal flow: calling runNextStep
                 // ÖNEMLİ: runNextStep içinde totalQuestionnaires kontrolü var
                 // Eğer newAnswers.length < pkg.totalQuestionnaires ise, fetchNextQuestion çağrılacak
                 // Eğer newAnswers.length >= pkg.totalQuestionnaires ise, summary oluşturulacak
@@ -774,7 +771,7 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
     };
     
     const handleSynthesisConfirmation = (confirmed: boolean) => {
-        console.log('🔄 Synthesis confirmation:', confirmed);
+        // Synthesis confirmation
         setIsAwaitingSynthesisConfirmation(false);
         setMessages(prev => [...prev, { sender: 'user', text: confirmed ? "Oui, c'est exact." : "Non, pas tout à fait." }]);
         // Synthesis confirmation sonrası bir sonraki soruya geç

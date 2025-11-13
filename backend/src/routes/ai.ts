@@ -4,6 +4,7 @@ import { error, success } from '../utils/response.js';
 import { z } from 'zod';
 import { getAIService } from '../services/ai/aiService.js';
 import type { Package } from '../types/ai.js';
+import { logger } from '../utils/logger.js';
 
 const app = new Hono();
 
@@ -85,7 +86,7 @@ app.post('/generate/question', requireAuth, async (c) => {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
     }
-    console.error('AI generate question error:', err);
+    logger.error('AI generate question error:', err);
     return error(c, err instanceof Error ? err.message : 'Failed to generate question', 500);
   }
 });
@@ -125,7 +126,7 @@ app.post('/generate/summary', requireAuth, async (c) => {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
     }
-    console.error('AI generate summary error:', err);
+    logger.error('AI generate summary error:', err);
     return error(c, err instanceof Error ? err.message : 'Failed to generate summary', 500);
   }
 });
@@ -149,7 +150,7 @@ app.post('/generate/synthesis', requireAuth, async (c) => {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
     }
-    console.error('AI generate synthesis error:', err);
+    logger.error('AI generate synthesis error:', err);
     return error(c, err instanceof Error ? err.message : 'Failed to generate synthesis', 500);
   }
 });
@@ -171,7 +172,7 @@ app.post('/analyze/themes-and-skills', requireAuth, async (c) => {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
     }
-    console.error('AI analyze themes and skills error:', err);
+    logger.error('AI analyze themes and skills error:', err);
     return error(c, err instanceof Error ? err.message : 'Failed to analyze themes and skills', 500);
   }
 });
@@ -193,7 +194,7 @@ app.post('/analyze/user-profile', requireAuth, async (c) => {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
     }
-    console.error('AI analyze user profile error:', err);
+    logger.error('AI analyze user profile error:', err);
     return error(c, err instanceof Error ? err.message : 'Failed to analyze user profile', 500);
   }
 });
@@ -215,7 +216,7 @@ app.post('/suggest/optional-module', requireAuth, async (c) => {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
     }
-    console.error('AI suggest optional module error:', err);
+    logger.error('AI suggest optional module error:', err);
     return error(c, err instanceof Error ? err.message : 'Failed to suggest optional module', 500);
   }
 });
@@ -237,7 +238,7 @@ app.post('/find/resource-leads', requireAuth, async (c) => {
     if (err instanceof z.ZodError) {
       return error(c, `Validation error: ${err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`, 400);
     }
-    console.error('AI find resource leads error:', err);
+    logger.error('AI find resource leads error:', err);
     return error(c, err instanceof Error ? err.message : 'Failed to find resource leads', 500);
   }
 });

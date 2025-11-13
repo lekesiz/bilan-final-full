@@ -112,9 +112,9 @@ export const BilanApp: React.FC = () => {
     let fullAnswers = answers;
     if (currentAssessmentId) {
       try {
-        console.log('📥 Backend\'den answers çekiliyor, assessmentId:', currentAssessmentId);
+        // Fetching answers from backend
         const answersResponse = await api.getAnswers(currentAssessmentId);
-        console.log('✅ Backend\'den gelen answers:', answersResponse);
+        // Answers fetched from backend
         
         // Backend'den gelen tam bilgileri kullan
         fullAnswers = (answersResponse.answers || []).map((a: any) => {
@@ -132,7 +132,7 @@ export const BilanApp: React.FC = () => {
           return mapped;
         }) as Answer[];
         
-        console.log('✅ Mapped fullAnswers:', fullAnswers.length, 'answers');
+        // Mapped fullAnswers
       } catch (error) {
         console.error('❌ Failed to fetch full answers from backend:', error);
         // Hata durumunda mevcut answers'ı kullan

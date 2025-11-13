@@ -24,7 +24,7 @@ export const Header: React.FC = () => {
       label: 'Profile',
       onClick: () => {
         // Navigate to profile page when available
-        console.log('Profile clicked');
+        // TODO: implement profile page
       },
     },
     {
@@ -41,7 +41,7 @@ export const Header: React.FC = () => {
       label: 'Settings',
       onClick: () => {
         // Navigate to settings page when available
-        console.log('Settings clicked');
+        // TODO: implement settings page
       },
     },
     {

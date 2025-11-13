@@ -20,6 +20,7 @@ import type {
 import { GeminiProvider } from './providers/geminiProvider.js';
 import { OpenAIProvider } from './providers/openaiProvider.js';
 import { ClaudeProvider } from './providers/claudeProvider.js';
+import { logger } from '../../utils/logger.js';
 
 class MultiProviderAIService {
   private providers: AIProviderInterface[] = [];
@@ -31,7 +32,7 @@ class MultiProviderAIService {
     if (config.gemini?.enabled && config.gemini?.apiKey) {
       try {
         this.providers.push(new GeminiProvider(config.gemini.apiKey));
-        console.log('✅ Gemini provider initialized');
+        logger.info('✅ Gemini provider initialized');
       } catch (error) {
         console.error('❌ Failed to initialize Gemini provider:', error);
       }
@@ -40,7 +41,7 @@ class MultiProviderAIService {
     if (config.openai?.enabled && config.openai?.apiKey) {
       try {
         this.providers.push(new OpenAIProvider(config.openai.apiKey, config.openai.model || 'gpt-4o'));
-        console.log('✅ OpenAI provider initialized');
+        logger.info('✅ OpenAI provider initialized');
       } catch (error) {
         console.error('❌ Failed to initialize OpenAI provider:', error);
       }
@@ -49,7 +50,7 @@ class MultiProviderAIService {
     if (config.claude?.enabled && config.claude?.apiKey) {
       try {
         this.providers.push(new ClaudeProvider(config.claude.apiKey, config.claude.model || 'claude-3-5-sonnet-20241022'));
-        console.log('✅ Claude provider initialized');
+        logger.info('✅ Claude provider initialized');
       } catch (error) {
         console.error('❌ Failed to initialize Claude provider:', error);
       }
@@ -59,7 +60,7 @@ class MultiProviderAIService {
       throw new Error('No AI providers available. Please configure at least one provider in .env');
     }
 
-    console.log(`✅ Multi-Provider AI Service initialized with ${this.providers.length} provider(s)`);
+    logger.info(`✅ Multi-Provider AI Service initialized with ${this.providers.length} provider(s)`);
   }
 
   private async executeWithFallback<T>(
@@ -89,7 +90,7 @@ class MultiProviderAIService {
         
         // If provider failed 3 times, skip to next
         if (errorCount >= 3) {
-          console.warn(`⚠️ Provider ${provider.name} has failed ${errorCount} times, trying next provider`);
+          logger.warn(`⚠️ Provider ${provider.name} has failed ${errorCount} times, trying next provider`);
           this.currentProviderIndex = (this.currentProviderIndex + 1) % this.providers.length;
           continue;
         }
@@ -196,7 +197,7 @@ export const getAIService = (): MultiProviderAIService => {
       },
     };
 
-    console.log('🤖 AI Provider Configuration:', {
+    logger.info('🤖 AI Provider Configuration:', {
       gemini: config.gemini?.enabled ? `✅ Enabled` : '❌ Disabled',
       openai: config.openai?.enabled ? `✅ Enabled` : '❌ Disabled',
       claude: config.claude?.enabled ? `✅ Enabled` : '❌ Disabled',

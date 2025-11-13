@@ -3,10 +3,11 @@ import { ZodError } from 'zod';
 // Sentry is disabled for now - enable it later by adding SENTRY_DSN to .env
 // import * as Sentry from '@sentry/node';
 import type { Env } from '../types/env.js';
+import { logger } from '../utils/logger.js';
 
 // Global error handler
 export const errorHandler = (err: Error, c: Context<Env>) => {
-  console.error('Error:', err);
+  logger.error('Error:', err);
   
   // Sentry is disabled for now - enable it later by adding SENTRY_DSN to .env
   // if (process.env.SENTRY_DSN) {
