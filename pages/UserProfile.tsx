@@ -14,18 +14,35 @@ const UserProfile: React.FC = () => {
   const { t } = useTranslation();
 
   if (isLoading) {
-    return <Card loading />;
+    return (
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '24px' }}>
+        <Card loading />
+      </div>
+    );
   }
 
   if (!identity) {
     return (
-      <Card>
-        <div style={{ textAlign: 'center', padding: '40px' }}>
-          <Text type="secondary">{t('profile.notFound', 'User profile not found')}</Text>
-        </div>
-      </Card>
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '24px' }}>
+        <Card>
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <Text type="secondary">{t('profile.notFound', 'User profile not found')}</Text>
+          </div>
+        </Card>
+      </div>
     );
   }
+
+  // Safe access to identity properties
+  const safeIdentity = identity as any;
+  const userName = safeIdentity?.name || safeIdentity?.email || 'Unknown';
+  const userEmail = safeIdentity?.email || '';
+  const userRoles = Array.isArray(safeIdentity?.roles) ? safeIdentity.roles : [];
+  const userRole = safeIdentity?.role;
+  const lastLogin = safeIdentity?.lastLoginAt;
+  const createdAt = safeIdentity?.createdAt;
+  const isActive = safeIdentity?.isActive;
+  const userId = safeIdentity?.id || safeIdentity?.userId;
 
   const formatDate = (dateString?: string | null) => {
     if (!dateString) return t('profile.never', 'Never');
@@ -54,9 +71,9 @@ const UserProfile: React.FC = () => {
               />
               <div>
                 <Title level={2} style={{ margin: 0 }}>
-                  {identity.name || identity.email}
+                  {userName}
                 </Title>
-                <Text type="secondary">{identity.email}</Text>
+                <Text type="secondary">{userEmail}</Text>
               </div>
             </div>
 
@@ -76,7 +93,7 @@ const UserProfile: React.FC = () => {
                   </Space>
                 }
               >
-                {identity.email}
+                {userEmail || t('profile.notSet', 'Not set')}
               </Descriptions.Item>
 
               <Descriptions.Item
@@ -87,32 +104,32 @@ const UserProfile: React.FC = () => {
                   </Space>
                 }
               >
-                {identity.name || t('profile.notSet', 'Not set')}
+                {safeIdentity?.name || t('profile.notSet', 'Not set')}
               </Descriptions.Item>
 
-              {identity.roles && Array.isArray(identity.roles) && identity.roles.length > 0 && (
+              {userRoles.length > 0 && (
                 <Descriptions.Item
                   label={t('profile.roles', 'Roles')}
                 >
                   <Space wrap>
-                    {identity.roles.map((role: any, index: number) => (
+                    {userRoles.map((role: any, index: number) => (
                       <Tag key={index} color="blue">
-                        {typeof role === 'string' ? role : (role?.name || role?.id || role)}
+                        {typeof role === 'string' ? role : (role?.name || role?.id || String(role))}
                       </Tag>
                     ))}
                   </Space>
                 </Descriptions.Item>
               )}
 
-              {!identity.roles && identity.role && (
+              {userRoles.length === 0 && userRole && (
                 <Descriptions.Item
                   label={t('profile.role', 'Role')}
                 >
-                  <Tag color="blue">{identity.role}</Tag>
+                  <Tag color="blue">{userRole}</Tag>
                 </Descriptions.Item>
               )}
 
-              {(identity.lastLoginAt || (identity as any).lastLoginAt) && (
+              {lastLogin && (
                 <Descriptions.Item
                   label={
                     <Space>
@@ -121,11 +138,11 @@ const UserProfile: React.FC = () => {
                     </Space>
                   }
                 >
-                  {formatDate(identity.lastLoginAt || (identity as any).lastLoginAt)}
+                  {formatDate(lastLogin)}
                 </Descriptions.Item>
               )}
 
-              {(identity.createdAt || (identity as any).createdAt) && (
+              {createdAt && (
                 <Descriptions.Item
                   label={
                     <Space>
@@ -134,16 +151,16 @@ const UserProfile: React.FC = () => {
                     </Space>
                   }
                 >
-                  {formatDate(identity.createdAt || (identity as any).createdAt)}
+                  {formatDate(createdAt)}
                 </Descriptions.Item>
               )}
 
-              {((identity as any).isActive !== undefined) && (
+              {isActive !== undefined && (
                 <Descriptions.Item
                   label={t('profile.status', 'Status')}
                 >
-                  <Tag color={(identity as any).isActive ? 'green' : 'red'}>
-                    {(identity as any).isActive ? t('profile.active', 'Active') : t('profile.inactive', 'Inactive')}
+                  <Tag color={isActive ? 'green' : 'red'}>
+                    {isActive ? t('profile.active', 'Active') : t('profile.inactive', 'Inactive')}
                   </Tag>
                 </Descriptions.Item>
               )}
@@ -165,7 +182,6 @@ const UserProfile: React.FC = () => {
                   icon={<EditOutlined />}
                   onClick={() => {
                     // Navigate to edit page if user has permission to edit themselves
-                    const userId = (identity as any).id || (identity as any).userId;
                     if (userId) {
                       navigate(`/users/edit/${userId}`);
                     }
