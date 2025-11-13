@@ -9,6 +9,7 @@ import {
   BarChartOutlined,
   UserOutlined,
   SafetyOutlined,
+  AuditOutlined,
 } from '@ant-design/icons';
 
 export const Sider: React.FC = () => {
@@ -57,6 +58,13 @@ export const Sider: React.FC = () => {
       label: 'Roles & Permissions',
       onClick: () => push('/roles'),
       visible: canAccess('roles', 'read'),
+    },
+    {
+      key: '/audit',
+      icon: <AuditOutlined />,
+      label: 'Audit Trail',
+      onClick: () => push('/audit'),
+      visible: canAccess('audit', 'read'),
     },
   ].filter(item => item.visible !== false);
 
