@@ -341,6 +341,26 @@
     "updateSuccess": "Successfully updated {{count}} item(s)",
     "updateError": "Failed to update items"
   },
+  "filters": {
+    "title": "Advanced Filters",
+    "search": "Search",
+    "searchPlaceholder": "Search...",
+    "status": {
+      "label": "Status",
+      "placeholder": "Select Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "abandoned": "Abandoned"
+    },
+    "role": "Role",
+    "rolePlaceholder": "Select Role",
+    "dateRange": "Date Range",
+    "clear": "Clear",
+    "expand": "Expand",
+    "collapse": "Collapse"
+  },
   "errors": {
     "generic": "An error occurred",
     "network": "Connection error",

@@ -341,6 +341,26 @@
     "updateSuccess": "{{count}} öğe başarıyla güncellendi",
     "updateError": "Öğeler güncellenemedi"
   },
+  "filters": {
+    "title": "Gelişmiş Filtreler",
+    "search": "Ara",
+    "searchPlaceholder": "Ara...",
+    "status": {
+      "label": "Durum",
+      "placeholder": "Durum Seç",
+      "active": "Aktif",
+      "inactive": "Pasif",
+      "completed": "Tamamlandı",
+      "inProgress": "Devam Ediyor",
+      "abandoned": "İptal Edildi"
+    },
+    "role": "Rol",
+    "rolePlaceholder": "Rol Seç",
+    "dateRange": "Tarih Aralığı",
+    "clear": "Temizle",
+    "expand": "Genişlet",
+    "collapse": "Daralt"
+  },
   "errors": {
     "generic": "Bir hata oluştu",
     "network": "Bağlantı hatası",

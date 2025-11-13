@@ -20,8 +20,70 @@ interface User {
 
 const UsersList: React.FC = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [filters, setFilters] = useState<FilterValues>({});
+  
+  // Fetch roles for filter dropdown
+  const { data: rolesData } = useList({
+    resource: 'roles',
+    pagination: { pageSize: 100 },
+  });
+  
+  const roleOptions = useMemo(() => {
+    return (rolesData?.data || []).map((role: any) => ({
+      label: role.name,
+      value: role.id,
+    }));
+  }, [rolesData]);
+
+  // Build filter array for useTable
+  const filterArray = useMemo(() => {
+    const filterList: any[] = [];
+    
+    if (filters.search) {
+      filterList.push({
+        field: 'search',
+        operator: 'contains',
+        value: filters.search,
+      });
+    }
+    
+    if (filters.status) {
+      filterList.push({
+        field: 'isActive',
+        operator: 'eq',
+        value: filters.status === 'active',
+      });
+    }
+    
+    if (filters.role) {
+      filterList.push({
+        field: 'roleId',
+        operator: 'eq',
+        value: filters.role,
+      });
+    }
+    
+    if (filters.dateRange && filters.dateRange.length === 2) {
+      filterList.push({
+        field: 'createdAt',
+        operator: 'gte',
+        value: filters.dateRange[0].toISOString(),
+      });
+      filterList.push({
+        field: 'createdAt',
+        operator: 'lte',
+        value: filters.dateRange[1].toISOString(),
+      });
+    }
+    
+    return filterList;
+  }, [filters]);
+
   const { tableProps, searchFormProps, refetch } = useTable<User>({
     resource: 'users',
+    filters: {
+      permanent: filterArray,
+    },
     onSearch: (values) => {
       return [
         {
@@ -134,6 +196,16 @@ const UsersList: React.FC = () => {
           </>
         )}
       >
+        <AdvancedFilters
+          resource="users"
+          onFilterChange={setFilters}
+          initialFilters={filters}
+          showSearch={true}
+          showStatus={true}
+          showRole={true}
+          showDateRange={true}
+          roleOptions={roleOptions}
+        />
         {users.length === 0 ? (
           <NoUsersFound />
         ) : (

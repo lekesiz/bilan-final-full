@@ -341,6 +341,26 @@
     "updateSuccess": "{{count}} Element(e) erfolgreich aktualisiert",
     "updateError": "Fehler beim Aktualisieren der Elemente"
   },
+  "filters": {
+    "title": "Erweiterte Filter",
+    "search": "Suchen",
+    "searchPlaceholder": "Suchen...",
+    "status": {
+      "label": "Status",
+      "placeholder": "Status auswählen",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "completed": "Abgeschlossen",
+      "inProgress": "In Bearbeitung",
+      "abandoned": "Abgebrochen"
+    },
+    "role": "Rolle",
+    "rolePlaceholder": "Rolle auswählen",
+    "dateRange": "Datumsbereich",
+    "clear": "Löschen",
+    "expand": "Erweitern",
+    "collapse": "Reduzieren"
+  },
   "errors": {
     "generic": "Ein Fehler ist aufgetreten",
     "network": "Verbindungsfehler",

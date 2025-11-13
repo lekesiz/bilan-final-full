@@ -345,6 +345,26 @@
     "updateSuccess": "{{count}} élément(s) mis à jour avec succès",
     "updateError": "Échec de la mise à jour des éléments"
   },
+  "filters": {
+    "title": "Filtres Avancés",
+    "search": "Rechercher",
+    "searchPlaceholder": "Rechercher...",
+    "status": {
+      "label": "Statut",
+      "placeholder": "Sélectionner le Statut",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "completed": "Terminé",
+      "inProgress": "En Cours",
+      "abandoned": "Abandonné"
+    },
+    "role": "Rôle",
+    "rolePlaceholder": "Sélectionner un Rôle",
+    "dateRange": "Plage de Dates",
+    "clear": "Effacer",
+    "expand": "Développer",
+    "collapse": "Réduire"
+  },
   "errors": {
     "generic": "Une erreur est survenue",
     "network": "Erreur de connexion",
