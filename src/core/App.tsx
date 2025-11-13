@@ -30,6 +30,7 @@ import AssessmentsList from '../../pages/AssessmentsList';
 import AssessmentsShow from '../../pages/AssessmentsShow';
 import AssessmentsCreate from '../../pages/AssessmentsCreate';
 import AssessmentsEdit from '../../pages/AssessmentsEdit';
+import AuditTrailList from '../../pages/AuditTrailList';
 import UsersList from '../../pages/UsersList';
 import UsersCreate from '../../pages/UsersCreate';
 import UsersEdit from '../../pages/UsersEdit';
@@ -162,6 +163,7 @@ const RefineApp: React.FC<RefineAppProps> = ({ api }) => {
                   <Route path="/roles/create" element={<RolesCreate />} />
                   <Route path="/roles/edit/:id" element={<RolesEdit />} />
                   <Route path="/roles/show/:id" element={<RolesShow />} />
+                  <Route path="/audit" element={<AuditTrailList />} />
                 </Route>
 
                 {/* BILAN Module routes */}
