@@ -55,8 +55,7 @@ export const Header: React.FC = () => {
       icon: <SettingOutlined />,
       label: 'Settings',
       onClick: () => {
-        // Navigate to settings page when available
-        // TODO: implement settings page
+        navigate('/settings');
       },
     },
     {

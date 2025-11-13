@@ -207,6 +207,44 @@ export const modulePermissions = pgTable('module_permissions', {
   uniqueModulePermission: index('idx_module_permissions_unique').on(table.moduleId, table.permissionId),
 }));
 
+// ============================================
+// Audit Trail Tables
+// ============================================
+
+// Table: audit_logs (audit trail - tüm önemli işlemler)
+export const auditLogs = pgTable('audit_logs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  userEmail: varchar('user_email', { length: 255 }), // Denormalized for historical accuracy
+  userName: varchar('user_name', { length: 255 }), // Denormalized for historical accuracy
+  
+  // Action details
+  action: varchar('action', { length: 100 }).notNull(), // 'create', 'update', 'delete', 'login', 'logout', 'view', etc.
+  resource: varchar('resource', { length: 100 }).notNull(), // 'assessment', 'user', 'role', 'permission', etc.
+  resourceId: uuid('resource_id'), // ID of the affected resource
+  
+  // Change details
+  changes: jsonb('changes'), // { before: {...}, after: {...} } for update actions
+  metadata: jsonb('metadata'), // Additional context (IP address, user agent, etc.)
+  
+  // Status
+  status: varchar('status', { length: 50 }).notNull().default('success'), // 'success', 'failure', 'error'
+  errorMessage: text('error_message'), // Error details if status is 'failure' or 'error'
+  
+  // Timestamp
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index('idx_audit_logs_user_id').on(table.userId),
+  actionIdx: index('idx_audit_logs_action').on(table.action),
+  resourceIdx: index('idx_audit_logs_resource').on(table.resource),
+  resourceIdIdx: index('idx_audit_logs_resource_id').on(table.resourceId),
+  createdAtIdx: index('idx_audit_logs_created_at').on(table.createdAt),
+  // Composite indexes for common queries
+  userActionIdx: index('idx_audit_logs_user_action').on(table.userId, table.action),
+  resourceActionIdx: index('idx_audit_logs_resource_action').on(table.resource, table.action),
+  createdAtDescIdx: index('idx_audit_logs_created_at_desc').on(table.createdAt),
+}));
+
 // Update assessments table to reference users table
 // Note: We'll keep clerkUserId for backward compatibility, but add userId reference
 // Migration will handle the transition
@@ -238,3 +276,7 @@ export type DashboardModule = typeof dashboardModules.$inferSelect;
 export type NewDashboardModule = typeof dashboardModules.$inferInsert;
 export type ModulePermission = typeof modulePermissions.$inferSelect;
 export type NewModulePermission = typeof modulePermissions.$inferInsert;
+
+// Audit Trail Types
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type NewAuditLog = typeof auditLogs.$inferInsert;

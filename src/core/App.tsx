@@ -22,6 +22,7 @@ import RegisterPage from '../../pages/RegisterPage';
 import PasswordResetPage from '../../pages/PasswordResetPage';
 import PasswordUpdatePage from '../../pages/PasswordUpdatePage';
 import UserProfile from '../../pages/UserProfile';
+import Settings from '../../pages/Settings';
 
 // Dashboard pages
 import DashboardHome from '../../pages/DashboardHome';
@@ -120,6 +121,13 @@ const RefineApp: React.FC<RefineAppProps> = ({ api }) => {
                   <Authenticated fallback={<Navigate to="/login" replace />}>
                     <ThemedLayout Sider={Sider} Header={Header}>
                       <UserProfile />
+                    </ThemedLayout>
+                  </Authenticated>
+                } />
+                <Route path="/settings" element={
+                  <Authenticated fallback={<Navigate to="/login" replace />}>
+                    <ThemedLayout Sider={Sider} Header={Header}>
+                      <Settings />
                     </ThemedLayout>
                   </Authenticated>
                 } />
