@@ -51,12 +51,14 @@ export const PermissionGuard: React.FC<PermissionGuardProps> = ({
   }
 
   if (!canAccess(resource, action)) {
-    if (fallback) {
-      return <>{fallback}</>;
+    if (fallback !== undefined) {
+      // If fallback is null, return null (don't render anything)
+      // If fallback is a component, render it
+      return fallback === null ? null : <>{fallback}</>;
     }
 
     if (!showError) {
-      return null;
+      return null; // Return null when showError is false and no fallback
     }
 
     return (
@@ -104,7 +106,7 @@ export const AnyPermissionGuard: React.FC<AnyPermissionGuardProps> = ({
     }
 
     if (!showError) {
-      return null;
+      return <></>; // Return empty fragment instead of null
     }
 
     return (
@@ -152,7 +154,7 @@ export const AllPermissionGuard: React.FC<AllPermissionGuardProps> = ({
     }
 
     if (!showError) {
-      return null;
+      return <></>; // Return empty fragment instead of null
     }
 
     return (

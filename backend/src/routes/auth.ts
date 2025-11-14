@@ -9,7 +9,18 @@ import type { Env } from '../types/env.js';
 
 const app = new Hono<Env>();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+// Get JWT_SECRET lazily (only when needed, after env vars are loaded)
+function getJWTSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret === 'your-secret-key-change-in-production') {
+    throw new Error(
+      '❌ CRITICAL: JWT_SECRET environment variable is required and must be set to a secure random value.\n' +
+      'Generate a secure secret with: openssl rand -base64 32\n' +
+      'Then set it in your .env file or docker-compose.yml: JWT_SECRET=<generated-secret>'
+    );
+  }
+  return secret;
+}
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 // POST /api/auth/register - Kullanıcı kaydı
@@ -107,7 +118,7 @@ app.post('/register', async (c) => {
     // JWT token oluştur
     const token = jwt.sign(
       { userId: newUser.id, email: newUser.email },
-      JWT_SECRET,
+      getJWTSecret(),
       { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
     );
 
@@ -168,7 +179,7 @@ app.post('/login', async (c) => {
     // JWT token oluştur
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      JWT_SECRET,
+      getJWTSecret(),
       { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
     );
 
@@ -207,7 +218,7 @@ app.get('/me', async (c) => {
     if (!decodedUserId && authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       try {
-        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email?: string };
+        const decoded = jwt.verify(token, getJWTSecret()) as { userId: string; email?: string };
         decodedUserId = decoded.userId;
       } catch (err) {
         // Invalid token
@@ -288,7 +299,7 @@ app.get('/permissions', async (c) => {
     if (!decodedUserId && authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       try {
-        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email?: string };
+        const decoded = jwt.verify(token, getJWTSecret()) as { userId: string; email?: string };
         decodedUserId = decoded.userId;
       } catch (err) {
         // Invalid token

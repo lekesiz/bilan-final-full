@@ -1,5 +1,25 @@
 import { z } from 'zod';
 
+// User Profile Schema - Strict validation to prevent JSON injection
+export const userProfileSchema = z.object({
+  fullName: z.string().max(255).optional(),
+  currentRole: z.string().max(255),
+  keySkills: z.array(z.string().max(100)).max(50), // Max 50 skills, each max 100 chars
+  pastExperiences: z.array(z.string().max(500)).max(50), // Max 50 experiences, each max 500 chars
+}).strict(); // Reject unknown properties
+
+// Dashboard Data Schema - Strict validation
+export const dashboardDataSchema = z.object({
+  themes: z.array(z.object({
+    text: z.string().max(255),
+    weight: z.number().min(1).max(10),
+  })).max(20).optional(),
+  skills: z.array(z.object({
+    label: z.string().max(100),
+    score: z.number().min(1).max(5),
+  })).max(20).optional(),
+}).strict().optional();
+
 // Schema pour créer un assessment
 export const createAssessmentSchema = z.object({
   userName: z.string().min(1, 'User name is required').max(255),
@@ -7,12 +27,8 @@ export const createAssessmentSchema = z.object({
   packageName: z.string().min(1).max(255),
   coachingStyle: z.enum(['collaborative', 'analytic', 'creative']),
   totalQuestions: z.number().int().positive(),
-  userProfile: z.object({
-    fullName: z.string().optional(),
-    currentRole: z.string(),
-    keySkills: z.array(z.string()),
-    pastExperiences: z.array(z.string()),
-  }).optional(),
+  userProfile: userProfileSchema.optional(),
+  dashboardData: dashboardDataSchema.optional(),
 });
 
 // Schema pour mettre à jour un assessment
@@ -21,17 +37,9 @@ export const updateAssessmentSchema = z.object({
   currentQuestionIndex: z.number().int().min(0).optional(),
   lastActivityAt: z.string().datetime().optional(),
   completedAt: z.string().datetime().optional(),
-  dashboardData: z.object({
-    themes: z.array(z.object({
-      text: z.string(),
-      weight: z.number(),
-    })),
-    skills: z.array(z.object({
-      label: z.string(),
-      score: z.number(),
-    })),
-  }).optional(),
-});
+  userProfile: userProfileSchema.optional(),
+  dashboardData: dashboardDataSchema.optional(),
+}).strict();
 
 // Schema pour créer une answer
 export const createAnswerSchema = z.object({

@@ -14,6 +14,26 @@ export const createAuthProvider = (api: ReturnType<typeof useApi>): AuthProvider
         localStorage.setItem('bilan_user_id', response.user.id);
         localStorage.setItem('bilan_user_name', response.user.name);
         localStorage.setItem('bilan_user_email', response.user.email);
+        
+        // Load permissions after login
+        try {
+          const permissionsResponse = await api.getPermissions(response.token);
+          const formatted = permissionsResponse.formatted || [];
+          localStorage.setItem('bilan_permissions', JSON.stringify(formatted));
+        } catch (permError) {
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('Failed to load permissions after login:', permError);
+          }
+          // Use default permissions as fallback
+          const defaultPermissions = [
+            'bilan:read',
+            'bilan:create',
+            'bilan:assessment:read',
+            'bilan:assessment:create',
+            'dashboard:read',
+          ];
+          localStorage.setItem('bilan_permissions', JSON.stringify(defaultPermissions));
+        }
       }
 
       return {
@@ -38,7 +58,9 @@ export const createAuthProvider = (api: ReturnType<typeof useApi>): AuthProvider
         await api.logout(token);
       }
     } catch (error) {
-      console.error('Logout error:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Logout error:', error);
+      }
     } finally {
       // Clear all auth data
       localStorage.removeItem('bilan_auth_token');
@@ -55,9 +77,11 @@ export const createAuthProvider = (api: ReturnType<typeof useApi>): AuthProvider
   },
 
   check: async () => {
+    console.log('[AuthProvider.check] Starting auth check...');
     const token = localStorage.getItem('bilan_auth_token');
     
     if (!token) {
+      console.log('[AuthProvider.check] No token found, redirecting to login');
       return {
         authenticated: false,
         redirectTo: '/login',
@@ -65,17 +89,68 @@ export const createAuthProvider = (api: ReturnType<typeof useApi>): AuthProvider
       };
     }
 
+    console.log('[AuthProvider.check] Token found, validating with backend...');
     try {
       // Token'ı validate et (backend'den user bilgilerini çek)
-      const user = await api.getMe(token);
+      // Timeout ekle - backend yanıt vermezse 3 saniye sonra timeout (daha hızlı)
+      const user = await Promise.race([
+        api.getMe(token),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Auth check timeout - backend not responding')), 3000)
+        )
+      ]) as any;
+      
+      console.log('[AuthProvider.check] User validation result:', user ? 'SUCCESS' : 'FAILED');
       
       if (user && user.id) {
+        console.log('[AuthProvider.check] User authenticated:', user.id);
+        // Always reload permissions from backend to ensure they're up-to-date
+        console.log('[AuthProvider.check] Loading permissions from backend...');
+        try {
+          const permissionsResponse = await api.getPermissions(token);
+          const formatted = permissionsResponse.formatted || [];
+          localStorage.setItem('bilan_permissions', JSON.stringify(formatted));
+          console.log('[AuthProvider.check] Permissions loaded:', formatted.length, formatted);
+        } catch (permError) {
+          console.warn('[AuthProvider.check] Failed to load permissions, using defaults:', permError);
+          // Use default permissions as fallback
+          const defaultPermissions = [
+            'bilan:read',
+            'bilan:create',
+            'bilan:assessment:read',
+            'bilan:assessment:create',
+            'dashboard:read',
+          ];
+          localStorage.setItem('bilan_permissions', JSON.stringify(defaultPermissions));
+        }
+        
         return {
           authenticated: true,
         };
+      } else {
+        console.warn('[AuthProvider.check] User validation failed: no user ID');
       }
     } catch (error: any) {
-      console.error('Auth check error:', error);
+      console.error('[AuthProvider.check] Error:', error.message || error);
+      
+      // Network errors, timeouts, or connection issues - don't clear token immediately
+      // Allow user to see login page even if backend is down
+      if (
+        error?.message?.includes('timeout') ||
+        error?.message?.includes('Network') ||
+        error?.message?.includes('Failed to fetch') ||
+        error?.message?.includes('ECONNREFUSED') ||
+        error?.code === 'ECONNREFUSED'
+      ) {
+        console.warn('[AuthProvider.check] Backend not available, redirecting to login (keeping token)');
+        // Backend is not available - redirect to login but don't clear token
+        // User can try again when backend is back
+        return {
+          authenticated: false,
+          redirectTo: '/login',
+          logout: false, // Don't clear token - backend might be temporarily down
+        };
+      }
       
       // 401 Unauthorized - token expired veya geçersiz
       if (error?.statusCode === 401 || error?.status === 401 || error?.message?.includes('Unauthorized') || error?.message?.includes('expired')) {
@@ -98,6 +173,7 @@ export const createAuthProvider = (api: ReturnType<typeof useApi>): AuthProvider
       localStorage.removeItem('bilan_user_id');
       localStorage.removeItem('bilan_user_name');
       localStorage.removeItem('bilan_user_email');
+      localStorage.removeItem('bilan_permissions');
     }
 
     return {
@@ -131,7 +207,9 @@ export const createAuthProvider = (api: ReturnType<typeof useApi>): AuthProvider
         };
       }
     } catch (error) {
-      console.error('Get identity error:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Get identity error:', error);
+      }
       // Token geçersiz, temizle
       localStorage.removeItem('bilan_auth_token');
       localStorage.removeItem('bilan_user_id');
@@ -168,7 +246,9 @@ export const createAuthProvider = (api: ReturnType<typeof useApi>): AuthProvider
       localStorage.setItem('bilan_permissions', JSON.stringify(formatted));
       return formatted;
     } catch (error) {
-      console.error('Get permissions error:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Get permissions error:', error);
+      }
       // Fallback: give default permissions for development
       const defaultPermissions = [
         'bilan:read',
@@ -183,7 +263,9 @@ export const createAuthProvider = (api: ReturnType<typeof useApi>): AuthProvider
   },
 
   onError: async (error) => {
-    console.error('Auth error:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Auth error:', error);
+    }
     
     // 401 Unauthorized hatası ise logout yap
     if (error?.statusCode === 401 || error?.message?.includes('Unauthorized')) {

@@ -12,52 +12,50 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    const saved = localStorage.getItem('bilan-theme');
-    return (saved as Theme) || 'system';
-  });
+  // Dark theme disabled - always use light mode
+  const actualTheme: 'light' | 'dark' = 'light';
+  const theme: Theme = 'light';
 
-  const [actualTheme, setActualTheme] = useState<'light' | 'dark'>(() => {
-    if (theme === 'system') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    return theme;
-  });
-
-  useEffect(() => {
+  // Remove dark class immediately (before React renders)
+  if (typeof document !== 'undefined') {
     const root = document.documentElement;
-    
-    if (actualTheme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  }, [actualTheme]);
+    root.classList.remove('dark');
+    localStorage.removeItem('bilan-theme');
+  }
 
   useEffect(() => {
-    if (theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = (e: MediaQueryListEvent) => {
-        setActualTheme(e.matches ? 'dark' : 'light');
-      };
-      
-      setActualTheme(mediaQuery.matches ? 'dark' : 'light');
-      mediaQuery.addEventListener('change', handleChange);
-      
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    } else {
-      setActualTheme(theme);
-    }
-  }, [theme]);
+    // Ensure dark class is never added (runs on every render)
+    const root = document.documentElement;
+    root.classList.remove('dark');
+    
+    // Remove any saved dark theme preference
+    localStorage.removeItem('bilan-theme');
+    
+    // Watch for any attempts to add dark class and remove it immediately
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          if (root.classList.contains('dark')) {
+            root.classList.remove('dark');
+          }
+        }
+      });
+    });
+    
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    
+    return () => observer.disconnect();
+  }, []);
 
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem('bilan-theme', newTheme);
+  const setTheme = () => {
+    // No-op: theme is always light
   };
 
   const toggleTheme = () => {
-    const newTheme = actualTheme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
+    // No-op: theme is always light
   };
 
   return (

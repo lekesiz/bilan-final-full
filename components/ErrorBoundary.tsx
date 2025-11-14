@@ -32,7 +32,9 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error('❌ ErrorBoundary caught an error:', error);
+    console.error('Error details:', errorInfo);
+    console.error('Error stack:', error.stack);
     
     // Sentry is disabled for now - enable it later by adding VITE_SENTRY_DSN to .env.local
     // if (import.meta.env.VITE_SENTRY_DSN) {
@@ -66,34 +68,98 @@ class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-          <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
-            <div className="text-6xl mb-4">⚠️</div>
-            <h1 className="text-2xl font-bold text-primary-800 mb-2">Une erreur est survenue</h1>
-            <p className="text-slate-600 mb-6">
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#f8fafc',
+          padding: '20px'
+        }}>
+          <div style={{
+            maxWidth: '500px',
+            width: '100%',
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+            padding: '32px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '64px', marginBottom: '16px' }}>⚠️</div>
+            <h1 style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#1e293b',
+              marginBottom: '8px'
+            }}>Une erreur est survenue</h1>
+            <p style={{
+              color: '#64748b',
+              marginBottom: '24px'
+            }}>
               Désolé, quelque chose s'est mal passé. Veuillez rafraîchir la page ou réessayer plus tard.
             </p>
             {this.state.error && (
-              <details className="text-left mb-6 bg-slate-50 p-4 rounded-lg">
-                <summary className="cursor-pointer text-sm text-slate-500 mb-2">
+              <details style={{
+                textAlign: 'left',
+                marginBottom: '24px',
+                backgroundColor: '#f1f5f9',
+                padding: '16px',
+                borderRadius: '8px'
+              }}>
+                <summary style={{
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  color: '#64748b',
+                  marginBottom: '8px'
+                }}>
                   Détails techniques
                 </summary>
-                <pre className="text-xs text-slate-600 overflow-auto">
+                <pre style={{
+                  fontSize: '12px',
+                  color: '#475569',
+                  overflow: 'auto',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word'
+                }}>
                   {this.state.error.toString()}
                   {this.state.errorInfo?.componentStack}
                 </pre>
               </details>
             )}
-            <div className="flex gap-4 justify-center">
+            <div style={{
+              display: 'flex',
+              gap: '16px',
+              justifyContent: 'center'
+            }}>
               <button
                 onClick={this.handleReset}
-                className="bg-primary-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-primary-700"
+                style={{
+                  backgroundColor: '#4f46e5',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  padding: '8px 24px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4f46e5'}
               >
                 Réessayer
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className="bg-slate-200 text-slate-700 font-bold py-2 px-6 rounded-lg hover:bg-slate-300"
+                style={{
+                  backgroundColor: '#e2e8f0',
+                  color: '#475569',
+                  fontWeight: 'bold',
+                  padding: '8px 24px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#cbd5e1'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#e2e8f0'}
               >
                 Rafraîchir la page
               </button>

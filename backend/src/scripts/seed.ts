@@ -1,9 +1,19 @@
 import { db } from '../db/client.js';
 import { users, roles, permissions, rolePermissions, userRoles, dashboardModules, modulePermissions } from '../db/schema.js';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
 
+// JWT_SECRET for seed script - allow default only in development
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+if (process.env.NODE_ENV === 'production' && JWT_SECRET === 'your-secret-key-change-in-production') {
+  throw new Error(
+    '❌ CRITICAL: JWT_SECRET must be set in production environment.\n' +
+    'Generate with: openssl rand -base64 32'
+  );
+}
+if (JWT_SECRET === 'your-secret-key-change-in-production') {
+  console.warn('⚠️  WARNING: Using default JWT_SECRET. This is only safe for development!');
+}
 
 /**
  * Seed script to populate database with initial data
@@ -14,6 +24,147 @@ async function seed() {
   console.log('🌱 Starting database seeding...');
 
   try {
+    // 0. Create tables if they don't exist (using raw SQL)
+    console.log('📝 Checking/Creating database tables...');
+    try {
+      // Enable UUID extension
+      await db.execute(sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+      
+      // Create tables using CREATE TABLE IF NOT EXISTS
+      // This is a simplified approach - in production, use proper migrations
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS users (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          email VARCHAR(255) NOT NULL UNIQUE,
+          password_hash VARCHAR(255) NOT NULL,
+          name VARCHAR(255) NOT NULL,
+          is_active BOOLEAN NOT NULL DEFAULT true,
+          last_login_at TIMESTAMP,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+        );
+      `);
+      
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS roles (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          name VARCHAR(100) NOT NULL UNIQUE,
+          description TEXT,
+          is_system BOOLEAN NOT NULL DEFAULT false,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+        );
+      `);
+      
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS permissions (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          resource VARCHAR(100) NOT NULL,
+          action VARCHAR(50) NOT NULL,
+          description TEXT,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          UNIQUE(resource, action)
+        );
+      `);
+      
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS role_permissions (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+          permission_id UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          UNIQUE(role_id, permission_id)
+        );
+      `);
+      
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS user_roles (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          UNIQUE(user_id, role_id)
+        );
+      `);
+      
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS audit_logs (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+          user_email VARCHAR(255),
+          user_name VARCHAR(255),
+          action VARCHAR(100) NOT NULL,
+          resource VARCHAR(100) NOT NULL,
+          resource_id UUID,
+          changes JSONB,
+          metadata JSONB,
+          status VARCHAR(50) NOT NULL DEFAULT 'success',
+          error_message TEXT,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW()
+        );
+      `);
+      
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS dashboard_modules (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          name VARCHAR(100) NOT NULL UNIQUE,
+          display_name VARCHAR(255) NOT NULL,
+          description TEXT,
+          icon VARCHAR(100),
+          route VARCHAR(255) NOT NULL UNIQUE,
+          is_active BOOLEAN NOT NULL DEFAULT true,
+          "order" INTEGER NOT NULL DEFAULT 0,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+        );
+      `);
+      
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS module_permissions (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          module_id UUID NOT NULL REFERENCES dashboard_modules(id) ON DELETE CASCADE,
+          permission_id UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          UNIQUE(module_id, permission_id)
+        );
+      `);
+      
+      // Create performance indexes
+      try {
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);`);
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);`);
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);`);
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_audit_logs_resource ON audit_logs(resource);`);
+        
+        // Check if assessments table exists and add index
+        const assessmentsExists = await db.execute(sql`
+          SELECT EXISTS (
+            SELECT FROM information_schema.tables 
+            WHERE table_schema = 'public' 
+            AND table_name = 'assessments'
+          );
+        `);
+        
+        if ((assessmentsExists[0] as any)?.exists) {
+          await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_assessments_status ON assessments(status);`);
+          await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_assessments_clerk_user_id ON assessments(clerk_user_id);`);
+        }
+      } catch (indexError: any) {
+        // Index creation errors are non-critical
+        console.log('⚠️  Index creation warning (non-critical):', indexError.message);
+      }
+      
+      console.log('✅ Tables created/verified\n');
+    } catch (tableError: any) {
+      // If tables already exist, that's fine
+      if (tableError?.code === '42P07') {
+        console.log('✅ Tables already exist\n');
+      } else {
+        console.error('⚠️  Table creation warning:', tableError.message);
+        console.log('   Continuing with seed...\n');
+      }
+    }
+
     // 1. Create Permissions
     console.log('📝 Creating permissions...');
     

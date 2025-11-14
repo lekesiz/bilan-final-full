@@ -14,7 +14,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   return (
     <ThemedLayout
       Header={() => <Header />}
-      Sider={() => <Sider />}
+      Sider={({ Title }) => <Sider Title={Title} />}
       Title={() => <span>BILAN-EASY</span>}
     >
       <Content style={{ padding: '24px', minHeight: '100vh' }}>

@@ -1,7 +1,6 @@
 import React from 'react';
-import { useNavigation } from '@refinedev/core';
-import { Menu } from 'antd';
-import { useLocation } from 'react-router-dom';
+import { Menu, Layout } from 'antd';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { usePermissions } from '../permissions/usePermissions';
 import {
   DashboardOutlined,
@@ -12,73 +11,126 @@ import {
   AuditOutlined,
 } from '@ant-design/icons';
 
-export const Sider: React.FC = () => {
-  const { push } = useNavigation();
+const { Sider: AntdSider } = Layout;
+
+interface SiderProps {
+  Title?: React.FC<{ collapsed?: boolean }>;
+}
+
+export const Sider: React.FC<SiderProps> = ({ Title }) => {
+  const navigate = useNavigate();
   const location = useLocation();
-  const { canAccess } = usePermissions();
+  const { canAccess, isLoading } = usePermissions();
+
+  // Return loading state if permissions are loading
+  if (isLoading) {
+    return (
+      <AntdSider
+        width={200}
+        collapsedWidth={80}
+        style={{
+          overflow: 'auto',
+          height: '100vh',
+        }}
+      >
+        <Menu
+          mode="inline"
+          items={[]}
+          style={{ 
+            height: '100%',
+            borderRight: 0,
+            paddingTop: '8px',
+            width: '100%',
+          }}
+        />
+      </AntdSider>
+    );
+  }
 
   const menuItems = [
     {
       key: '/dashboard',
       icon: <DashboardOutlined />,
       label: 'Dashboard',
-      onClick: () => push('/dashboard'),
     },
     {
       key: '/bilan',
       icon: <FileTextOutlined />,
       label: 'Bilan de Compétences',
-      onClick: () => push('/bilan'),
       visible: canAccess('bilan', 'read') || canAccess('bilan:assessment', 'read'),
     },
     {
       key: '/assessments',
       icon: <FileTextOutlined />,
       label: 'Assessments',
-      onClick: () => push('/assessments'),
       visible: canAccess('bilan:assessment', 'read') || canAccess('bilan', 'read'),
     },
     {
       key: '/analytics',
       icon: <BarChartOutlined />,
       label: 'Analytics',
-      onClick: () => push('/analytics'),
       visible: canAccess('analytics', 'read') || canAccess('admin', 'read') || canAccess('dashboard', 'read'),
     },
     {
       key: '/users',
       icon: <UserOutlined />,
       label: 'Users',
-      onClick: () => push('/users'),
       visible: canAccess('users', 'read'),
     },
     {
       key: '/roles',
       icon: <SafetyOutlined />,
       label: 'Roles & Permissions',
-      onClick: () => push('/roles'),
       visible: canAccess('roles', 'read'),
     },
     {
       key: '/audit',
       icon: <AuditOutlined />,
       label: 'Audit Trail',
-      onClick: () => push('/audit'),
       visible: canAccess('audit', 'read'),
     },
   ].filter(item => item.visible !== false);
 
+  const handleMenuClick = ({ key }: { key: string }) => {
+    navigate(key);
+  };
+
   return (
-    <Menu
-      mode="inline"
-      selectedKeys={[location.pathname]}
-      items={menuItems}
-      style={{ 
-        height: '100%', 
-        borderRight: 0,
-        paddingTop: '8px',
+    <AntdSider
+      width={200}
+      collapsedWidth={80}
+      style={{
+        overflow: 'auto',
+        height: '100vh',
       }}
-    />
+    >
+      {Title && (
+        <div
+          style={{
+            width: '100%',
+            padding: '0 16px',
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            height: '64px',
+          }}
+        >
+          <Title collapsed={false} />
+        </div>
+      )}
+      <Menu
+        mode="inline"
+        selectedKeys={[location.pathname]}
+        items={menuItems}
+        onClick={handleMenuClick}
+        style={{ 
+          height: '100%',
+          borderRight: 0,
+          paddingTop: '8px',
+          width: '100%',
+        }}
+      />
+    </AntdSider>
   );
 };
 

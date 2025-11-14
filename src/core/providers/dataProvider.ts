@@ -44,8 +44,14 @@ export const createDataProvider = (api: ReturnType<typeof useApi>): DataProvider
       let total: number;
       
       if (resource === 'users') {
-        data = response.data?.users || response.users || [];
-        total = response.data?.pagination?.total || response.pagination?.total || data.length;
+        // Backend returns: { data: [...users...], pagination: {...} }
+        // Check if response.data is an array (direct users array) or an object with users property
+        if (Array.isArray(response.data)) {
+          data = response.data;
+        } else {
+          data = response.data?.users || response.data?.data || response.users || [];
+        }
+        total = response.data?.pagination?.total || response.pagination?.total || (Array.isArray(response.data) ? response.data.length : data.length);
       } else if (resource === 'roles') {
         data = response.data?.roles || response.roles || (Array.isArray(response.data) ? response.data : []);
         total = response.data?.pagination?.total || response.pagination?.total || data.length;
@@ -60,7 +66,9 @@ export const createDataProvider = (api: ReturnType<typeof useApi>): DataProvider
       };
     } catch (error: any) {
       // Better error handling
-      console.error(`Error fetching ${resource} list:`, error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error(`Error fetching ${resource} list:`, error);
+      }
       
       // If unauthorized, clear auth and redirect
       if (error?.statusCode === 401 || error?.status === 401 || error?.message?.includes('Unauthorized')) {
@@ -101,7 +109,9 @@ export const createDataProvider = (api: ReturnType<typeof useApi>): DataProvider
         data: response.data || response,
       };
     } catch (error: any) {
-      console.error(`Error fetching ${resource} with id ${id}:`, error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error(`Error fetching ${resource} with id ${id}:`, error);
+      }
       
       if (error?.statusCode === 401 || error?.status === 401 || error?.message?.includes('Unauthorized')) {
         localStorage.removeItem('bilan_auth_token');
@@ -138,7 +148,9 @@ export const createDataProvider = (api: ReturnType<typeof useApi>): DataProvider
         data: response.data || response,
       };
     } catch (error: any) {
-      console.error(`Error creating ${resource}:`, error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error(`Error creating ${resource}:`, error);
+      }
       
       if (error?.statusCode === 401 || error?.status === 401 || error?.message?.includes('Unauthorized')) {
         localStorage.removeItem('bilan_auth_token');
@@ -175,7 +187,9 @@ export const createDataProvider = (api: ReturnType<typeof useApi>): DataProvider
         data: response.data || response,
       };
     } catch (error: any) {
-      console.error(`Error updating ${resource} with id ${id}:`, error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error(`Error updating ${resource} with id ${id}:`, error);
+      }
       
       if (error?.statusCode === 401 || error?.status === 401 || error?.message?.includes('Unauthorized')) {
         localStorage.removeItem('bilan_auth_token');
@@ -210,7 +224,9 @@ export const createDataProvider = (api: ReturnType<typeof useApi>): DataProvider
         data: { id },
       };
     } catch (error: any) {
-      console.error(`Error deleting ${resource} with id ${id}:`, error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error(`Error deleting ${resource} with id ${id}:`, error);
+      }
       
       if (error?.statusCode === 401 || error?.status === 401 || error?.message?.includes('Unauthorized')) {
         localStorage.removeItem('bilan_auth_token');

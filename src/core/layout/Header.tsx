@@ -3,7 +3,6 @@ import { Layout, Space, Dropdown, Avatar, Typography, Menu, Grid, Button } from 
 import { useGetIdentity, useLogout } from '@refinedev/core';
 import { UserOutlined, LogoutOutlined, SettingOutlined, LockOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import ThemeToggle from '../../../components/ThemeToggle';
 import { LanguageSwitcher } from '../../../components/LanguageSwitcher';
 import KeyboardShortcutsModal from '../../../components/KeyboardShortcutsModal';
 
@@ -96,7 +95,6 @@ export const Header: React.FC = () => {
           title="Keyboard Shortcuts (Ctrl+/)"
         />
         <LanguageSwitcher />
-        <ThemeToggle />
         {identity && (
           <Dropdown
             menu={{ items: userMenuItems }}
@@ -110,7 +108,7 @@ export const Header: React.FC = () => {
                 borderRadius: '6px',
                 transition: 'background-color 0.2s',
               }}
-              className="hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="hover:bg-gray-100"
             >
               <Avatar
                 size="small"

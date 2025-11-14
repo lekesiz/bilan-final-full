@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { List, useTable, EditButton, ShowButton, CreateButton } from '@refinedev/antd';
+import { List, useTable } from '@refinedev/antd';
 import { useList } from '@refinedev/core';
-import { Table, Space, Tag } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { Table, Space, Tag, Button } from 'antd';
+import { EyeOutlined, EditOutlined } from '@ant-design/icons';
 import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 import { CustomDeleteButton } from '../src/core/components/CustomDeleteButton';
 import { TableSkeleton } from '../src/core/components/TableSkeleton';
@@ -24,6 +26,7 @@ interface User {
 const UsersList: React.FC = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [filters, setFilters] = useState<FilterValues>({});
+  const navigate = useNavigate();
   
   // Fetch roles for filter dropdown
   const { data: rolesData } = useList({
@@ -146,13 +149,23 @@ const UsersList: React.FC = () => {
       key: 'actions',
       render: (_, record) => (
         <Space>
-          <PermissionGuard resource="users" action="read" showError={false}>
-            <ShowButton hideText size="small" recordItemId={record.id} />
+          <PermissionGuard resource="users" action="read" showError={false} fallback={null}>
+            <Button
+              type="link"
+              icon={<EyeOutlined />}
+              size="small"
+              onClick={() => navigate(`/users/show/${record.id}`)}
+            />
           </PermissionGuard>
-          <PermissionGuard resource="users" action="update" showError={false}>
-            <EditButton hideText size="small" recordItemId={record.id} />
+          <PermissionGuard resource="users" action="update" showError={false} fallback={null}>
+            <Button
+              type="link"
+              icon={<EditOutlined />}
+              size="small"
+              onClick={() => navigate(`/users/edit/${record.id}`)}
+            />
           </PermissionGuard>
-          <PermissionGuard resource="users" action="delete" showError={false}>
+          <PermissionGuard resource="users" action="delete" showError={false} fallback={null}>
             <CustomDeleteButton
               resource="users"
               recordItemId={record.id}
@@ -199,8 +212,13 @@ const UsersList: React.FC = () => {
               resource="users"
             />
             {defaultButtons}
-            <PermissionGuard resource="users" action="create" showError={false}>
-              <CreateButton />
+            <PermissionGuard resource="users" action="create" showError={false} fallback={null}>
+              <Button
+                type="primary"
+                onClick={() => navigate('/users/create')}
+              >
+                Create
+              </Button>
             </PermissionGuard>
           </>
         )}

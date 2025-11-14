@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Force remove dark class from HTML element - Dark theme is disabled */
+html {
+  color-scheme: light !important;
+}
+
+html.dark,
+html[class*="dark"] {
+  /* Override any dark theme styles */
+  color-scheme: light !important;
+}
+
+/* Ensure dark class is never applied */
+html.dark {
+  /* Remove dark class if it exists */
+}
+
 /* Custom theme colors */
 :root {
   --primary: #4f46e5;
@@ -20,13 +36,74 @@ body {
 /* Fix ThemedLayout Content area for Dashboard */
 .ant-layout-content {
   position: relative !important;
-  overflow: visible !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
   min-height: calc(100vh - 64px) !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 /* Ensure dashboard content is visible */
 .ant-layout-content > div {
   width: 100% !important;
+  max-width: 100% !important;
   min-height: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+/* Fix Ant Design Layout overflow */
+.ant-layout {
+  width: 100% !important;
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Fix Ant Design Sider - Set fixed width */
+.ant-layout-sider {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  width: 200px !important;
+  max-width: 200px !important;
+  min-width: 200px !important;
+  flex: 0 0 200px !important;
+}
+
+/* Collapsed sider width */
+.ant-layout-sider-collapsed {
+  width: 80px !important;
+  max-width: 80px !important;
+  min-width: 80px !important;
+  flex: 0 0 80px !important;
+}
+
+/* ThemedLayout automatically handles content margin, but ensure it doesn't overflow */
+.ant-layout-content {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Fix Ant Design Menu inline - use full width of sider */
+.ant-menu-inline {
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+/* Fix Ant Design Sider menu - use full width */
+.ant-layout-sider .ant-menu {
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+/* Fix body and root overflow */
+body, html, #root {
+  width: 100% !important;
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
 }
 

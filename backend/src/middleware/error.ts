@@ -1,27 +1,33 @@
 import { Context } from 'hono';
 import { ZodError } from 'zod';
-// Sentry is disabled for now - enable it later by adding SENTRY_DSN to .env
-// import * as Sentry from '@sentry/node';
 import type { Env } from '../types/env.js';
 import { logger } from '../utils/logger.js';
 
 // Global error handler
-export const errorHandler = (err: Error, c: Context<Env>) => {
+export const errorHandler = async (err: Error, c: Context<Env>) => {
   logger.error('Error:', err);
   
-  // Sentry is disabled for now - enable it later by adding SENTRY_DSN to .env
-  // if (process.env.SENTRY_DSN) {
-  //   Sentry.captureException(err, {
-  //     tags: {
-  //       path: c.req.path,
-  //       method: c.req.method,
-  //     },
-  //     extra: {
-  //       userId: c.get('userId'),
-  //       headers: Object.fromEntries(c.req.raw.headers.entries()),
-  //     },
-  //   });
-  // }
+  // Capture error in Sentry if enabled
+  // Note: Sentry is optional - install with: npm install @sentry/node
+  if (process.env.SENTRY_DSN) {
+    try {
+      // @ts-expect-error - Sentry is an optional dependency
+      const Sentry: any = await import('@sentry/node');
+      Sentry.captureException(err, {
+        tags: {
+          path: c.req.path,
+          method: c.req.method,
+        },
+        extra: {
+          userId: c.get('userId'),
+          headers: Object.fromEntries(c.req.raw.headers.entries()),
+        },
+      });
+    } catch (sentryError) {
+      // Sentry not available, continue without it
+      logger.debug('Sentry not available:', sentryError);
+    }
+  }
 
   // Zod validation errors
   if (err instanceof ZodError) {

@@ -29,7 +29,7 @@ A comprehensive, modern skills assessment platform built with React, TypeScript,
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **React 19** with TypeScript
+- **React 18.3.1** with TypeScript (downgraded from React 19 for stability)
 - **Refine.dev** - Data-driven admin framework
 - **Ant Design 5** - UI component library
 - **Tailwind CSS** - Utility-first CSS framework
@@ -86,50 +86,107 @@ cd ..
 
 ### 3. Environment Setup
 
-#### Frontend (.env.local)
+#### Docker Compose (Önerilen)
 
-```env
-VITE_API_URL=http://localhost:3001/api
-VITE_BACKEND_AI_URL=http://localhost:3001/api/ai
-```
-
-#### Backend (backend/.env)
+Docker Compose kullanıyorsanız, `.env` dosyası oluşturun:
 
 ```env
 # Database
-DATABASE_URL=postgresql://user:password@localhost:5432/bilan_db
+POSTGRES_USER=bilan_user
+POSTGRES_PASSWORD=bilan_password
+POSTGRES_DB=bilan_easy
+
+# JWT Secret (GÜVENLİ BİR DEĞER KULLANIN!)
+JWT_SECRET=your-secret-key-generate-with-openssl-rand-base64-32
+
+# Optional: AI API Keys
+GEMINI_API_KEY=your-gemini-key
+OPENAI_API_KEY=your-openai-key
+ANTHROPIC_API_KEY=your-anthropic-key
+```
+
+**JWT_SECRET Oluşturma**:
+```bash
+openssl rand -base64 32
+```
+
+#### Frontend (.env.local) - Docker Kullanmıyorsanız
+
+```env
+VITE_API_URL=http://localhost:3001/api
+VITE_GEMINI_API_KEY=your-gemini-key
+VITE_OPENAI_API_KEY=your-openai-key
+VITE_CLAUDE_API_KEY=your-claude-key
+```
+
+#### Backend (backend/.env) - Docker Kullanmıyorsanız
+
+```env
+# Database
+DATABASE_URL=postgresql://bilan_user:bilan_password@localhost:5432/bilan_easy
 
 # Server
 PORT=3001
 NODE_ENV=development
 FRONTEND_URL=http://localhost:3000
 
-# JWT
-JWT_SECRET=your-secret-key-change-in-production
+# JWT (GÜVENLİ BİR DEĞER KULLANIN!)
+JWT_SECRET=your-secret-key-generate-with-openssl-rand-base64-32
 JWT_EXPIRES_IN=7d
 
 # AI Providers (at least one required)
 OPENAI_API_KEY=your-openai-key
 ANTHROPIC_API_KEY=your-anthropic-key
 GEMINI_API_KEY=your-gemini-key
-
-# Rate Limiting
-AI_RATE_LIMIT_REQUESTS=100
-AI_RATE_LIMIT_WINDOW=60000
 ```
 
 ### 4. Database Setup
 
+#### Docker Compose ile (Önerilen)
+
 ```bash
-# Run migrations (if using Drizzle migrations)
+# Docker Compose ile tüm servisleri başlat
+docker-compose up -d
+
+# Database seed script'i çalıştır (admin kullanıcı oluşturur)
+docker-compose exec backend npm run seed
+```
+
+**Varsayılan Admin Kullanıcı**:
+- Email: `admin@bilan.com`
+- Password: `admin123`
+- Rol: `admin` (tüm permission'lar)
+
+#### Manuel Kurulum
+
+```bash
+# PostgreSQL database oluştur
+createdb bilan_easy
+
+# Migrations çalıştır
 cd backend
 npm run db:migrate
 
-# Or create database manually
-createdb bilan_db
+# Seed data yükle (admin kullanıcı oluşturur)
+npm run seed
 ```
 
 ### 5. Start Development Servers
+
+#### Docker Compose ile (Önerilen)
+
+```bash
+# Tüm servisleri başlat
+docker-compose up -d
+
+# Logları izle
+docker-compose logs -f
+
+# Servisleri durdur
+docker-compose down
+```
+
+#### Manuel Kurulum
 
 ```bash
 # Terminal 1: Start backend
@@ -143,6 +200,7 @@ npm run dev
 The application will be available at:
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:3001
+- **Health Check**: http://localhost:3001/health
 
 ## 📁 Project Structure
 
@@ -258,12 +316,34 @@ cd backend
 npm run build
 ```
 
-## 🐳 Docker (Optional)
+## 🐳 Docker
+
+Docker Compose ile tüm servisleri tek komutla başlatabilirsiniz:
 
 ```bash
-# Start with Docker Compose
+# Tüm servisleri başlat
 docker-compose up -d
+
+# Logları izle
+docker-compose logs -f
+
+# Servisleri durdur
+docker-compose down
+
+# Servisleri yeniden build et
+docker-compose up -d --build
+
+# Sadece frontend'i rebuild et
+docker-compose build --no-cache frontend
+docker-compose up -d frontend
 ```
+
+**Docker Servisleri**:
+- `postgres`: PostgreSQL 16 database
+- `backend`: Node.js API server (port 3001)
+- `frontend`: React frontend (port 3000)
+
+**Önemli**: Docker Compose kullanırken environment variables `docker-compose.yml` dosyasında veya `.env` dosyasında tanımlanmalıdır.
 
 ## 📝 Development Guidelines
 
@@ -319,19 +399,33 @@ The analytics dashboard provides:
 ### Common Issues
 
 **Database connection error**
-- Check DATABASE_URL in backend/.env
-- Ensure PostgreSQL is running
-- Verify database exists
+- Check `DATABASE_URL` in `docker-compose.yml` or `backend/.env`
+- Ensure PostgreSQL is running: `docker-compose ps postgres`
+- Verify database exists: `docker-compose exec postgres psql -U bilan_user -d bilan_easy -c "SELECT current_database();"`
 
 **API errors**
-- Check backend server is running
-- Verify API URL in frontend .env.local
-- Check CORS configuration
+- Check backend server is running: `docker-compose ps backend`
+- Verify API URL in frontend: `VITE_API_URL=http://localhost:3001/api`
+- Check CORS configuration in `backend/src/app.ts`
+- Check backend logs: `docker-compose logs backend`
+
+**Permission errors (admin kullanıcı menüleri göremiyor)**
+- Admin kullanıcısının rolünü kontrol et: `docker-compose exec postgres psql -U bilan_user -d bilan_easy -c "SELECT u.email, r.name FROM users u JOIN user_roles ur ON u.id = ur.user_id JOIN roles r ON ur.role_id = r.id WHERE u.email = 'admin@bilan.com';"`
+- Permission'ları kontrol et: `docker-compose exec postgres psql -U bilan_user -d bilan_easy -c "SELECT COUNT(*) FROM role_permissions rp JOIN roles r ON rp.role_id = r.id WHERE r.name = 'admin';"`
+- Browser'da logout yapıp tekrar login yapın (permission cache temizlenir)
 
 **Build errors**
-- Clear node_modules and reinstall
-- Check Node.js version (18+)
-- Verify all dependencies are installed
+- Clear node_modules and reinstall: `rm -rf node_modules package-lock.json && npm install`
+- Check Node.js version (18+): `node --version`
+- Docker build cache temizle: `docker-compose build --no-cache frontend`
+
+**Frontend boş beyaz sayfa**
+- Browser console'u kontrol et (F12)
+- Backend health check: `curl http://localhost:3001/health`
+- Frontend logları: `docker-compose logs frontend`
+- Detaylı troubleshooting için: [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
+
+Daha fazla bilgi için: [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) ve [DEBUG_GUIDE.md](./DEBUG_GUIDE.md)
 
 ## 📚 Documentation
 
@@ -379,4 +473,24 @@ The analytics dashboard provides:
 **Version**: 1.0.0  
 **Last Updated**: November 2024  
 **Status**: Production Ready ✅
+
+---
+
+## 📋 Son Test Raporu
+
+Kapsamlı test raporu için: [COMPREHENSIVE_TEST_REPORT.md](./COMPREHENSIVE_TEST_REPORT.md)
+
+**Test Tarihi**: 2025-11-14  
+**Test Durumu**: ✅ %100 BAŞARILI  
+**Sistem Durumu**: ✅ PRODUCTION READY
+
+### Test Edilen Özellikler
+- ✅ Database bağlantısı ve schema
+- ✅ Backend API endpoints
+- ✅ Frontend routing ve navigation
+- ✅ Authentication ve authorization
+- ✅ Permission sistemi (RBAC)
+- ✅ Form submission
+- ✅ Docker container'lar
+- ✅ Environment variables
 

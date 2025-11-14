@@ -120,6 +120,9 @@ class ApiClient {
     retries: number = 3,
     retryDelay: number = 1000
   ): Promise<T> {
+    const fullUrl = `${API_URL}${endpoint}`;
+    console.log(`[API] ${options.method || 'GET'} ${fullUrl}`, { hasToken: !!token, retries });
+    
     let lastError: Error | null = null;
     
     for (let attempt = 0; attempt <= retries; attempt++) {
@@ -128,31 +131,46 @@ class ApiClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
         
-        const response = await fetch(`${API_URL}${endpoint}`, {
+        const headers = await this.getHeaders(token);
+        console.log(`[API] Request headers:`, Object.keys(headers));
+        
+        const response = await fetch(fullUrl, {
           ...options,
-          headers: await this.getHeaders(token),
+          headers,
           signal: controller.signal,
         });
         
         clearTimeout(timeoutId);
+        console.log(`[API] Response status: ${response.status} ${response.statusText}`);
 
         if (!response.ok) {
           // 4xx hataları retry etme (client error)
           if (response.status >= 400 && response.status < 500) {
             const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+            console.error(`[API] Client error (${response.status}):`, error);
             throw new Error(error.error || `HTTP ${response.status}`);
           }
           
           // 5xx hataları retry et (server error)
           if (response.status >= 500) {
             const error = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+            console.error(`[API] Server error (${response.status}):`, error);
             throw new Error(error.error || `HTTP ${response.status}`);
           }
         }
 
-        return response.json();
+        const data = await response.json();
+        console.log(`[API] Response data:`, data);
+        return data as T;
       } catch (error) {
         lastError = error instanceof Error ? error : new Error('Unknown error');
+        console.error(`[API] Request error (attempt ${attempt + 1}/${retries + 1}):`, lastError.message || lastError);
+        
+        // AbortError (timeout) için retry yapma
+        if (lastError.name === 'AbortError' || lastError.message?.includes('aborted')) {
+          console.error(`[API] Request timeout: ${endpoint}`);
+          throw new Error(`Request timeout: ${endpoint}`);
+        }
         
         // Son deneme değilse ve retry edilebilir bir hata ise
         if (attempt < retries && this.isRetryableError(lastError)) {

@@ -6,7 +6,7 @@
 import 'dotenv/config';
 import { db } from '../db/client.js';
 import { users, roles, userRoles, permissions, rolePermissions } from '../db/schema.js';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
 
 async function createTestUsers() {
@@ -64,8 +64,10 @@ async function createTestUsers() {
         const existing = await db
           .select()
           .from(rolePermissions)
-          .where(eq(rolePermissions.roleId, adminRole[0].id))
-          .where(eq(rolePermissions.permissionId, perm.id))
+          .where(and(
+            eq(rolePermissions.roleId, adminRole[0].id),
+            eq(rolePermissions.permissionId, perm.id)
+          ))
           .limit(1);
         
         if (existing.length === 0) {
@@ -82,8 +84,10 @@ async function createTestUsers() {
     const basicPermissions = await db
       .select()
       .from(permissions)
-      .where(eq(permissions.resource, 'bilan:assessment'))
-      .where(eq(permissions.action, 'create'));
+      .where(and(
+        eq(permissions.resource, 'bilan:assessment'),
+        eq(permissions.action, 'create')
+      ));
     
     if (basicPermissions.length > 0) {
       console.log(`📝 Assigning ${basicPermissions.length} bilan:assessment permissions to User role...`);
@@ -92,8 +96,10 @@ async function createTestUsers() {
         const existing = await db
           .select()
           .from(rolePermissions)
-          .where(eq(rolePermissions.roleId, userRole[0].id))
-          .where(eq(rolePermissions.permissionId, perm.id))
+          .where(and(
+            eq(rolePermissions.roleId, userRole[0].id),
+            eq(rolePermissions.permissionId, perm.id)
+          ))
           .limit(1);
         
         if (existing.length === 0) {
@@ -138,8 +144,10 @@ async function createTestUsers() {
     const adminUserRole = await db
       .select()
       .from(userRoles)
-      .where(eq(userRoles.userId, adminUser[0].id))
-      .where(eq(userRoles.roleId, adminRole[0].id))
+      .where(and(
+        eq(userRoles.userId, adminUser[0].id),
+        eq(userRoles.roleId, adminRole[0].id)
+      ))
       .limit(1);
 
     if (adminUserRole.length === 0) {
@@ -180,8 +188,10 @@ async function createTestUsers() {
     const regularUserRole = await db
       .select()
       .from(userRoles)
-      .where(eq(userRoles.userId, regularUser[0].id))
-      .where(eq(userRoles.roleId, userRole[0].id))
+      .where(and(
+        eq(userRoles.userId, regularUser[0].id),
+        eq(userRoles.roleId, userRole[0].id)
+      ))
       .limit(1);
 
     if (regularUserRole.length === 0) {

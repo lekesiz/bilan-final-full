@@ -62,7 +62,9 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
       message.success(t('export.csvSuccess', 'CSV exported successfully'));
     } catch (error) {
       message.error(t('export.csvError', 'Failed to export CSV'));
-      console.error('CSV export error:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('CSV export error:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -87,7 +89,9 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
       message.success(t('export.excelSuccess', 'Excel exported successfully'));
     } catch (error) {
       message.error(t('export.excelError', 'Failed to export Excel'));
-      console.error('Excel export error:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Excel export error:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -143,7 +147,9 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
       message.success(t('export.pdfSuccess', 'PDF exported successfully'));
     } catch (error) {
       message.error(t('export.pdfError', 'Failed to export PDF'));
-      console.error('PDF export error:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('PDF export error:', error);
+      }
     } finally {
       setLoading(false);
     }

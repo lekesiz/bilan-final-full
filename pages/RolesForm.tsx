@@ -31,7 +31,15 @@ const RolesForm: React.FC<RolesFormProps> = ({ formProps, saveButtonProps }) => 
 
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [selectedPermissionIds, setSelectedPermissionIds] = useState<string[]>([]);
-  const form = Form.useFormInstance();
+  // Use formProps.form if available, otherwise try Form.useFormInstance()
+  // But guard against undefined in all usages
+  let form: any = null;
+  try {
+    form = formProps.form || Form.useFormInstance();
+  } catch (e) {
+    // Form instance not available yet, will be set when Form is mounted
+    form = null;
+  }
 
   // Fetch all permissions
   useEffect(() => {
@@ -70,13 +78,19 @@ const RolesForm: React.FC<RolesFormProps> = ({ formProps, saveButtonProps }) => 
 
   // Get initial permission IDs from form
   useEffect(() => {
-    const initialPermissionIds = form.getFieldValue('permissionIds');
-    if (initialPermissionIds && Array.isArray(initialPermissionIds)) {
-      setSelectedPermissionIds(initialPermissionIds);
+    if (!form) return; // Guard against undefined form
+    try {
+      const initialPermissionIds = form.getFieldValue('permissionIds');
+      if (initialPermissionIds && Array.isArray(initialPermissionIds)) {
+        setSelectedPermissionIds(initialPermissionIds);
+      }
+    } catch (e) {
+      // Form not ready yet, ignore
     }
   }, [form]);
 
   const handlePermissionToggle = (permissionId: string, checked: boolean) => {
+    if (!form) return; // Guard against undefined form
     const newSelected = checked
       ? [...selectedPermissionIds, permissionId]
       : selectedPermissionIds.filter(id => id !== permissionId);

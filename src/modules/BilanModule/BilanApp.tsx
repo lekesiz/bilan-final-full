@@ -63,7 +63,9 @@ export const BilanApp: React.FC = () => {
       showToast('Bilan créé avec succès', 'success', 3000);
       setAppState('preliminary-phase');
     } catch (error) {
-      console.error('Failed to create assessment:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to create assessment:', error);
+      }
       const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       showToast(
         `Impossible de créer le bilan. Continuons quand même. (${errorMessage})`,
@@ -99,7 +101,9 @@ export const BilanApp: React.FC = () => {
         });
         showToast('Profil mis à jour', 'success', 2000);
       } catch (error) {
-        console.error('Failed to update assessment with user profile:', error);
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Failed to update assessment with user profile:', error);
+        }
         showToast('Impossible de sauvegarder le profil, mais nous continuons', 'warning', 3000);
       }
     }
@@ -134,12 +138,16 @@ export const BilanApp: React.FC = () => {
         
         // Mapped fullAnswers
       } catch (error) {
-        console.error('❌ Failed to fetch full answers from backend:', error);
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('❌ Failed to fetch full answers from backend:', error);
+        }
         // Hata durumunda mevcut answers'ı kullan
         showToast('Impossible de récupérer les détails complets, mais nous continuons', 'warning', 3000);
       }
     } else {
-      console.warn('⚠️ AssessmentId yok, backend\'den veri çekilemiyor. Mevcut answers kullanılıyor:', answers.length);
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('⚠️ AssessmentId yok, backend\'den veri çekilemiyor. Mevcut answers kullanılıyor:', answers.length);
+      }
     }
     
     setCurrentAnswers(fullAnswers);
@@ -177,7 +185,9 @@ export const BilanApp: React.FC = () => {
       
       setAppState('questionnaire');
     } catch (error) {
-      console.error('Failed to resume assessment:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to resume assessment:', error);
+      }
       showToast('Erreur lors de la reprise du bilan', 'error', 3000);
     }
   };
@@ -226,6 +236,7 @@ export const BilanApp: React.FC = () => {
       case 'package-selection':
         return (
           <PackageSelector
+            packages={PACKAGES}
             onSelect={handlePackageSelect}
             isLoading={isCreatingAssessment}
           />
@@ -298,10 +309,8 @@ export const BilanApp: React.FC = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      {renderContent()}
-    </div>
-  );
+  // BILAN App is now integrated into dashboard
+  // ThemedLayout provides the layout structure, so we don't need our own wrapper
+  return <>{renderContent()}</>;
 };
 

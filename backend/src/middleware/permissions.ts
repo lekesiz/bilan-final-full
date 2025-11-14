@@ -4,7 +4,18 @@ import jwt from 'jsonwebtoken';
 import { db, userRoles, roles, rolePermissions, permissions } from '../db/client.js';
 import { eq, and } from 'drizzle-orm';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+// Get JWT_SECRET lazily (only when needed, after env vars are loaded)
+function getJWTSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret === 'your-secret-key-change-in-production') {
+    throw new Error(
+      '❌ CRITICAL: JWT_SECRET environment variable is required.\n' +
+      'Generate with: openssl rand -base64 32\n' +
+      'Then set it in your .env file or docker-compose.yml'
+    );
+  }
+  return secret;
+}
 
 // Kullanıcının permission'larını çek
 async function getUserPermissions(userId: string): Promise<string[]> {
@@ -38,6 +49,7 @@ function getUserIdFromRequest(c: Context<Env>): string | null {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
     try {
+      const JWT_SECRET = getJWTSecret();
       const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
       return decoded.userId;
     } catch {

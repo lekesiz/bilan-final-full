@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Refine, Authenticated } from '@refinedev/core';
 import { RefineKbar, RefineKbarProvider } from '@refinedev/kbar';
 import { RefineThemes } from '@refinedev/antd';
@@ -12,37 +12,81 @@ import { Header } from './layout/Header';
 import { Sider } from './layout/Sider';
 import '@refinedev/antd/dist/reset.css';
 
-// Import BILAN Module
+// Import BILAN Module (keep as regular import - used in multiple places)
 import BilanModule from '../modules/BilanModule';
-import AnalyticsDashboard from '../../components/AnalyticsDashboard';
-
-// Login/Register pages
-import LoginPage from '../../pages/LoginPage';
-import RegisterPage from '../../pages/RegisterPage';
-import PasswordResetPage from '../../pages/PasswordResetPage';
-import PasswordUpdatePage from '../../pages/PasswordUpdatePage';
-import UserProfile from '../../pages/UserProfile';
-import Settings from '../../pages/Settings';
-
-// Dashboard pages
-import DashboardHome from '../../pages/DashboardHome';
-import AssessmentsList from '../../pages/AssessmentsList';
-import AssessmentsShow from '../../pages/AssessmentsShow';
-import AssessmentsCreate from '../../pages/AssessmentsCreate';
-import AssessmentsEdit from '../../pages/AssessmentsEdit';
-import AuditTrailList from '../../pages/AuditTrailList';
-import UsersList from '../../pages/UsersList';
-import UsersCreate from '../../pages/UsersCreate';
-import UsersEdit from '../../pages/UsersEdit';
-import UsersShow from '../../pages/UsersShow';
-import RolesList from '../../pages/RolesList';
-import RolesCreate from '../../pages/RolesCreate';
-import RolesEdit from '../../pages/RolesEdit';
-import RolesShow from '../../pages/RolesShow';
 
 interface RefineAppProps {
   api: ReturnType<typeof useApi>;
 }
+
+// Lazy load all pages for code splitting and performance optimization
+// This reduces initial bundle size significantly
+
+// Auth pages
+const LoginPage = lazy(() => import('../../pages/LoginPage'));
+const RegisterPage = lazy(() => import('../../pages/RegisterPage'));
+const PasswordResetPage = lazy(() => import('../../pages/PasswordResetPage'));
+const PasswordUpdatePage = lazy(() => import('../../pages/PasswordUpdatePage'));
+
+// User pages
+const UserProfile = lazy(() => import('../../pages/UserProfile'));
+const Settings = lazy(() => import('../../pages/Settings'));
+
+// Dashboard pages
+const DashboardHome = lazy(() => import('../../pages/DashboardHome'));
+const DashboardHomeNew = lazy(() => import('../../pages/DashboardHomeNew'));
+const AnalyticsDashboard = lazy(() => import('../../components/AnalyticsDashboard'));
+
+// Assessment pages
+const AssessmentsList = lazy(() => import('../../pages/AssessmentsList'));
+const AssessmentsShow = lazy(() => import('../../pages/AssessmentsShow'));
+const AssessmentsCreate = lazy(() => import('../../pages/AssessmentsCreate'));
+const AssessmentsEdit = lazy(() => import('../../pages/AssessmentsEdit'));
+
+// User management pages
+const UsersList = lazy(() => import('../../pages/UsersList'));
+const UsersShow = lazy(() => import('../../pages/UsersShow'));
+const UsersCreate = lazy(() => import('../../pages/UsersCreate'));
+const UsersEdit = lazy(() => import('../../pages/UsersEdit'));
+
+// Role management pages
+const RolesList = lazy(() => import('../../pages/RolesList'));
+const RolesShow = lazy(() => import('../../pages/RolesShow'));
+const RolesCreate = lazy(() => import('../../pages/RolesCreate'));
+const RolesEdit = lazy(() => import('../../pages/RolesEdit'));
+
+// Audit pages
+const AuditTrailList = lazy(() => import('../../pages/AuditTrailList'));
+
+// Loading fallback component
+const PageLoadingFallback = () => (
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    minHeight: '400px',
+    padding: '24px'
+  }}>
+    <div style={{ textAlign: 'center' }}>
+      <div style={{ 
+        width: '40px', 
+        height: '40px', 
+        border: '4px solid #f3f3f3',
+        borderTop: '4px solid #1890ff',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite',
+        margin: '0 auto 16px'
+      }} />
+      <div style={{ color: '#666' }}>Loading...</div>
+    </div>
+    <style>{`
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `}</style>
+  </div>
+);
 
 // Create a simple notification provider using Ant Design
 const createNotificationProvider = () => {
@@ -61,10 +105,21 @@ const createNotificationProvider = () => {
 };
 
 const RefineApp: React.FC<RefineAppProps> = ({ api }) => {
-  const authProvider = React.useMemo(() => createAuthProvider(api), [api]);
-  const dataProvider = React.useMemo(() => createDataProvider(api), [api]);
-  const notificationProvider = React.useMemo(() => createNotificationProvider(), []);
+  console.log('[RefineApp] Initializing...');
+  const authProvider = React.useMemo(() => {
+    console.log('[RefineApp] Creating authProvider...');
+    return createAuthProvider(api);
+  }, [api]);
+  const dataProvider = React.useMemo(() => {
+    console.log('[RefineApp] Creating dataProvider...');
+    return createDataProvider(api);
+  }, [api]);
+  const notificationProvider = React.useMemo(() => {
+    console.log('[RefineApp] Creating notificationProvider...');
+    return createNotificationProvider();
+  }, []);
 
+  console.log('[RefineApp] All providers initialized, rendering...');
   return (
     <BrowserRouter>
       <ConfigProvider theme={RefineThemes.Blue}>
@@ -106,29 +161,92 @@ const RefineApp: React.FC<RefineAppProps> = ({ api }) => {
             >
               <Routes>
                 {/* Public routes */}
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/password-reset" element={<PasswordResetPage />} />
+                <Route 
+                  path="/login" 
+                  element={
+                    <Suspense fallback={
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        alignItems: 'center', 
+                        minHeight: '100vh',
+                        padding: '24px'
+                      }}>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ 
+                            width: '40px', 
+                            height: '40px', 
+                            border: '4px solid #f3f3f3',
+                            borderTop: '4px solid #1890ff',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite',
+                            margin: '0 auto 16px'
+                          }} />
+                          <div style={{ color: '#666' }}>Loading...</div>
+                        </div>
+                        <style>{`
+                          @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                          }
+                        `}</style>
+                      </div>
+                    }>
+                      <LoginPage />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/register" 
+                  element={
+                    <Suspense fallback={<PageLoadingFallback />}>
+                      <RegisterPage />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/password-reset" 
+                  element={
+                    <Suspense fallback={<PageLoadingFallback />}>
+                      <PasswordResetPage />
+                    </Suspense>
+                  } 
+                />
                 
                 {/* Protected routes */}
                 <Route path="/password-update" element={
                   <Authenticated fallback={<Navigate to="/login" replace />}>
-                    <ThemedLayout Sider={Sider} Header={Header}>
-                      <PasswordUpdatePage />
+                    <ThemedLayout 
+                      Sider={({ Title }) => <Sider Title={Title} />}
+                      Header={Header}
+                    >
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <PasswordUpdatePage />
+                      </Suspense>
                     </ThemedLayout>
                   </Authenticated>
                 } />
                 <Route path="/profile" element={
                   <Authenticated fallback={<Navigate to="/login" replace />}>
-                    <ThemedLayout Sider={Sider} Header={Header}>
-                      <UserProfile />
+                    <ThemedLayout 
+                      Sider={({ Title }) => <Sider Title={Title} />}
+                      Header={Header}
+                    >
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <UserProfile />
+                      </Suspense>
                     </ThemedLayout>
                   </Authenticated>
                 } />
                 <Route path="/settings" element={
                   <Authenticated fallback={<Navigate to="/login" replace />}>
-                    <ThemedLayout Sider={Sider} Header={Header}>
-                      <Settings />
+                    <ThemedLayout 
+                      Sider={({ Title }) => <Sider Title={Title} />}
+                      Header={Header}
+                    >
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <Settings />
+                      </Suspense>
                     </ThemedLayout>
                   </Authenticated>
                 } />
@@ -139,7 +257,7 @@ const RefineApp: React.FC<RefineAppProps> = ({ api }) => {
                     <Authenticated fallback={<Navigate to="/login" replace />}>
                       <ThemedLayout
                         Header={() => <Header />}
-                        Sider={() => <Sider />}
+                        Sider={({ Title }) => <Sider Title={Title} />}
                         Title={() => <span>BILAN-EASY</span>}
                       >
                         <Outlet />
@@ -148,22 +266,134 @@ const RefineApp: React.FC<RefineAppProps> = ({ api }) => {
                   }
                 >
                   <Route index element={<Navigate to="/dashboard" replace />} />
-                  <Route path="/dashboard" element={<DashboardHome />} />
-                  <Route path="/password-update" element={<PasswordUpdatePage />} />
-                  <Route path="/analytics" element={<AnalyticsDashboard />} />
-                  <Route path="/assessments" element={<AssessmentsList />} />
-                  <Route path="/assessments/show/:id" element={<AssessmentsShow />} />
-                  <Route path="/assessments/create" element={<AssessmentsCreate />} />
-                  <Route path="/assessments/edit/:id" element={<AssessmentsEdit />} />
-                  <Route path="/users" element={<UsersList />} />
-                  <Route path="/users/create" element={<UsersCreate />} />
-                  <Route path="/users/edit/:id" element={<UsersEdit />} />
-                  <Route path="/users/show/:id" element={<UsersShow />} />
-                  <Route path="/roles" element={<RolesList />} />
-                  <Route path="/roles/create" element={<RolesCreate />} />
-                  <Route path="/roles/edit/:id" element={<RolesEdit />} />
-                  <Route path="/roles/show/:id" element={<RolesShow />} />
-                  <Route path="/audit" element={<AuditTrailList />} />
+                  <Route 
+                    path="/dashboard" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <DashboardHome />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/dashboard-new" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <DashboardHomeNew />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/analytics" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <AnalyticsDashboard />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/assessments" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <AssessmentsList />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/assessments/show/:id" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <AssessmentsShow />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/assessments/create" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <AssessmentsCreate />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/assessments/edit/:id" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <AssessmentsEdit />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/users" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <UsersList />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/users/create" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <UsersCreate />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/users/edit/:id" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <UsersEdit />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/users/show/:id" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <UsersShow />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/roles" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <RolesList />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/roles/create" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <RolesCreate />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/roles/edit/:id" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <RolesEdit />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/roles/show/:id" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <RolesShow />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/audit" 
+                    element={
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <AuditTrailList />
+                      </Suspense>
+                    } 
+                  />
                 </Route>
 
                 {/* BILAN Module routes */}
@@ -171,7 +401,13 @@ const RefineApp: React.FC<RefineAppProps> = ({ api }) => {
                   path="/bilan/*" 
                   element={
                     <Authenticated fallback={<Navigate to="/login" replace />}>
-                      <BilanModule />
+                      <ThemedLayout
+                        Header={() => <Header />}
+                        Sider={({ Title }) => <Sider Title={Title} />}
+                        Title={() => <span>BILAN-EASY</span>}
+                      >
+                        <BilanModule />
+                      </ThemedLayout>
                     </Authenticated>
                   } 
                 />

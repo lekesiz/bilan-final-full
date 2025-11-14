@@ -36,7 +36,12 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
       },
       plugins: [
-        react(),
+        react({
+          // Ensure React is properly handled
+          babel: {
+            plugins: [],
+          },
+        }),
         // Sentry is disabled for now - enable it later by adding VITE_SENTRY_DSN to .env.local
         // Sentry plugin - only in production builds
         // ...(mode === 'production' && env.VITE_SENTRY_DSN
@@ -72,19 +77,30 @@ export default defineConfig(({ mode }) => {
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
-        }
+        },
+        // Ensure React is resolved correctly in all chunks
+        // Prevents multiple React instances which causes "createContext" errors
+        dedupe: ['react', 'react-dom'],
       },
       build: {
+        // TEMPORARY FIX: Disable ALL vendor chunking to prevent React "Children" errors
+        // React 18.3.1 and Ant Design have issues when React is in a different chunk
+        // All dependencies must be in the same bundle for React to work correctly
+        // TODO: Re-enable optimized chunking after finding a solution or upgrading React
         rollupOptions: {
           output: {
-            manualChunks: {
-              'react-vendor': ['react', 'react-dom'],
-              'gemini-vendor': ['@google/genai'],
-              'openai-vendor': ['openai'],
-              'claude-vendor': ['@anthropic-ai/sdk'],
-            }
+            // Disable manual chunks completely - put everything in main bundle
+            // This ensures React is accessible to all libraries (Ant Design, Refine, etc.)
+            manualChunks: undefined,
+            // Optimize chunk size
+            chunkSizeWarningLimit: 2000, // 2MB warning threshold (increased because everything is in one bundle)
           }
-        }
+        },
+        // Enable source maps for production debugging (optional)
+        sourcemap: false, // Set to true if needed for debugging
+        // Optimize bundle
+        minify: 'esbuild',
+        target: 'es2020',
       }
     };
 });

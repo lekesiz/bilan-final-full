@@ -4,7 +4,9 @@ import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 import RolesForm from './RolesForm';
 
 const RolesEdit: React.FC = () => {
-  const { formProps, saveButtonProps } = useForm();
+  const { formProps, saveButtonProps } = useForm({
+    resource: 'roles',
+  });
 
   return (
     <PermissionGuard resource="roles" action="update">

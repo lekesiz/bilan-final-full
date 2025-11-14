@@ -23,7 +23,9 @@ export const usePermissions = () => {
         return JSON.parse(stored) as string[];
       }
     } catch (error) {
-      console.error('Failed to parse permissions from localStorage:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to parse permissions from localStorage:', error);
+      }
     }
     return [];
   }, []);

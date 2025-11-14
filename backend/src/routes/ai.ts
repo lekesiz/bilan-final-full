@@ -3,6 +3,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { error, success } from '../utils/response.js';
 import { z } from 'zod';
 import { getAIService } from '../services/ai/aiService.js';
+import { userProfileSchema } from '../utils/validate.js';
 import type { Package } from '../types/ai.js';
 import { logger } from '../utils/logger.js';
 
@@ -13,9 +14,9 @@ const generateQuestionSchema = z.object({
   phaseKey: z.enum(['phase1', 'phase2', 'phase3']),
   categoryIndex: z.number(),
   previousAnswers: z.array(z.any()),
-  userName: z.string(),
+  userName: z.string().max(255),
   coachingStyle: z.enum(['collaborative', 'analytic', 'creative']),
-  userProfile: z.any().nullable(),
+  userProfile: userProfileSchema.nullable(),
   options: z.object({
     useJoker: z.boolean().optional(),
     useGoogleSearch: z.boolean().optional(),

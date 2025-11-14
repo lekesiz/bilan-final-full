@@ -79,7 +79,9 @@ export const AssessmentList: React.FC<AssessmentListProps> = ({
 
       setAssessments(filteredAssessments);
     } catch (error) {
-      console.error('Failed to fetch assessments:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to fetch assessments:', error);
+      }
       showToast('Failed to load assessments', 'error', 3000);
     } finally {
       setLoading(false);
@@ -102,7 +104,9 @@ export const AssessmentList: React.FC<AssessmentListProps> = ({
         onDeleteAssessment(assessmentId);
       }
     } catch (error) {
-      console.error('Failed to delete assessment:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to delete assessment:', error);
+      }
       showToast('Failed to delete assessment', 'error', 3000);
     }
   };

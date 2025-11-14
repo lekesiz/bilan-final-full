@@ -1,12 +1,63 @@
 import { serve } from '@hono/node-server';
-// Sentry is disabled for now - enable it later by adding SENTRY_DSN to .env
-// import * as Sentry from '@sentry/node';
-// import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import app from './app.js';
-import 'dotenv/config';
+import { config } from 'dotenv';
+import { resolve } from 'path';
 import { logger } from './utils/logger.js';
 
-// Sentry is disabled for now - enable it later by adding SENTRY_DSN to .env
+// Load environment variables: .env first, then .env.local (overrides)
+// This matches Vite's behavior for consistency
+config({ path: resolve(process.cwd(), '.env') });
+config({ path: resolve(process.cwd(), '.env.local'), override: true });
+
+// Initialize Sentry if DSN is provided
+// Note: Sentry packages are optional - install with: npm install @sentry/node @sentry/profiling-node
+if (process.env.SENTRY_DSN) {
+  // @ts-expect-error - Sentry packages are optional dependencies
+  import('@sentry/node').then((Sentry: any) => {
+    // @ts-expect-error - Sentry packages are optional dependencies
+    import('@sentry/profiling-node').then(({ nodeProfilingIntegration }: any) => {
+      Sentry.init({
+        dsn: process.env.SENTRY_DSN,
+        environment: process.env.NODE_ENV || 'development',
+        integrations: [
+          nodeProfilingIntegration(),
+        ],
+        tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+        profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+        release: process.env.APP_VERSION || undefined,
+        beforeSend(event: any, hint: any) {
+          // Don't send errors in development unless explicitly enabled
+          if (process.env.NODE_ENV === 'development' && !process.env.SENTRY_ENABLE_DEV) {
+            return null;
+          }
+          
+          // Filter out expected errors
+          if (event.exception) {
+            const error = hint.originalException;
+            if (error instanceof Error) {
+              // Ignore validation errors (expected)
+              if (error.message.includes('validation') || 
+                  error.message.includes('ValidationError')) {
+                return null;
+              }
+            }
+          }
+          
+          return event;
+        },
+      });
+      logger.info('✅ Sentry error tracking enabled');
+    }).catch(() => {
+      logger.warn('⚠️  Sentry profiling package not installed');
+    });
+  }).catch(() => {
+    logger.warn('⚠️  Sentry packages not installed. Install with: npm install @sentry/node @sentry/profiling-node');
+  });
+} else {
+  logger.info('ℹ️  Sentry disabled (SENTRY_DSN not set)');
+}
+
+// Legacy Sentry initialization (commented out for reference)
 // if (process.env.SENTRY_DSN) {
 //   Sentry.init({
 //     dsn: process.env.SENTRY_DSN,

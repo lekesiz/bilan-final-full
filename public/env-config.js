@@ -1,6 +1,7 @@
 // Runtime environment configuration
 // This file is generated at build time and injected into the HTML
 window.__ENV__ = {
+  VITE_API_URL: '%VITE_API_URL%',
   VITE_GEMINI_API_KEY: '%VITE_GEMINI_API_KEY%',
   VITE_OPENAI_API_KEY: '%VITE_OPENAI_API_KEY%',
   VITE_CLAUDE_API_KEY: '%VITE_CLAUDE_API_KEY%',

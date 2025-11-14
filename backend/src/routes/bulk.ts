@@ -15,7 +15,18 @@ import { eq, inArray, and } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';
 import { createAuditLog } from '../services/auditService.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+// Get JWT_SECRET lazily (only when needed, after env vars are loaded)
+function getJWTSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret === 'your-secret-key' || secret === 'your-secret-key-change-in-production') {
+    throw new Error(
+      '❌ CRITICAL: JWT_SECRET environment variable is required.\n' +
+      'Generate with: openssl rand -base64 32\n' +
+      'Then set it in your .env file or docker-compose.yml'
+    );
+  }
+  return secret;
+}
 
 // Helper to get auth context from request
 async function getAuthContext(c: any) {
@@ -35,7 +46,7 @@ async function getAuthContext(c: any) {
     // Extract from JWT token
     const token = authHeader.substring(7);
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email?: string };
+      const decoded = jwt.verify(token, getJWTSecret()) as { userId: string; email?: string };
       userId = decoded.userId;
     } catch (err) {
       // Invalid token

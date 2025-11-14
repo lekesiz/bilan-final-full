@@ -98,19 +98,19 @@ const EditAnswerModal: React.FC<{
     
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 max-w-2xl w-full">
-                <h2 className="text-2xl font-bold font-display text-primary-800 dark:text-primary-200 mb-2">
+            <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl w-full">
+                <h2 className="text-2xl font-bold font-display text-primary-800 mb-2">
                     {t('questionnaire.editAnswer')}
                 </h2>
                 {questionTitle && (
-                    <p className="text-slate-600 dark:text-slate-400 mb-4 text-sm italic">"{questionTitle}"</p>
+                    <p className="text-slate-600 mb-4 text-sm italic">"{questionTitle}"</p>
                 )}
                 <textarea 
                     value={editedValue} 
                     onChange={e => setEditedValue(e.target.value)} 
                     placeholder={t('questionnaire.editAnswer') + '...'} 
                     rows={6}
-                    className="w-full p-4 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 mb-4"
+                    className="w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white text-slate-900 mb-4"
                     autoFocus
                 />
                 <div className="flex gap-4">
@@ -123,7 +123,7 @@ const EditAnswerModal: React.FC<{
                     </button>
                     <button 
                         onClick={onCancel} 
-                        className="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold py-3 px-6 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
+                        className="flex-1 bg-slate-200 text-slate-700 font-bold py-3 px-6 rounded-lg hover:bg-slate-300"
                     >
                         {t('common.cancel')}
                     </button>
@@ -926,11 +926,11 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                 totalQuestions={pkg.totalQuestionnaires}
             />
             
-            <div className="h-screen w-screen flex flex-col bg-slate-100 dark:bg-slate-900 transition-colors">
-                <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 p-4 flex justify-between items-center shadow-sm">
+            <div className="h-screen w-screen flex flex-col bg-slate-100">
+                <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 p-4 flex justify-between items-center shadow-sm">
                     <div>
-                        <h1 className="font-bold text-lg text-primary-800 dark:text-primary-200 font-display">{pkg.name}</h1>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">{currentPhaseInfo?.name}</p>
+                        <h1 className="font-bold text-lg text-primary-800 font-display">{pkg.name}</h1>
+                        <p className="text-sm text-slate-600">{currentPhaseInfo?.name}</p>
                     </div>
                     {currentPhaseInfo && (
                         <EnhancedProgress 
@@ -949,7 +949,7 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                 {showSettings && speechSynthSupported && <div className="border-b"><SpeechSettings voices={voices} settings={settings} onSettingsChange={onSettingsChange} /></div>}
 
                 <main className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
-                    <div className="lg:col-span-2 flex flex-col h-full bg-white dark:bg-slate-800 rounded-xl shadow transition-colors">
+                    <div className="lg:col-span-2 flex flex-col h-full bg-white rounded-xl shadow">
                         <div className="flex-1 overflow-y-auto p-6 space-y-4">
                             {messages.map((msg, index) => {
                                 // User mesajı için answer index'ini bul
@@ -959,8 +959,8 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                                 
                                 return (
                                     <div key={index} className={`flex items-end gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                        {msg.sender === 'ai' && <div className="w-8 h-8 rounded-full bg-primary-600 dark:bg-primary-500 text-white flex items-center justify-center flex-shrink-0">IA</div>}
-                                        <div className={`max-w-xl p-4 rounded-2xl relative group ${msg.sender === 'user' ? 'bg-primary-600 dark:bg-primary-700 text-white rounded-br-none' : 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none'}`}>
+                                        {msg.sender === 'ai' && <div className="w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center flex-shrink-0">IA</div>}
+                                        <div className={`max-w-xl p-4 rounded-2xl relative group ${msg.sender === 'user' ? 'bg-primary-600 text-white rounded-br-none' : 'bg-slate-200 text-slate-800 rounded-bl-none'}`}>
                                             <p>{msg.text}</p>
                                             {canEdit && (
                                                 <button
@@ -999,22 +999,22 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                             <div ref={chatEndRef} />
                         </div>
 
-                    <div className="p-4 border-t bg-white dark:bg-slate-800 rounded-b-xl transition-colors">
+                    <div className="p-4 border-t bg-white rounded-b-xl">
                         {currentQuestion?.type === QuestionType.PARAGRAPH && (
                             <form onSubmit={e => { e.preventDefault(); handleAnswerSubmit(textInput); }} className="flex items-center gap-2">
-                                <input type="text" value={textInput} onChange={e => setTextInput(e.target.value)} placeholder={t('questionnaire.placeholder')} className="flex-1 w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100" disabled={isLoading || isAwaitingSynthesisConfirmation || isRequestPending} />
-                                {speechRecSupported && <button type="button" onClick={() => isListening ? stopListening() : startListening()} className="p-3 text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400" disabled={isRequestPending}><MicIcon active={isListening} /></button>}
-                                <button type="submit" className="bg-primary-600 dark:bg-primary-700 text-white p-3 rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 disabled:bg-slate-400 disabled:cursor-not-allowed" disabled={isLoading || !textInput.trim() || isAwaitingSynthesisConfirmation || isRequestPending}><SendIcon /></button>
+                                <input type="text" value={textInput} onChange={e => setTextInput(e.target.value)} placeholder={t('questionnaire.placeholder')} className="flex-1 w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white text-slate-900" disabled={isLoading || isAwaitingSynthesisConfirmation || isRequestPending} />
+                                {speechRecSupported && <button type="button" onClick={() => isListening ? stopListening() : startListening()} className="p-3 text-slate-500 hover:text-primary-600" disabled={isRequestPending}><MicIcon active={isListening} /></button>}
+                                <button type="submit" className="bg-primary-600 text-white p-3 rounded-lg hover:bg-primary-700 disabled:bg-slate-400 disabled:cursor-not-allowed" disabled={isLoading || !textInput.trim() || isAwaitingSynthesisConfirmation || isRequestPending}><SendIcon /></button>
                             </form>
                         )}
                         <div className="flex items-center gap-2 mt-2">
-                            <button onClick={handleJoker} className="flex-1 text-xs text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed" disabled={isLoading || isAwaitingSynthesisConfirmation || isRequestPending}>
+                            <button onClick={handleJoker} className="flex-1 text-xs text-slate-500 hover:text-primary-600 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed" disabled={isLoading || isAwaitingSynthesisConfirmation || isRequestPending}>
                                 <JokerIcon/> {t('questionnaire.joker')}
                             </button>
                             {assessmentId && answers.length > 0 && (
                                 <button 
                                     onClick={handleSaveDraft} 
-                                    className="px-4 py-2 text-sm bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-4 py-2 text-sm bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                     disabled={isLoading || isRequestPending}
                                     title={t('questionnaire.saveDraftTitle')}
                                 >
@@ -1027,7 +1027,7 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ pkg, userName, userProfil
                         </div>
                         </div>
                     </div>
-                    <aside className="hidden lg:block sticky top-6 self-start max-h-[calc(100vh-8rem)] overflow-y-auto bg-white dark:bg-slate-800 rounded-xl shadow p-6 transition-colors">
+                    <aside className="hidden lg:block sticky top-6 self-start max-h-[calc(100vh-8rem)] overflow-y-auto bg-white rounded-xl shadow p-6">
                         <Dashboard data={dashboardData} isLoading={isDashboardLoading} />
                     </aside>
                 </main>

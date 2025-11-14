@@ -7,7 +7,15 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "seed": "tsx src/scripts/seed.ts",
-    "create-test-users": "tsx src/scripts/createTestUsers.ts"
+    "create-test-users": "tsx src/scripts/createTestUsers.ts",
+    "assign-permissions": "tsx src/scripts/assignPermissions.ts",
+    "clear-analytics": "tsx src/scripts/clearAnalyticsData.ts",
+    "validate": "tsx src/scripts/validate.ts",
+    "validate:detailed": "tsx src/scripts/validateDetailed.ts",
+    "validate:integration": "tsx src/scripts/validateFrontendBackend.ts",
+    "validate:all": "tsx src/scripts/validateAll.ts",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.68.0",

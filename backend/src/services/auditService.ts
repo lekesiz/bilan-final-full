@@ -8,7 +8,14 @@ import { db } from '../db/client.js';
 import { auditLogs } from '../db/schema.js';
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';
+import { z } from 'zod';
 import type { NewAuditLog } from '../db/schema.js';
+
+// Validate changes object to prevent JSON injection
+const changesSchema = z.object({
+  before: z.record(z.any()).optional(),
+  after: z.record(z.any()).optional(),
+}).strict().optional();
 
 export interface AuditLogContext {
   userId?: string;
@@ -40,6 +47,17 @@ export async function createAuditLog(
   context: AuditLogContext
 ): Promise<void> {
   try {
+    // Validate changes object to prevent JSON injection
+    let validatedChanges = null;
+    if (options.changes) {
+      try {
+        validatedChanges = changesSchema.parse(options.changes);
+      } catch (validationError) {
+        logger.warn('Invalid changes object in audit log, skipping:', validationError);
+        // Continue without changes rather than failing
+      }
+    }
+
     const auditLog: NewAuditLog = {
       userId: context.userId,
       userEmail: context.userEmail,
@@ -47,7 +65,7 @@ export async function createAuditLog(
       action: options.action,
       resource: options.resource,
       resourceId: options.resourceId,
-      changes: options.changes ? JSON.parse(JSON.stringify(options.changes)) : null,
+      changes: validatedChanges ? JSON.parse(JSON.stringify(validatedChanges)) : null,
       status: options.status || 'success',
       errorMessage: options.errorMessage || null,
       metadata: {

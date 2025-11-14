@@ -31,7 +31,7 @@ const DashboardHome: React.FC = () => {
     },
   });
 
-  if (identityLoading) {
+  if (identityLoading || assessmentsLoading) {
     return <LoadingState message={t('dashboard.loadingDashboard')} />;
   }
 
@@ -136,7 +136,7 @@ const DashboardHome: React.FC = () => {
 
   return (
     <div 
-      className="w-full min-h-full bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900"
+      className="w-full min-h-full bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50"
       style={{
         margin: '-24px',
         padding: '24px',
@@ -147,13 +147,13 @@ const DashboardHome: React.FC = () => {
       <div className="max-w-7xl mx-auto w-full">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold font-display text-slate-900 dark:text-white mb-2">
+          <h1 className="text-4xl font-bold font-display text-slate-900 mb-2">
             {identity?.name 
               ? t('dashboard.welcomeBack', { name: identity.name })
               : t('dashboard.welcomeBackUser')
             }
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400">
+          <p className="text-lg text-slate-600">
             {t('dashboard.overview')}
           </p>
         </div>
@@ -161,57 +161,57 @@ const DashboardHome: React.FC = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Total Assessments */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-shadow">
+          <div className="bg-white bg-white rounded-xl shadow-lg p-6 border border-slate-200 hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+              <div className="p-3 bg-blue-100 bg-blue-100 rounded-lg">
                 <FileIcon />
               </div>
               {assessmentsLoading && (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
               )}
             </div>
-            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t('dashboard.totalAssessments')}</h3>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">{totalAssessments}</p>
+            <h3 className="text-sm font-medium text-slate-600 mb-1">{t('dashboard.totalAssessments')}</h3>
+            <p className="text-3xl font-bold text-slate-900">{totalAssessments}</p>
           </div>
 
           {/* Completed */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-shadow">
+          <div className="bg-white bg-white rounded-xl shadow-lg p-6 border border-slate-200 hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400">
+              <div className="p-3 bg-green-100 rounded-lg text-green-600">
                 <CheckIcon />
               </div>
               {assessmentsLoading && (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
               )}
             </div>
-            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t('dashboard.completed')}</h3>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{completedAssessments}</p>
+            <h3 className="text-sm font-medium text-slate-600 mb-1">{t('dashboard.completed')}</h3>
+            <p className="text-3xl font-bold text-green-600">{completedAssessments}</p>
           </div>
 
           {/* In Progress */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-shadow">
+          <div className="bg-white bg-white rounded-xl shadow-lg p-6 border border-slate-200 hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400">
+              <div className="p-3 bg-amber-100 rounded-lg text-amber-600">
                 <ClockIcon />
               </div>
               {assessmentsLoading && (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-600"></div>
               )}
             </div>
-            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t('dashboard.inProgress')}</h3>
-            <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">{inProgressAssessments}</p>
+            <h3 className="text-sm font-medium text-slate-600 mb-1">{t('dashboard.inProgress')}</h3>
+            <p className="text-3xl font-bold text-amber-600">{inProgressAssessments}</p>
           </div>
 
           {/* Completion Rate */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-shadow">
+          <div className="bg-white bg-white rounded-xl shadow-lg p-6 border border-slate-200 hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400">
+              <div className="p-3 bg-purple-100 rounded-lg text-purple-600">
                 <ChartIcon />
               </div>
             </div>
-            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t('dashboard.completionRate')}</h3>
-            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{completionRate}%</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <h3 className="text-sm font-medium text-slate-600 mb-1">{t('dashboard.completionRate')}</h3>
+            <p className="text-3xl font-bold text-purple-600">{completionRate}%</p>
+            <p className="text-xs text-slate-500 mt-1">
               {completedAssessments} {t('dashboard.of')} {totalAssessments}
             </p>
           </div>
@@ -220,8 +220,8 @@ const DashboardHome: React.FC = () => {
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Status Distribution - Pie Chart */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
-            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-4">{t('dashboard.statusDistribution')}</h2>
+          <div className="bg-white bg-white rounded-xl shadow-lg p-6 border border-slate-200">
+            <h2 className="text-xl font-bold font-display text-slate-900 mb-4">{t('dashboard.statusDistribution')}</h2>
             {statusChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -244,15 +244,15 @@ const DashboardHome: React.FC = () => {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-[300px] text-slate-400 dark:text-slate-500">
+              <div className="flex items-center justify-center h-[300px] text-slate-400">
                 {t('dashboard.noDataAvailable')}
               </div>
             )}
           </div>
 
           {/* Package Distribution - Bar Chart */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
-            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-4">{t('dashboard.packageDistribution')}</h2>
+          <div className="bg-white bg-white rounded-xl shadow-lg p-6 border border-slate-200">
+            <h2 className="text-xl font-bold font-display text-slate-900 mb-4">{t('dashboard.packageDistribution')}</h2>
             {packageChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={packageChartData}>
@@ -265,7 +265,7 @@ const DashboardHome: React.FC = () => {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-[300px] text-slate-400 dark:text-slate-500">
+              <div className="flex items-center justify-center h-[300px] text-slate-400">
                 {t('dashboard.noDataAvailable')}
               </div>
             )}
@@ -273,8 +273,8 @@ const DashboardHome: React.FC = () => {
         </div>
 
         {/* Recent Activity Chart */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 mb-8">
-          <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-4">{t('dashboard.activityTrend')}</h2>
+        <div className="bg-white bg-white rounded-xl shadow-lg p-6 border border-slate-200 mb-8">
+          <h2 className="text-xl font-bold font-display text-slate-900 mb-4">{t('dashboard.activityTrend')}</h2>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={recentActivityData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -290,8 +290,8 @@ const DashboardHome: React.FC = () => {
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Quick Actions */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
-            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-6">{t('dashboard.quickActions')}</h2>
+          <div className="bg-white bg-white rounded-xl shadow-lg p-6 border border-slate-200">
+            <h2 className="text-xl font-bold font-display text-slate-900 mb-6">{t('dashboard.quickActions')}</h2>
             <div className="space-y-3">
               <button
                 onClick={() => navigate('/bilan')}
@@ -302,14 +302,14 @@ const DashboardHome: React.FC = () => {
               </button>
               <button
                 onClick={() => navigate('/assessments')}
-                className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-4 px-6 rounded-lg border-2 border-slate-300 dark:border-slate-600 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-600 transition-all transform hover:scale-[1.02]"
+                className="w-full flex items-center justify-center gap-3 bg-white text-slate-700 text-slate-700 font-semibold py-4 px-6 rounded-lg border-2 border-slate-300 hover:border-indigo-500 hover:bg-slate-50 transition-all transform hover:scale-[1.02]"
               >
                 <ListIcon />
                 {t('dashboard.viewAllAssessments')}
               </button>
               <button
                 onClick={() => navigate('/analytics')}
-                className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-4 px-6 rounded-lg border-2 border-slate-300 dark:border-slate-600 hover:border-purple-500 dark:hover:border-purple-500 hover:bg-slate-50 dark:hover:bg-slate-600 transition-all transform hover:scale-[1.02]"
+                className="w-full flex items-center justify-center gap-3 bg-white text-slate-700 font-semibold py-4 px-6 rounded-lg border-2 border-slate-300 hover:border-purple-500 hover:bg-slate-50 transition-all transform hover:scale-[1.02]"
               >
                 <AnalyticsIcon />
                 {t('dashboard.viewAnalytics')}
@@ -318,8 +318,8 @@ const DashboardHome: React.FC = () => {
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
-            <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-6">{t('dashboard.recentActivity')}</h2>
+          <div className="bg-white bg-white rounded-xl shadow-lg p-6 border border-slate-200">
+            <h2 className="text-xl font-bold font-display text-slate-900 mb-6">{t('dashboard.recentActivity')}</h2>
             {assessmentsLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -329,8 +329,8 @@ const DashboardHome: React.FC = () => {
                 <div className="mb-4">
                   <FileIcon />
                 </div>
-                <p className="text-slate-500 dark:text-slate-400 text-lg mb-2">{t('dashboard.noRecentActivity')}</p>
-                <p className="text-slate-400 dark:text-slate-500 text-sm">{t('dashboard.noRecentActivityMessage')}</p>
+                <p className="text-slate-500 text-lg mb-2">{t('dashboard.noRecentActivity')}</p>
+                <p className="text-slate-400 text-sm">{t('dashboard.noRecentActivityMessage')}</p>
                 <button
                   onClick={() => navigate('/bilan')}
                   className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
@@ -343,30 +343,30 @@ const DashboardHome: React.FC = () => {
                 {assessments.slice(0, 5).map((assessment: any, index: number) => (
                   <div
                     key={assessment.id}
-                    className="p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                    className="p-4 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
-                        <span className="font-semibold text-slate-900 dark:text-white">
+                        <span className="font-semibold text-slate-900">
                           {assessment.userName || 'Unknown'}
                         </span>
                       </div>
-                      <span className="text-sm text-slate-500 dark:text-slate-400">
+                      <span className="text-sm text-slate-500 text-slate-600">
                         {new Date(assessment.startedAt || assessment.createdAt || new Date()).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 ml-5">
                       <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                         assessment.status === 'completed'
-                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                          ? 'bg-green-100 text-green-700'
                           : assessment.status === 'in_progress'
-                          ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                          : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                          ? 'bg-amber-100 text-amber-700'
+                          : 'bg-slate-100 text-slate-700'
                       }`}>
                         {assessment.status || 'pending'}
                       </span>
-                      <span className="text-sm text-slate-600 dark:text-slate-400">
+                      <span className="text-sm text-slate-600">
                         {assessment.packageName || 'N/A'}
                       </span>
                     </div>
@@ -375,7 +375,7 @@ const DashboardHome: React.FC = () => {
                 {assessments.length > 5 && (
                   <button
                     onClick={() => navigate('/assessments')}
-                    className="w-full mt-4 text-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium py-2"
+                    className="w-full mt-4 text-center text-indigo-600 text-indigo-600 hover:text-indigo-700 hover:text-indigo-700 font-medium py-2"
                   >
                     {t('dashboard.viewAll')}
                   </button>

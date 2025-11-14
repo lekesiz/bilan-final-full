@@ -1,6 +1,8 @@
 import React from 'react';
-import { List, useTable, EditButton, ShowButton, CreateButton } from '@refinedev/antd';
-import { Table, Space, Tag } from 'antd';
+import { List, useTable } from '@refinedev/antd';
+import { useNavigate } from 'react-router-dom';
+import { Table, Space, Tag, Button } from 'antd';
+import { EyeOutlined, EditOutlined } from '@ant-design/icons';
 import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 import { CustomDeleteButton } from '../src/core/components/CustomDeleteButton';
 import { TableSkeleton } from '../src/core/components/TableSkeleton';
@@ -17,6 +19,7 @@ interface Role {
 }
 
 const RolesList: React.FC = () => {
+  const navigate = useNavigate();
   const { tableProps } = useTable<Role>({
     resource: 'roles',
   });
@@ -65,15 +68,25 @@ const RolesList: React.FC = () => {
       key: 'actions',
       render: (_, record) => (
         <Space>
-          <PermissionGuard resource="roles" action="read" showError={false}>
-            <ShowButton hideText size="small" recordItemId={record.id} />
+          <PermissionGuard resource="roles" action="read" showError={false} fallback={null}>
+            <Button
+              type="link"
+              icon={<EyeOutlined />}
+              size="small"
+              onClick={() => navigate(`/roles/show/${record.id}`)}
+            />
           </PermissionGuard>
           {!record.isSystem && (
             <>
-              <PermissionGuard resource="roles" action="update" showError={false}>
-                <EditButton hideText size="small" recordItemId={record.id} />
+              <PermissionGuard resource="roles" action="update" showError={false} fallback={null}>
+                <Button
+                  type="link"
+                  icon={<EditOutlined />}
+                  size="small"
+                  onClick={() => navigate(`/roles/edit/${record.id}`)}
+                />
               </PermissionGuard>
-              <PermissionGuard resource="roles" action="delete" showError={false}>
+              <PermissionGuard resource="roles" action="delete" showError={false} fallback={null}>
                 <CustomDeleteButton
                   resource="roles"
                   recordItemId={record.id}
@@ -107,8 +120,13 @@ const RolesList: React.FC = () => {
         headerButtons={({ defaultButtons }) => (
           <>
             {defaultButtons}
-            <PermissionGuard resource="roles" action="create" showError={false}>
-              <CreateButton />
+            <PermissionGuard resource="roles" action="create" showError={false} fallback={null}>
+              <Button
+                type="primary"
+                onClick={() => navigate('/roles/create')}
+              >
+                Create
+              </Button>
             </PermissionGuard>
           </>
         )}

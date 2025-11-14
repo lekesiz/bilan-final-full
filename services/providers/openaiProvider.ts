@@ -18,11 +18,11 @@ export class OpenAIProvider implements AIProviderInterface {
     if (!apiKey || apiKey === 'undefined' || apiKey === '') {
       throw new Error('OPENAI_API_KEY is required');
     }
-    // Note: dangerouslyAllowBrowser removed - use backend AI proxy instead
-    // For frontend fallback only (will be removed after full migration)
+    // Note: dangerouslyAllowBrowser is used for frontend fallback only
+    // This will be removed after full backend AI migration is complete and verified
     this.client = new OpenAI({ 
       apiKey,
-      dangerouslyAllowBrowser: true // TODO: Remove after backend AI migration complete
+      dangerouslyAllowBrowser: true // NOTE: Remove after backend AI migration complete
     });
     this.model = model;
   }

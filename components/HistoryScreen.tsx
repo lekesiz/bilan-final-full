@@ -238,17 +238,17 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onViewRecord, onBack, onR
     const uniquePackages = Array.from(new Set(history.map(item => item.packageName)));
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 sm:p-8 transition-colors duration-200">
+        <div className="min-h-screen bg-slate-50 p-4 sm:p-8">
             <div className="max-w-4xl mx-auto">
                 <header className="text-center mb-8">
-                    <h1 className="text-4xl md:text-5xl font-display font-bold text-primary-800 dark:text-primary-200 mb-3">{t('history.title')}</h1>
-                    <p className="text-lg text-slate-600 dark:text-slate-400">{t('history.subtitle')}</p>
+                    <h1 className="text-4xl md:text-5xl font-display font-bold text-primary-800 mb-3">{t('history.title')}</h1>
+                    <p className="text-lg text-slate-600">{t('history.subtitle')}</p>
                 </header>
 
                 {/* In Progress Assessments (Drafts) */}
                 {!isLoadingDrafts && inProgressAssessments.length > 0 && (
-                    <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6 mb-6">
-                        <h2 className="text-xl font-bold text-yellow-800 dark:text-yellow-200 mb-4 flex items-center gap-2">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                        <h2 className="text-xl font-bold text-yellow-800 mb-4 flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -258,14 +258,14 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onViewRecord, onBack, onR
                             {inProgressAssessments.map((assessment) => (
                                 <div 
                                     key={assessment.id} 
-                                    className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-yellow-200 dark:border-yellow-800 flex items-center justify-between"
+                                    className="bg-white p-4 rounded-lg shadow-sm border border-yellow-200 flex items-center justify-between"
                                 >
                                     <div className="flex-1">
-                                        <h3 className="font-semibold text-slate-900 dark:text-slate-100">{assessment.packageName}</h3>
-                                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                                        <h3 className="font-semibold text-slate-900">{assessment.packageName}</h3>
+                                        <p className="text-sm text-slate-600">
                                             {assessment.userName} • {t('history.question')} {assessment.currentQuestionIndex || 0} {t('history.of')} {assessment.totalQuestions}
                                         </p>
-                                        <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                                        <p className="text-xs text-slate-500 mt-1">
                                             {t('history.lastActivity')}: {new Date(assessment.lastActivityAt).toLocaleString('fr-FR')}
                                         </p>
                                     </div>
@@ -289,7 +289,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onViewRecord, onBack, onR
 
                 {/* Search and Filter Bar */}
                 {history.length > 0 && (
-                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-md mb-6 space-y-4">
+                    <div className="bg-white p-4 rounded-lg shadow-md mb-6 space-y-4">
                         <div className="flex flex-col sm:flex-row gap-4">
                             {/* Search Input */}
                             <div className="flex-1">
@@ -298,7 +298,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onViewRecord, onBack, onR
                                     placeholder={t('history.searchPlaceholder')}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white text-slate-900"
                                 />
                             </div>
                             
@@ -306,7 +306,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onViewRecord, onBack, onR
                             <select
                                 value={filterPackage}
                                 onChange={(e) => setFilterPackage(e.target.value)}
-                                className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                                className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white text-slate-900"
                             >
                                 <option value="all">{t('history.filterAll')}</option>
                                 {uniquePackages.map(pkg => (
@@ -318,7 +318,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onViewRecord, onBack, onR
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value as 'date' | 'package')}
-                                className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                                className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white text-slate-900"
                             >
                                 <option value="date">{t('history.sortDate')}</option>
                                 <option value="package">{t('history.sortPackage')}</option>
@@ -326,7 +326,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onViewRecord, onBack, onR
                         </div>
                         
                         {/* Results count */}
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                        <p className="text-sm text-slate-600">
                             {sortedHistory.length} {sortedHistory.length !== 1 ? t('history.resultsPlural') : t('history.results')} {t('history.onTotal')} {history.length}
                         </p>
                     </div>
@@ -339,29 +339,29 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onViewRecord, onBack, onR
                         ))}
                     </div>
                 ) : history.length === 0 ? (
-                    <div className="text-center bg-white dark:bg-slate-800 p-8 rounded-xl shadow-md">
-                        <p className="text-slate-600 dark:text-slate-400 text-lg">{t('history.noHistoryMessage')}</p>
+                    <div className="text-center bg-white p-8 rounded-xl shadow-md">
+                        <p className="text-slate-600 text-lg">{t('history.noHistoryMessage')}</p>
                         <button onClick={onBack} className="mt-6 bg-primary-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-primary-700 transition-colors">
                             {t('history.startNew')}
                         </button>
                     </div>
                 ) : sortedHistory.length === 0 ? (
-                    <div className="text-center bg-white dark:bg-slate-800 p-8 rounded-xl shadow-md">
-                        <p className="text-slate-600 dark:text-slate-400 text-lg">{t('history.noResults')}</p>
-                        <button onClick={() => { setSearchQuery(''); setFilterPackage('all'); }} className="mt-4 text-primary-600 dark:text-primary-400 hover:underline">
+                    <div className="text-center bg-white p-8 rounded-xl shadow-md">
+                        <p className="text-slate-600 text-lg">{t('history.noResults')}</p>
+                        <button onClick={() => { setSearchQuery(''); setFilterPackage('all'); }} className="mt-4 text-primary-600 hover:underline">
                             {t('history.resetFilters')}
                         </button>
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {sortedHistory.map((item) => (
-                            <div key={item.id} className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-lg shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
+                            <div key={item.id} className="bg-white p-4 sm:p-6 rounded-lg shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
-                                    <p className="font-bold text-primary-800 dark:text-primary-200">{item.packageName}</p>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                                    <p className="font-bold text-primary-800">{item.packageName}</p>
+                                    <p className="text-sm text-slate-500">
                                         {t('history.doneBy')} {item.userName} {t('history.on')} {new Date(item.date).toLocaleDateString('fr-FR')}
                                     </p>
-                                    <p className="text-slate-700 dark:text-slate-300 mt-1">{t('history.profile')} : {item.summary.profileType}</p>
+                                    <p className="text-slate-700 mt-1">{t('history.profile')} : {item.summary.profileType}</p>
                                 </div>
                                 <button onClick={() => onViewRecord(item)} className="bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary-600 transition-colors w-full sm:w-auto flex-shrink-0">
                                     {t('history.view')}

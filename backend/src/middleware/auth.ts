@@ -1,9 +1,17 @@
 import { Context, Next } from 'hono';
 import type { Env } from '../types/env.js';
 
-// Clerk kaldırıldı - Basit session-based authentication kullanılıyor
-// Her zaman test modu aktif (session-based auth)
-const TEST_MODE = true;
+// TEST_MODE: Only enabled in test environment or when explicitly set
+// CRITICAL: Must be false in production to prevent authentication bypass
+const TEST_MODE = process.env.NODE_ENV === 'test' || process.env.TEST_MODE === 'true';
+
+// Security check: Prevent TEST_MODE in production
+if (process.env.NODE_ENV === 'production' && TEST_MODE) {
+  throw new Error(
+    '❌ CRITICAL SECURITY ERROR: TEST_MODE cannot be enabled in production environment.\n' +
+    'This would completely bypass authentication. Set TEST_MODE=false or remove it from .env'
+  );
+}
 
 // Test modu için user ID storage (session-based)
 const testUserStore = new Map<string, string>();

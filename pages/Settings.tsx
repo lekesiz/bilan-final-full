@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Card, Tabs, Form, Switch, Select, Button, Space, Typography, Divider, Alert, Modal } from 'antd';
+import { Card, Tabs, Form, Switch, Select, Button, Space, Typography, Divider, Alert, Modal, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useGetIdentity } from '@refinedev/core';
 import { useNavigate } from 'react-router-dom';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import ThemeToggle from '../components/ThemeToggle';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 
@@ -60,16 +59,17 @@ const Settings: React.FC = () => {
       okType: 'danger',
       cancelText: t('common.cancel', 'Cancel'),
       onOk: async () => {
-        // TODO: Implement account deletion API call
+        // Account deletion feature - to be implemented when API endpoint is available
         // await api.deleteAccount();
         // logout();
         // navigate('/login');
+        message.warning(t('settings.deleteAccountNotImplemented', 'Account deletion feature is not yet available'));
       },
     });
   };
 
   const handleDownloadData = async () => {
-    // TODO: Implement GDPR data export
+    // GDPR data export feature - to be implemented when API endpoint is available
     // const data = await api.exportUserData();
     // const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     // const url = URL.createObjectURL(blob);
@@ -78,6 +78,7 @@ const Settings: React.FC = () => {
     // a.download = `bilan-data-${new Date().toISOString()}.json`;
     // a.click();
     // URL.revokeObjectURL(url);
+    message.warning(t('settings.downloadDataNotImplemented', 'Data export feature is not yet available'));
   };
 
   const timezones = [
@@ -92,8 +93,10 @@ const Settings: React.FC = () => {
     'Australia/Sydney',
   ];
 
+  // Settings page should be accessible to all authenticated users (no permission check needed)
+  // But we'll keep PermissionGuard with a fallback to handle loading states
   return (
-    <PermissionGuard resource="users" action="read">
+    <PermissionGuard resource="users" action="read" showError={false} fallback={null}>
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '24px' }}>
         <Card>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
@@ -129,18 +132,6 @@ const Settings: React.FC = () => {
                         <LanguageSwitcher />
                       </Form.Item>
 
-                      <Form.Item
-                        label={
-                          <Space>
-                            {t('settings.theme', 'Theme')}
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              ({t('settings.themeDesc', 'Switch between light and dark mode')})
-                            </Text>
-                          </Space>
-                        }
-                      >
-                        <ThemeToggle />
-                      </Form.Item>
 
                       <Form.Item
                         label={t('settings.timezone', 'Timezone')}

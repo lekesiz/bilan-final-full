@@ -46,10 +46,14 @@ export const AssessmentDetail: React.FC = () => {
         const answersResponse = await api.getAnswers(id!);
         setAnswers(answersResponse.answers || []);
       } catch (error) {
-        console.error('Failed to fetch answers:', error);
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Failed to fetch answers:', error);
+        }
       }
     } catch (error) {
-      console.error('Failed to fetch assessment:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to fetch assessment:', error);
+      }
       showToast('Failed to load assessment', 'error', 3000);
     } finally {
       setLoading(false);
@@ -65,7 +69,9 @@ export const AssessmentDetail: React.FC = () => {
       showToast('Assessment deleted successfully', 'success', 3000);
       navigate('/bilan/assessments');
     } catch (error) {
-      console.error('Failed to delete assessment:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to delete assessment:', error);
+      }
       showToast('Failed to delete assessment', 'error', 3000);
     }
   };

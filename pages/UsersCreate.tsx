@@ -4,7 +4,9 @@ import { Form, Input, Select, Switch } from 'antd';
 import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 
 const UsersCreate: React.FC = () => {
-  const { formProps, saveButtonProps } = useForm();
+  const { formProps, saveButtonProps } = useForm({
+    resource: 'users',
+  });
 
   const { selectProps: roleSelectProps } = useSelect({
     resource: 'roles',

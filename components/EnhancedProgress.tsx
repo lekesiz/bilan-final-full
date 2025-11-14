@@ -49,14 +49,14 @@ const EnhancedProgress: React.FC<EnhancedProgressProps> = ({ current, total, pkg
       {/* Overall Progress */}
       <div className="mb-3">
         <div className="flex justify-between items-center mb-1">
-          <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+          <span className="text-sm font-semibold text-slate-700">
             Progression globale
           </span>
-          <span className="text-sm font-bold text-primary-600 dark:text-primary-400">
+          <span className="text-sm font-bold text-primary-600">
             {current} / {total} ({percentage}%)
           </span>
         </div>
-        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+        <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
           <div 
             className="bg-primary-600 h-full transition-all duration-500 ease-out rounded-full"
             style={{ width: `${percentage}%` }}
@@ -68,14 +68,14 @@ const EnhancedProgress: React.FC<EnhancedProgressProps> = ({ current, total, pkg
       {phaseProgress && (
         <div className="mb-3">
           <div className="flex justify-between items-center mb-1">
-            <span className="text-xs text-slate-600 dark:text-slate-400">
+            <span className="text-xs text-slate-600">
               {phaseProgress.name}
             </span>
-            <span className="text-xs font-semibold text-primary-600 dark:text-primary-400">
+            <span className="text-xs font-semibold text-primary-600">
               {phaseProgress.position} / {phaseProgress.total} ({phaseProgress.progress}%)
             </span>
           </div>
-          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
             <div 
               className="bg-secondary h-full transition-all duration-500 ease-out rounded-full"
               style={{ width: `${phaseProgress.progress}%` }}
@@ -85,12 +85,12 @@ const EnhancedProgress: React.FC<EnhancedProgressProps> = ({ current, total, pkg
       )}
       
       {/* Remaining Info */}
-      <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400">
+      <div className="flex justify-between items-center text-xs text-slate-500">
         <span>
           {remaining > 0 ? (
             <>~{estimatedTime} restant{remaining > 1 ? 's' : ''}</>
           ) : (
-            <span className="text-green-600 dark:text-green-400 font-semibold">Terminé ! 🎉</span>
+            <span className="text-green-600 font-semibold">Terminé ! 🎉</span>
           )}
         </span>
         {remaining > 0 && (
@@ -102,8 +102,8 @@ const EnhancedProgress: React.FC<EnhancedProgressProps> = ({ current, total, pkg
       
       {/* Milestone Notification */}
       {currentMilestone && (
-        <div className="mt-2 p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg text-center">
-          <p className="text-sm font-semibold text-primary-700 dark:text-primary-300">
+        <div className="mt-2 p-2 bg-primary-50 rounded-lg text-center">
+          <p className="text-sm font-semibold text-primary-700">
             {currentMilestone.message}
           </p>
         </div>

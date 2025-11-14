@@ -55,12 +55,11 @@ export const BilanModule: React.FC = () => {
   }
 
   // Default: Render main BILAN app
+  // Permission check already done above (line 21), no need for nested PermissionGuard
   return (
-    <PermissionGuard resource="bilan" action="read" showError={false}>
-      <ModuleLayout title="Bilan de Compétences" showHeader={false}>
-        <BilanApp />
-      </ModuleLayout>
-    </PermissionGuard>
+    <ModuleLayout title="Bilan de Compétences" showHeader={false}>
+      <BilanApp />
+    </ModuleLayout>
   );
 };
 

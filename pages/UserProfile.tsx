@@ -177,7 +177,12 @@ const UserProfile: React.FC = () => {
               >
                 {t('profile.changePassword', 'Change Password')}
               </Button>
-              <PermissionGuard resource="users" action="update" showError={false}>
+              <PermissionGuard 
+                resource="users" 
+                action="update" 
+                showError={false}
+                fallback={null}
+              >
                 <Button
                   icon={<EditOutlined />}
                   onClick={() => {
