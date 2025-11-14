@@ -151,7 +151,7 @@ export const rateLimiter = (options: {
  */
 export const strictRateLimiter = rateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 5 : 50, // 5 in production, 50 in development
+  max: process.env.NODE_ENV === 'production' ? 5 : 200, // 5 in production, 200 in development (very lenient for testing)
   message: 'Too many authentication attempts, please try again later',
   skipSuccessfulRequests: true, // Don't count successful logins
 });
