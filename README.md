@@ -471,7 +471,7 @@ Daha fazla bilgi için: [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) ve [DEBUG_GUI
 ---
 
 **Version**: 1.0.0  
-**Last Updated**: November 2024  
+**Last Updated**: November 2025  
 **Status**: Production Ready ✅
 
 ---
