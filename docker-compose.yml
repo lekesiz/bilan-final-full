@@ -35,7 +35,7 @@ services:
       # DATABASE_URL must use POSTGRES_DB (bilan_easy), not POSTGRES_USER (bilan_user)
       DATABASE_URL: postgresql://${POSTGRES_USER:-bilan_user}:${POSTGRES_PASSWORD:-bilan_password}@postgres:5432/${POSTGRES_DB:-bilan_easy}
       PORT: 3001
-      NODE_ENV: ${NODE_ENV:-production}
+      NODE_ENV: ${NODE_ENV:-development}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       JWT_SECRET: ${JWT_SECRET:-}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
