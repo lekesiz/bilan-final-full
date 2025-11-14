@@ -25,6 +25,12 @@ build/
 backend/.env
 backend/.env.local
 
+# Environment backups (may contain secrets - NEVER commit these!)
+.env-backup/
+*.backup
+backend/.env.backup*
+backend/.env.local.backup*
+
 # Logs
 logs
 *.log
