@@ -1,6 +1,7 @@
 import React from 'react';
 import { Show, TextField, DateField, TagField, NumberField } from '@refinedev/antd';
 import { useShow } from '@refinedev/core';
+import { useParams } from 'react-router-dom';
 import { Typography, Space, Tag, Card, Progress } from 'antd';
 import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 import { FileTextOutlined, UserOutlined, CalendarOutlined } from '@ant-design/icons';
@@ -8,8 +9,10 @@ import { FileTextOutlined, UserOutlined, CalendarOutlined } from '@ant-design/ic
 const { Title, Text } = Typography;
 
 const AssessmentsShow: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const { queryResult } = useShow({
     resource: 'assessments',
+    id: id,
   });
   
   // Guard against undefined queryResult

@@ -1,14 +1,17 @@
 import React from 'react';
 import { Show, TextField, DateField, TagField } from '@refinedev/antd';
 import { useShow } from '@refinedev/core';
+import { useParams } from 'react-router-dom';
 import { Typography, Space, Tag, Card } from 'antd';
 import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 
 const { Title, Text } = Typography;
 
 const RolesShow: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const { queryResult } = useShow({
     resource: 'roles',
+    id: id,
   });
   
   // Guard against undefined queryResult
