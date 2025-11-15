@@ -7,8 +7,33 @@ import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 const { Title, Text } = Typography;
 
 const RolesShow: React.FC = () => {
-  const { queryResult } = useShow();
-  const { data, isLoading } = queryResult;
+  const { queryResult } = useShow({
+    resource: 'roles',
+  });
+  
+  // Guard against undefined queryResult
+  if (!queryResult) {
+    return (
+      <PermissionGuard resource="roles" action="read">
+        <Show isLoading={true}>
+          <Text type="secondary">Loading...</Text>
+        </Show>
+      </PermissionGuard>
+    );
+  }
+
+  const { data, isLoading, isError, error } = queryResult;
+
+  // Guard against undefined data
+  if (isError) {
+    return (
+      <PermissionGuard resource="roles" action="read">
+        <Show isLoading={false}>
+          <Text type="danger">Error loading role: {error?.message || 'Unknown error'}</Text>
+        </Show>
+      </PermissionGuard>
+    );
+  }
 
   const record = data?.data;
 

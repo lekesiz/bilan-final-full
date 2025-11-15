@@ -4,11 +4,36 @@ import { useShow } from '@refinedev/core';
 import { Typography, Space, Tag } from 'antd';
 import { PermissionGuard } from '../src/core/permissions/PermissionGuard';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const UsersShow: React.FC = () => {
-  const { queryResult } = useShow();
-  const { data, isLoading } = queryResult;
+  const { queryResult } = useShow({
+    resource: 'users',
+  });
+  
+  // Guard against undefined queryResult
+  if (!queryResult) {
+    return (
+      <PermissionGuard resource="users" action="read">
+        <Show isLoading={true}>
+          <Text type="secondary">Loading...</Text>
+        </Show>
+      </PermissionGuard>
+    );
+  }
+
+  const { data, isLoading, isError, error } = queryResult;
+
+  // Guard against undefined data
+  if (isError) {
+    return (
+      <PermissionGuard resource="users" action="read">
+        <Show isLoading={false}>
+          <Text type="danger">Error loading user: {error?.message || 'Unknown error'}</Text>
+        </Show>
+      </PermissionGuard>
+    );
+  }
 
   const record = data?.data;
 

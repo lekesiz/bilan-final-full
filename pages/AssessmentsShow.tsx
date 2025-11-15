@@ -8,8 +8,33 @@ import { FileTextOutlined, UserOutlined, CalendarOutlined } from '@ant-design/ic
 const { Title, Text } = Typography;
 
 const AssessmentsShow: React.FC = () => {
-  const { queryResult } = useShow();
-  const { data, isLoading } = queryResult;
+  const { queryResult } = useShow({
+    resource: 'assessments',
+  });
+  
+  // Guard against undefined queryResult
+  if (!queryResult) {
+    return (
+      <PermissionGuard resource="bilan:assessment" action="read">
+        <Show isLoading={true}>
+          <Text type="secondary">Loading...</Text>
+        </Show>
+      </PermissionGuard>
+    );
+  }
+
+  const { data, isLoading, isError, error } = queryResult;
+
+  // Guard against undefined data
+  if (isError) {
+    return (
+      <PermissionGuard resource="bilan:assessment" action="read">
+        <Show isLoading={false}>
+          <Text type="danger">Error loading assessment: {error?.message || 'Unknown error'}</Text>
+        </Show>
+      </PermissionGuard>
+    );
+  }
 
   const record = data?.data;
 
